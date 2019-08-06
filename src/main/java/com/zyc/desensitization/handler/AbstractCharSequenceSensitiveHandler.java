@@ -33,12 +33,11 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
      * @param end   敏感信息在原字符序列中的结束索引
      * @return *字符串
      */
-    protected String secret(final int start, final int end) {
-        int length = end - start;
+    protected String secret(int start, int end) {
         StringBuilder secret = new StringBuilder();
-        while (length != 0) {
+        while (start < end) {
             secret.append("*");
-            length--;
+            start++;
         }
         return secret.toString();
     }
@@ -54,7 +53,7 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
                 start > end ||
                 start > target.length() ||
                 end > target.length()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("start:" + start + "," + "end:" + end);
         }
     }
 
