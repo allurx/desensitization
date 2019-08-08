@@ -1,1 +1,1 @@
-Sensitive information erasure
+sensitive information erasure
