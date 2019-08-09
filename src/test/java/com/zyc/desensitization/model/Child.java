@@ -1,22 +1,24 @@
-package com.zyc.desensitization.Model;
+package com.zyc.desensitization.model;
 
 import com.zyc.desensitization.annotation.IdCardNumberSensitive;
 import com.zyc.desensitization.annotation.PhoneNumberSensitive;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author zyc
  */
 @Getter
 @Setter
-public class Parent {
+@ToString
+public class Child extends Parent {
 
-    String name = "Parent";
+    String name = "child";
 
     @PhoneNumberSensitive
-    String phoneNumber = "12345678911";
+    String phoneNumber = "12345678922";
 
     @IdCardNumberSensitive
-    String idCardNumber = "321181199301096990";
+    String idCardNumber = "321181199301096999";
 }
