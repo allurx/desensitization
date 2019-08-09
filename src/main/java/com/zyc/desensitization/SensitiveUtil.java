@@ -22,9 +22,9 @@ public class SensitiveUtil {
     private static ThreadLocal<List<Object>> targets = ThreadLocal.withInitial(ArrayList::new);
 
     /**
-     * 处理复杂的实体对象
+     * 处理复杂的对象
      *
-     * @param target 实体对象
+     * @param target 目标对象
      */
     public static void handle(Object target) {
         if (target == null) {
@@ -47,9 +47,9 @@ public class SensitiveUtil {
 
 
     /**
-     * 处理普通的实体对象
+     * 处理普通的对象
      *
-     * @param target 实体对象
+     * @param target 目标对象
      */
     private static void handleBean(Object target) {
         try {
