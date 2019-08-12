@@ -19,6 +19,9 @@ import java.util.List;
 @Slf4j
 public class SensitiveUtil {
 
+    /**
+     * 保存被处理过的对象
+     */
     private static ThreadLocal<List<Object>> targets = ThreadLocal.withInitial(ArrayList::new);
 
     /**
