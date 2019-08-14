@@ -11,7 +11,7 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
 
     /**
      * 如果处理器支持的类型是 {@link CharSequence}类型，
-     * 可以调用这个快捷方法生成*字符替换原字符序列中的敏感信息。
+     * 可以调用这个快捷方法生成"*"字符串替换原字符序列中的敏感信息。
      *
      * @param start  敏感信息在原字符序列中的起始索引
      * @param end    敏感信息在原字符序列中的结束索引
@@ -27,7 +27,7 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
     }
 
     /**
-     * 生成*字符串
+     * 生成"*"字符串
      *
      * @param start 敏感信息在原字符序列中的起始索引
      * @param end   敏感信息在原字符序列中的结束索引
