@@ -16,7 +16,7 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
      * @param start  敏感信息在原字符序列中的起始索引
      * @param end    敏感信息在原字符序列中的结束索引
      * @param target 目标字符序列
-     * @return *字符串，用来替换敏感信息
+     * @return "*"字符串，用来替换敏感信息
      */
     protected CharSequence handleCharSequence(int start, int end, T target) {
         if (target == null) {
@@ -31,7 +31,7 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
      *
      * @param start 敏感信息在原字符序列中的起始索引
      * @param end   敏感信息在原字符序列中的结束索引
-     * @return *字符串
+     * @return "*"字符串
      */
     protected String secret(int start, int end) {
         StringBuilder secret = new StringBuilder();
