@@ -1,7 +1,7 @@
-package com.zyc.desensitization.handler;
+package red.zyc.desensitization.handler;
 
 
-import com.zyc.desensitization.annotation.PhoneNumberSensitive;
+import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 
 /**
  * 手机号码敏感信息处理者。

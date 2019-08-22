@@ -1,7 +1,7 @@
-package com.zyc.desensitization.model;
+package red.zyc.desensitization.model;
 
-import com.zyc.desensitization.annotation.IdCardNumberSensitive;
-import com.zyc.desensitization.annotation.PhoneNumberSensitive;
+import red.zyc.desensitization.annotation.IdCardNumberSensitive;
+import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

@@ -1,4 +1,4 @@
-package com.zyc.desensitization.annotation;
+package red.zyc.desensitization.annotation;
 
 import java.lang.annotation.*;
 

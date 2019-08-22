@@ -1,6 +1,6 @@
-package com.zyc.desensitization;
+package red.zyc.desensitization;
 
-import com.zyc.desensitization.model.Child;
+import red.zyc.desensitization.model.Child;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 

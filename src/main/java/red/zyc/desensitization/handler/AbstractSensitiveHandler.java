@@ -1,4 +1,4 @@
-package com.zyc.desensitization.handler;
+package red.zyc.desensitization.handler;
 
 import lombok.Getter;
 

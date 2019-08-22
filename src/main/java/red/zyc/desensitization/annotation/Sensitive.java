@@ -1,7 +1,7 @@
-package com.zyc.desensitization.annotation;
+package red.zyc.desensitization.annotation;
 
 
-import com.zyc.desensitization.handler.AbstractSensitiveHandler;
+import red.zyc.desensitization.handler.AbstractSensitiveHandler;
 
 import java.lang.annotation.*;
 

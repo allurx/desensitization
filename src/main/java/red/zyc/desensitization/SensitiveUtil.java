@@ -1,8 +1,8 @@
-package com.zyc.desensitization;
+package red.zyc.desensitization;
 
-import com.zyc.desensitization.annotation.EraseSensitive;
-import com.zyc.desensitization.annotation.Sensitive;
-import com.zyc.desensitization.handler.AbstractSensitiveHandler;
+import red.zyc.desensitization.annotation.EraseSensitive;
+import red.zyc.desensitization.annotation.Sensitive;
+import red.zyc.desensitization.handler.AbstractSensitiveHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;

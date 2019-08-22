@@ -1,7 +1,7 @@
-package com.zyc.desensitization.handler;
+package red.zyc.desensitization.handler;
 
 
-import com.zyc.desensitization.annotation.IdCardNumberSensitive;
+import red.zyc.desensitization.annotation.IdCardNumberSensitive;
 
 /**
  * 身份证号码敏感信息处理者

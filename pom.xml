@@ -3,14 +3,42 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.zyc</groupId>
+    <groupId>red.zyc</groupId>
     <artifactId>desensitization</artifactId>
     <version>1.0</version>
+    <name>desensitization</name>
+    <url>https://github.com/Allurx/desensitization</url>
+    <description>Sensitive information erasure framework</description>
+
     <properties>
         <junit.version>4.12</junit.version>
         <lombok.version>1.18.8</lombok.version>
         <logback.version>1.2.3</logback.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/Allurx/desensitization</url>
+        <connection>https://github.com/Allurx/desensitization.git</connection>
+        <developerConnection>https://github.com/Allurx/desensitization</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>zyc</name>
+            <email>1343786337@qq.com</email>
+            <url>https://www.zyc.red</url>
+        </developer>
+    </developers>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -30,16 +58,32 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Nexus Snapshots Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Nexus Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
+            <!--生成sources jar文件-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>jar-no-fork</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -47,8 +91,11 @@
                     <attach>true</attach>
                 </configuration>
             </plugin>
+            <!--生成javadoc-->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.1.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadoc</id>
@@ -63,6 +110,21 @@
                     <encoding>UTF-8</encoding>
                     <docencoding>UTF-8</docencoding>
                 </configuration>
+            </plugin>
+            <!--使用gpg进行签名-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

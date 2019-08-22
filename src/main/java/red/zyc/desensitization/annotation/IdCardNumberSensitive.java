@@ -1,8 +1,8 @@
-package com.zyc.desensitization.annotation;
+package red.zyc.desensitization.annotation;
 
 
-import com.zyc.desensitization.handler.AbstractSensitiveHandler;
-import com.zyc.desensitization.handler.IdCardNumberSensitiveHandler;
+import red.zyc.desensitization.handler.AbstractSensitiveHandler;
+import red.zyc.desensitization.handler.IdCardNumberSensitiveHandler;
 
 import java.lang.annotation.*;
 
