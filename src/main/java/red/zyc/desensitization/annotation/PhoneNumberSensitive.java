@@ -22,11 +22,15 @@ public @interface PhoneNumberSensitive {
     Class<? extends AbstractSensitiveHandler<PhoneNumberSensitive, ?>> handler() default PhoneNumberSensitiveHandler.class;
 
     /**
+     * start必须大于等于0。
+     *
      * @return 敏感信息在原字符序列中的起始索引
      */
     int start() default 3;
 
     /**
+     * end必须大于0，如果end等于0，代表擦除从start到字符序列尾部的所有信息。
+     *
      * @return 敏感信息在原字符序列中的结束索引
      */
     int end() default 7;

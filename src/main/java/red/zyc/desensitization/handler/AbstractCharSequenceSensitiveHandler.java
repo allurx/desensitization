@@ -22,6 +22,9 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
         if (target == null) {
             return null;
         }
+        if (end == 0) {
+            end = target.length();
+        }
         check(start, end, target);
         return target.subSequence(0, start) + secret(start, end) + target.subSequence(end, target.length());
     }
