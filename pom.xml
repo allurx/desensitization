@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>red.zyc</groupId>
     <artifactId>desensitization</artifactId>
-    <version>1.0</version>
+    <version>1.1.0</version>
     <name>desensitization</name>
     <url>https://github.com/Allurx/desensitization</url>
     <description>Sensitive information erasure framework</description>
@@ -27,14 +27,19 @@
 
     <scm>
         <url>https://github.com/Allurx/desensitization</url>
-        <connection>https://github.com/Allurx/desensitization.git</connection>
-        <developerConnection>https://github.com/Allurx/desensitization</developerConnection>
+        <connection>scm:git:https://github.com/Allurx/desensitization.git</connection>
+        <developerConnection>scm:git:https://github.com/Allurx/desensitization.git</developerConnection>
     </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/Allurx/desensitization/issues</url>
+    </issueManagement>
 
     <developers>
         <developer>
             <name>zyc</name>
-            <email>1343786337@qq.com</email>
+            <email>allurx@foxmail.com</email>
             <url>https://www.zyc.red</url>
         </developer>
     </developers>
@@ -72,60 +77,67 @@
         </repository>
     </distributionManagement>
 
-    <build>
-        <plugins>
-            <!--生成sources jar文件-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <attach>true</attach>
-                </configuration>
-            </plugin>
-            <!--生成javadoc-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.1.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadoc</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <show>public</show>
-                    <charset>UTF-8</charset>
-                    <encoding>UTF-8</encoding>
-                    <docencoding>UTF-8</docencoding>
-                </configuration>
-            </plugin>
-            <!--使用gpg进行签名-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <!--生成sources jar文件-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <attach>true</attach>
+                        </configuration>
+                    </plugin>
+                    <!--生成javadoc-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.1.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadoc</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <charset>UTF-8</charset>
+                            <encoding>UTF-8</encoding>
+                            <docencoding>UTF-8</docencoding>
+                        </configuration>
+                    </plugin>
+                    <!--使用gpg进行签名-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
