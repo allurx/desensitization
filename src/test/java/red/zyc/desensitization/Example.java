@@ -15,9 +15,11 @@
  */
 package red.zyc.desensitization;
 
-import red.zyc.desensitization.model.Child;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import red.zyc.desensitization.model.Child;
+import red.zyc.desensitization.model.Father;
+import red.zyc.desensitization.model.Mother;
 
 /**
  * @author zyc
@@ -28,6 +30,8 @@ public class Example {
     @Test
     public void test() {
         Child child = new Child();
+        child.getParents().add(new Father());
+        child.getParents().add(new Mother());
         log.info(child.toString());
         SensitiveUtil.handle(child);
         log.info(child.toString());

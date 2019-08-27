@@ -15,12 +15,16 @@
  */
 package red.zyc.desensitization.model;
 
-import red.zyc.desensitization.annotation.ChineseNameSensitive;
-import red.zyc.desensitization.annotation.IdCardNumberSensitive;
-import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import red.zyc.desensitization.annotation.ChineseNameSensitive;
+import red.zyc.desensitization.annotation.EraseSensitive;
+import red.zyc.desensitization.annotation.IdCardNumberSensitive;
+import red.zyc.desensitization.annotation.PhoneNumberSensitive;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author zyc
@@ -28,14 +32,17 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Child extends Parent {
+public class Child {
 
     @ChineseNameSensitive
-    String name = "张三";
+    String name = "李富贵";
 
     @PhoneNumberSensitive(start = 2, end = 4)
-    String phoneNumber = "12345678922";
+    String phoneNumber = "12345678910";
 
     @IdCardNumberSensitive
-    String idCardNumber = "321181199301096999";
+    String idCardNumber = "321181199301096000";
+
+    @EraseSensitive
+    private List<Parent> parents = new ArrayList<>();
 }

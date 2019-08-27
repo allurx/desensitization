@@ -29,14 +29,14 @@ import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 @Getter
 @Setter
 @ToString
-abstract class Parent {
+public class Mother extends Parent {
 
     @ChineseNameSensitive
-    String name = "Parent";
+    String name = "张婷婷";
 
     @PhoneNumberSensitive
-    String phoneNumber = "12345678913";
+    String phoneNumber = "12345678912";
 
     @IdCardNumberSensitive
-    String idCardNumber = "321181199301096003";
+    String idCardNumber = "321181199301096002";
 }

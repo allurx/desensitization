@@ -55,14 +55,13 @@ public class SensitiveUtil {
             collection.forEach(SensitiveUtil::handle);
         }
         // 目标对象是数组
-        if (targetClass.isArray()) {
+        if (target instanceof Object[]) {
             Object[] objects = (Object[]) target;
             Arrays.stream(objects).forEach(SensitiveUtil::handle);
         }
         // 目标是普通实体
         handleBean(target);
     }
-
 
     /**
      * 处理普通的对象
@@ -139,5 +138,4 @@ public class SensitiveUtil {
         }
         return fields.toArray(new Field[0]);
     }
-
 }
