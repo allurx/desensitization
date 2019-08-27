@@ -6,6 +6,6 @@
 <dependency>
   <groupId>red.zyc</groupId>
   <artifactId>desensitization</artifactId>
-  <version>1.0</version>
+  <version>1.1.2</version>
 </dependency>
 ```
