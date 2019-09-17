@@ -18,10 +18,7 @@ package red.zyc.desensitization.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import red.zyc.desensitization.annotation.ChineseNameSensitive;
-import red.zyc.desensitization.annotation.EraseSensitive;
-import red.zyc.desensitization.annotation.IdCardNumberSensitive;
-import red.zyc.desensitization.annotation.PhoneNumberSensitive;
+import red.zyc.desensitization.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +39,9 @@ public class Child {
 
     @IdCardNumberSensitive
     String idCardNumber = "321181199301096000";
+
+    @UsccSensitive
+    String unifiedSocialCreditCode = "91310106575855456U";
 
     @EraseSensitive
     private List<Parent> parents = new ArrayList<>();
