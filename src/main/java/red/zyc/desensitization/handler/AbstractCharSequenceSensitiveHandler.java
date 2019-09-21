@@ -34,8 +34,8 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
      * @return "*"字符串，用来替换敏感信息
      */
     protected CharSequence handleCharSequence(int startOffset, int endOffset, T target) {
-        if (target == null) {
-            return null;
+        if (target == null || target.length() == 0) {
+            return target;
         }
         check(startOffset, endOffset, target);
         return target.subSequence(0, startOffset) + secret(target.length() - startOffset - endOffset) + target.subSequence(target.length() - endOffset, target.length());
