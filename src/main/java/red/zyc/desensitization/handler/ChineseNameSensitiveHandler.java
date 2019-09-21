@@ -24,6 +24,6 @@ public class ChineseNameSensitiveHandler extends AbstractCharSequenceSensitiveHa
 
     @Override
     public CharSequence handle(CharSequence target, ChineseNameSensitive chineseNameSensitive) {
-        return super.handleCharSequence(chineseNameSensitive.start(), chineseNameSensitive.end(), target);
+        return super.handleCharSequence(chineseNameSensitive.startOffset(), chineseNameSensitive.endOffset(), target);
     }
 }

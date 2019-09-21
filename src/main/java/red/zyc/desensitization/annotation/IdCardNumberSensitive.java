@@ -38,16 +38,12 @@ public @interface IdCardNumberSensitive {
     Class<? extends AbstractSensitiveHandler<IdCardNumberSensitive, ?>> handler() default IdCardNumberSensitiveHandler.class;
 
     /**
-     * start必须大于等于0。
-     *
-     * @return 敏感信息在原字符序列中的起始索引。
+     * @return 敏感信息在原字符序列中的起始偏移
      */
-    int start() default 6;
+    int startOffset() default 6;
 
     /**
-     * end必须大于0，如果end等于0，代表擦除从start到字符序列尾部的所有信息。
-     *
-     * @return 敏感信息在原字符序列中的结束索引。
+     * @return 敏感信息在原字符序列中的结束偏移
      */
-    int end() default 14;
+    int endOffset() default 4;
 }

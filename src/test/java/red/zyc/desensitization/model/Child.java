@@ -34,7 +34,7 @@ public class Child {
     @ChineseNameSensitive
     String name = "李富贵";
 
-    @PhoneNumberSensitive(start = 2, end = 4)
+    @PhoneNumberSensitive(startOffset = 2, endOffset = 5)
     String phoneNumber = "12345678910";
 
     @IdCardNumberSensitive
