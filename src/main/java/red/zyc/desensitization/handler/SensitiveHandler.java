@@ -26,7 +26,7 @@ import java.lang.annotation.Annotation;
 public interface SensitiveHandler<A extends Annotation, T> {
 
     /**
-     * 处理敏感信息
+     * 由子类实现敏感信息处理逻辑
      *
      * @param target     需要处理的目标
      * @param annotation 处理目标上的敏感注解
