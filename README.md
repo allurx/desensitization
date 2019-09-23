@@ -7,7 +7,7 @@
 <dependency>
   <groupId>red.zyc</groupId>
   <artifactId>desensitization</artifactId>
-  <version>1.1.6</version>
+  <version>1.1.7</version>
 </dependency>
 ```
 ## 例子
@@ -27,6 +27,6 @@ public class Person {
 ```
 在数据入库或者前端返回时可能需要对相应的敏感字段进行脱敏处理，只需要调用以下方法即可擦除对象中的敏感信息。
 ```java
-SensitiveUtil.handle(new Person());
+SensitiveUtil.desensitize(new Person());
 ```
 更详细的例子可以参考[测试用例](https://github.com/Allurx/desensitization/blob/master/src/test/java/red/zyc/desensitization/Example.java)
