@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import red.zyc.desensitization.annotation.*;
+import red.zyc.desensitization.handler.AbstractSensitiveHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +35,8 @@ public class Child {
     @ChineseNameSensitive
     String name = "李富贵";
 
-    @PhoneNumberSensitive(startOffset = 2, endOffset = 5)
-    String phoneNumber = "12345678910";
+    @PhoneNumberSensitive(handler = CustomizedPhoneNumberSensitiveHandler.class)
+    Long phoneNumber = 12345678910L;
 
     @IdCardNumberSensitive
     String idCardNumber = "321181199301096000";
@@ -43,6 +44,21 @@ public class Child {
     @UsccSensitive
     String unifiedSocialCreditCode = "91310106575855456U";
 
+    @CharSequenceSensitive
+    private String string = "123456";
+
     @EraseSensitive
     private List<Parent> parents = new ArrayList<>();
+
+    /**
+     * 自定义处理器处理数字类型的手机号码
+     */
+    public static class CustomizedPhoneNumberSensitiveHandler extends AbstractSensitiveHandler<PhoneNumberSensitive, Long> {
+
+        @Override
+        public Long handle(Long target, PhoneNumberSensitive annotation) {
+            return Long.parseLong(target.toString().replaceAll("4567", "0000"));
+        }
+    }
+
 }

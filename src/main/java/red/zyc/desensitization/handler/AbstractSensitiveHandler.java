@@ -31,6 +31,9 @@ import java.lang.reflect.Type;
 @Getter
 public abstract class AbstractSensitiveHandler<A extends Annotation, T> implements SensitiveHandler<A, T> {
 
+    /**
+     * 敏感信息擦除后的占位符
+     */
     protected String placeholder = "*";
 
     /**
@@ -54,7 +57,7 @@ public abstract class AbstractSensitiveHandler<A extends Annotation, T> implemen
     }
 
     @SuppressWarnings("unchecked")
-    AbstractSensitiveHandler() {
+    public AbstractSensitiveHandler() {
         Type[] types = ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments();
         annotationClass = (Class<A>) types[0];
         supportedClass = (Class<T>) types[1];

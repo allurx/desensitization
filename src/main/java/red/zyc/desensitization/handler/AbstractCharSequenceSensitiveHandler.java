@@ -69,7 +69,7 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
     private void check(int startOffset, int endOffset, T target) {
         if (startOffset < 0 ||
                 endOffset < 0 ||
-                startOffset + endOffset > target.length()) {
+                startOffset + endOffset >= target.length()) {
             throw new IllegalArgumentException("startOffset:" + startOffset + "," + "endOffset:" + endOffset);
         }
     }

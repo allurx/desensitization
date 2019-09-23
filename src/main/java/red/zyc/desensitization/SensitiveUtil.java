@@ -15,10 +15,10 @@
  */
 package red.zyc.desensitization;
 
+import lombok.extern.slf4j.Slf4j;
 import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.annotation.Sensitive;
 import red.zyc.desensitization.handler.AbstractSensitiveHandler;
-import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -98,6 +98,8 @@ public class SensitiveUtil {
                         Class<?> fieldClass = field.getType();
                         if (sensitiveHandler.support(fieldClass)) {
                             field.set(target, sensitiveHandler.handling(fieldValue, annotation));
+                        } else {
+                            log.warn(c.getName() + "不支持擦除" + fieldClass + "类型的敏感信息");
                         }
                     }
                 }
