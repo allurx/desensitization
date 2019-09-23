@@ -31,7 +31,7 @@ import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 @ToString
 public class Mother extends Parent {
 
-    @ChineseNameSensitive
+    @ChineseNameSensitive(regexp = "婷")
     String name = "张婷婷";
 
     @PhoneNumberSensitive

@@ -26,17 +26,22 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
 
     /**
      * 如果处理器支持的类型是 {@link CharSequence}类型，
-     * 可以调用这个快捷方法生成"*"字符串替换原字符序列中的敏感信息。
+     * 可以调用这个快捷方法生成{@link AbstractSensitiveHandler#placeholder}字符串替换原字符序列中的敏感信息。
      *
      * @param startOffset 敏感信息在原字符序列中的起始偏移
      * @param endOffset   敏感信息在原字符序列中的结束偏移
      * @param target      目标字符序列
-     * @return "*"字符串，用来替换敏感信息
+     * @return {@link AbstractSensitiveHandler#placeholder}字符串，用来替换敏感信息
      */
-    protected CharSequence handleCharSequence(int startOffset, int endOffset, T target) {
+    public CharSequence handleCharSequence(String regexp, int startOffset, int endOffset, T target) {
         if (target == null || target.length() == 0) {
             return target;
         }
+        // 使用正则表达式匹配敏感信息
+        if (!"".equals(regexp)) {
+            return target.toString().replaceAll(regexp, placeholder);
+        }
+        // 使用位置偏移匹配敏感信息
         check(startOffset, endOffset, target);
         return target.subSequence(0, startOffset) + secret(target.length() - startOffset - endOffset) + target.subSequence(target.length() - endOffset, target.length());
     }
@@ -45,12 +50,12 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
      * 生成"*"字符串
      *
      * @param length 敏感信息字符序列长度
-     * @return "*"字符串
+     * @return {@link AbstractSensitiveHandler#placeholder}字符串
      */
-    protected String secret(int length) {
+    private String secret(int length) {
         StringBuilder secret = new StringBuilder();
         while (length != 0) {
-            secret.append("*");
+            secret.append(placeholder);
             length--;
         }
         return secret.toString();
@@ -61,7 +66,7 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
      * @param endOffset   敏感信息在原字符序列中的结束偏移
      * @param target      原字符序列
      */
-    protected void check(int startOffset, int endOffset, T target) {
+    private void check(int startOffset, int endOffset, T target) {
         if (startOffset < 0 ||
                 endOffset < 0 ||
                 startOffset + endOffset > target.length()) {

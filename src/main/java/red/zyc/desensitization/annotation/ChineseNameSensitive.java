@@ -32,7 +32,7 @@ import java.lang.annotation.*;
 public @interface ChineseNameSensitive {
 
     /**
-     * @return 用来处理被 {@link ChineseNameSensitive}注解的字段处理器，可以自定义子类重写默认的处理逻辑。
+     * @return 处理被 {@link ChineseNameSensitive}注解的字段处理器，可以自定义子类重写默认的处理逻辑。
      */
     Class<? extends AbstractSensitiveHandler<ChineseNameSensitive, ?>> handler() default ChineseNameSensitiveHandler.class;
 
@@ -45,4 +45,10 @@ public @interface ChineseNameSensitive {
      * @return 敏感信息在原字符序列中的结束偏移
      */
     int endOffset() default 0;
+
+    /**
+     * @return 正则表达式匹配的敏感信息，如果regexp不为{@code ""}的话则会
+     * 忽略{@link ChineseNameSensitive#startOffset()}和{@link ChineseNameSensitive#endOffset()}的值
+     */
+    String regexp() default "";
 }

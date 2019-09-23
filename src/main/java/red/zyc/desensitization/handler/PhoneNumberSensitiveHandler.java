@@ -29,6 +29,6 @@ public class PhoneNumberSensitiveHandler extends AbstractCharSequenceSensitiveHa
 
     @Override
     public CharSequence handle(CharSequence target, PhoneNumberSensitive phoneNumberSensitive) {
-        return super.handleCharSequence(phoneNumberSensitive.startOffset(), phoneNumberSensitive.endOffset(), target);
+        return super.handleCharSequence(phoneNumberSensitive.regexp(), phoneNumberSensitive.startOffset(), phoneNumberSensitive.endOffset(), target);
     }
 }

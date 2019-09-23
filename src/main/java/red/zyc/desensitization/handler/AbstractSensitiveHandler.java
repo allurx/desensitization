@@ -31,8 +31,16 @@ import java.lang.reflect.Type;
 @Getter
 public abstract class AbstractSensitiveHandler<A extends Annotation, T> implements SensitiveHandler<A, T> {
 
+    protected String placeholder = "*";
+
+    /**
+     * 敏感信息处理注解的{@code Class}
+     */
     protected Class<A> annotationClass;
 
+    /**
+     * 敏感信息处理注解支持的目标{@code Class}
+     */
     protected Class<T> supportedClass;
 
     /**

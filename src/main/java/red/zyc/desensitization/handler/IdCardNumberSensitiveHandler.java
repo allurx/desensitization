@@ -29,7 +29,7 @@ public class IdCardNumberSensitiveHandler extends AbstractCharSequenceSensitiveH
 
     @Override
     public CharSequence handle(CharSequence target, IdCardNumberSensitive idCardNumberSensitive) {
-        return super.handleCharSequence(idCardNumberSensitive.startOffset(), idCardNumberSensitive.endOffset(), target);
+        return super.handleCharSequence(idCardNumberSensitive.regexp(), idCardNumberSensitive.startOffset(), idCardNumberSensitive.endOffset(), target);
     }
 
 }

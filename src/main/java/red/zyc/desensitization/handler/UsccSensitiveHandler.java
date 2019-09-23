@@ -29,6 +29,6 @@ public class UsccSensitiveHandler extends AbstractCharSequenceSensitiveHandler<U
 
     @Override
     public CharSequence handle(CharSequence target, UsccSensitive usccSensitive) {
-        return super.handleCharSequence(usccSensitive.startOffset(), usccSensitive.endOffset(), target);
+        return super.handleCharSequence(usccSensitive.regexp(), usccSensitive.startOffset(), usccSensitive.endOffset(), target);
     }
 }
