@@ -45,36 +45,26 @@ public class SensitiveUtil {
      * @param target 目标对象
      */
     public static void handle(Object target) {
-        if (target == null) {
-            return;
-        }
-        Class<?> targetClass = target.getClass();
-        // 目标对象是集合
-        if (Collection.class.isAssignableFrom(targetClass)) {
-            Collection<?> collection = (Collection<?>) target;
-            collection.forEach(SensitiveUtil::handle);
-        }
-        // 目标对象是数组
-        if (target instanceof Object[]) {
-            Object[] objects = (Object[]) target;
-            Arrays.stream(objects).forEach(SensitiveUtil::handle);
-        }
-        // 目标是普通实体
-        handleBean(target);
-    }
-
-    /**
-     * 处理普通的对象
-     *
-     * @param target 目标对象
-     */
-    private static void handleBean(Object target) {
         try {
+            if (target == null) {
+                return;
+            }
             // 引用嵌套
             if (isReferenceNested(target)) {
                 return;
             }
             Class<?> targetClass = target.getClass();
+            // 目标对象是集合
+            if (Collection.class.isAssignableFrom(targetClass)) {
+                Collection<?> collection = (Collection<?>) target;
+                collection.forEach(SensitiveUtil::handle);
+            }
+            // 目标对象是数组
+            if (target instanceof Object[]) {
+                Object[] objects = (Object[]) target;
+                Arrays.stream(objects).forEach(SensitiveUtil::handle);
+            }
+            // 目标是普通对象
             Field[] allFields = getAllFields(targetClass);
             for (Field field : allFields) {
                 field.setAccessible(true);
@@ -82,25 +72,30 @@ public class SensitiveUtil {
                 if (fieldValue == null) {
                     continue;
                 }
-                // 级联擦除域中的敏感信息
+                // 递归擦除域中的敏感信息
                 if (field.isAnnotationPresent(EraseSensitive.class)) {
                     handle(fieldValue);
                 }
-                // 找出field上的敏感注解
+                // 找出field上的所有注解
                 Annotation[] annotations = field.getAnnotations();
                 for (Annotation annotation : annotations) {
                     Class<? extends Annotation> annotationClass = annotation.annotationType();
+                    // 找出field上的敏感注解
                     if (annotationClass.isAnnotationPresent(Sensitive.class)) {
                         Method method = annotationClass.getDeclaredMethod("handler");
+                        // 通过反射实例化敏感注解的Handler
                         @SuppressWarnings("unchecked")
-                        Class<? extends AbstractSensitiveHandler<? extends Annotation, ?>> c = (Class<? extends AbstractSensitiveHandler<? extends Annotation, ?>>) method.invoke(annotation);
-                        AbstractSensitiveHandler<? extends Annotation, ?> sensitiveHandler = c.newInstance();
+                        Class<? extends AbstractSensitiveHandler<? extends Annotation, ?>> handlerClass = (Class<? extends AbstractSensitiveHandler<? extends Annotation, ?>>) method.invoke(annotation);
+                        AbstractSensitiveHandler<? extends Annotation, ?> sensitiveHandler = handlerClass.newInstance();
                         Class<?> fieldClass = field.getType();
+                        // 判断Handler是否支持field的类型
                         if (sensitiveHandler.support(fieldClass)) {
                             field.set(target, sensitiveHandler.handling(fieldValue, annotation));
                         } else {
-                            log.warn(c.getName() + "不支持擦除" + fieldClass + "类型的敏感信息");
+                            log.warn(handlerClass.getName() + "不支持擦除" + fieldClass + "类型的敏感信息");
                         }
+                        // 只处理field上的第一个敏感注解
+                        break;
                     }
                 }
             }
