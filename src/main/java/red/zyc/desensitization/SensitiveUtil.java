@@ -40,11 +40,24 @@ public class SensitiveUtil {
     private static ThreadLocal<List<Object>> targets = ThreadLocal.withInitial(ArrayList::new);
 
     /**
+     * 对象脱敏
+     *
+     * @param target 目标对象
+     */
+    public static void desensitize(Object target) {
+        try {
+            handle(target);
+        } finally {
+            targets.remove();
+        }
+    }
+
+    /**
      * 处理复杂的对象
      *
      * @param target 目标对象
      */
-    public static void handle(Object target) {
+    private static void handle(Object target) {
         try {
             if (target == null) {
                 return;

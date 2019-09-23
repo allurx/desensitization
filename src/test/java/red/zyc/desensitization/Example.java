@@ -33,7 +33,7 @@ public class Example {
         child.getParents().add(new Father());
         child.getParents().add(new Mother());
         log.info(child.toString());
-        SensitiveUtil.handle(child);
+        SensitiveUtil.desensitize(child);
         log.info(child.toString());
     }
 }
