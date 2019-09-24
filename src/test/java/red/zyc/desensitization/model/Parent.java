@@ -32,11 +32,11 @@ import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 abstract class Parent {
 
     @ChineseNameSensitive
-    String name = "Parent";
+    private String name = "Parent";
 
     @PhoneNumberSensitive
-    String phoneNumber = "12345678913";
+    private String phoneNumber = "12345678913";
 
     @IdCardNumberSensitive
-    String idCardNumber = "321181199301096003";
+    private String idCardNumber = "321181199301096003";
 }

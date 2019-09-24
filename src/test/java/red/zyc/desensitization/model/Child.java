@@ -33,19 +33,22 @@ import java.util.List;
 public class Child {
 
     @ChineseNameSensitive
-    String name = "李富贵";
+    private String name = "李富贵";
 
     @PhoneNumberSensitive(handler = CustomizedPhoneNumberSensitiveHandler.class)
-    Long phoneNumber = 12345678910L;
+    private Long phoneNumber = 12345678910L;
 
     @IdCardNumberSensitive
-    String idCardNumber = "321181199301096000";
+    private String idCardNumber = "321181199301096000";
 
     @UsccSensitive
-    String unifiedSocialCreditCode = "91310106575855456U";
+    private String unifiedSocialCreditCode = "91310106575855456U";
 
     @CharSequenceSensitive
     private String string = "123456";
+
+    @EmailSensitive
+    private String email = "123456@qq.com";
 
     @EraseSensitive
     private List<Parent> parents = new ArrayList<>();
