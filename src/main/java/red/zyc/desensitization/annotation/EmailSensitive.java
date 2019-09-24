@@ -22,7 +22,7 @@ import red.zyc.desensitization.handler.EmailSensitiveHandler;
 import java.lang.annotation.*;
 
 /**
- * 被该注解标注的字段表明是一个邮箱类型的敏感字段。
+ * 邮箱敏感标记注解
  *
  * @author zyc
  */

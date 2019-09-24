@@ -18,12 +18,14 @@ package red.zyc.desensitization.handler;
 import red.zyc.desensitization.annotation.ChineseNameSensitive;
 
 /**
+ * 中文名敏感信息处理者
+ *
  * @author zyc
  */
 public class ChineseNameSensitiveHandler extends AbstractCharSequenceSensitiveHandler<ChineseNameSensitive, CharSequence> {
 
     @Override
-    public CharSequence handle(CharSequence target, ChineseNameSensitive chineseNameSensitive) {
-        return super.handleCharSequence(chineseNameSensitive.regexp(), chineseNameSensitive.startOffset(), chineseNameSensitive.endOffset(), target);
+    public CharSequence handle(CharSequence target, ChineseNameSensitive annotation) {
+        return super.handleCharSequence(annotation.regexp(), annotation.startOffset(), annotation.endOffset(), target);
     }
 }

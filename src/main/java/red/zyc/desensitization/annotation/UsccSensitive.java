@@ -22,7 +22,7 @@ import red.zyc.desensitization.handler.UsccSensitiveHandler;
 import java.lang.annotation.*;
 
 /**
- * 被该注解标注的字段表明是一个统一社会信用代码类型的敏感字段。
+ * 统一社会信用代码敏感标记注解
  *
  * @author zyc
  */

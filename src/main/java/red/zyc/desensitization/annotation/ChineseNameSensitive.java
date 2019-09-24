@@ -21,7 +21,7 @@ import red.zyc.desensitization.handler.ChineseNameSensitiveHandler;
 import java.lang.annotation.*;
 
 /**
- * 被该注解标注的字段表明是一个中文名类型的敏感字段。
+ * 中文名敏感标记注解
  *
  * @author zyc
  */

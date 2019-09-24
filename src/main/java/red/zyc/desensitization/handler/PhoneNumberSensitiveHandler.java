@@ -28,7 +28,7 @@ import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 public class PhoneNumberSensitiveHandler extends AbstractCharSequenceSensitiveHandler<PhoneNumberSensitive, CharSequence> {
 
     @Override
-    public CharSequence handle(CharSequence target, PhoneNumberSensitive phoneNumberSensitive) {
-        return super.handleCharSequence(phoneNumberSensitive.regexp(), phoneNumberSensitive.startOffset(), phoneNumberSensitive.endOffset(), target);
+    public CharSequence handle(CharSequence target, PhoneNumberSensitive annotation) {
+        return super.handleCharSequence(annotation.regexp(), annotation.startOffset(), annotation.endOffset(), target);
     }
 }

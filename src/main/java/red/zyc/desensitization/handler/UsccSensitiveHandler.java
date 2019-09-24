@@ -28,7 +28,7 @@ import red.zyc.desensitization.annotation.UsccSensitive;
 public class UsccSensitiveHandler extends AbstractCharSequenceSensitiveHandler<UsccSensitive, CharSequence> {
 
     @Override
-    public CharSequence handle(CharSequence target, UsccSensitive usccSensitive) {
-        return super.handleCharSequence(usccSensitive.regexp(), usccSensitive.startOffset(), usccSensitive.endOffset(), target);
+    public CharSequence handle(CharSequence target, UsccSensitive annotation) {
+        return super.handleCharSequence(annotation.regexp(), annotation.startOffset(), annotation.endOffset(), target);
     }
 }

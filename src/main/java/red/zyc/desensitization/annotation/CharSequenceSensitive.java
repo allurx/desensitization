@@ -22,8 +22,7 @@ import red.zyc.desensitization.handler.CharSequenceSensitiveHandler;
 import java.lang.annotation.*;
 
 /**
- * 被该注解标注的字段表明是一个{@link CharSequence}类型的敏感字段。
- * 这是一个通用的{@link CharSequence}类型敏感处理注解。
+ * {@link CharSequence}敏感标记注解
  *
  * @author zyc
  */

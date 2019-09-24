@@ -28,8 +28,8 @@ import red.zyc.desensitization.annotation.IdCardNumberSensitive;
 public class IdCardNumberSensitiveHandler extends AbstractCharSequenceSensitiveHandler<IdCardNumberSensitive, CharSequence> {
 
     @Override
-    public CharSequence handle(CharSequence target, IdCardNumberSensitive idCardNumberSensitive) {
-        return super.handleCharSequence(idCardNumberSensitive.regexp(), idCardNumberSensitive.startOffset(), idCardNumberSensitive.endOffset(), target);
+    public CharSequence handle(CharSequence target, IdCardNumberSensitive annotation) {
+        return super.handleCharSequence(annotation.regexp(), annotation.startOffset(), annotation.endOffset(), target);
     }
 
 }

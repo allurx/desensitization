@@ -23,6 +23,7 @@ import red.zyc.desensitization.handler.AbstractSensitiveHandler;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -80,7 +81,12 @@ public class SensitiveUtil {
             // 目标是普通对象
             Field[] allFields = getAllFields(targetClass);
             for (Field field : allFields) {
+                // 跳过final修饰的field
+                if (Modifier.isFinal(field.getModifiers())) {
+                    continue;
+                }
                 field.setAccessible(true);
+                // 跳过值为null的field
                 Object fieldValue = field.get(target);
                 if (fieldValue == null) {
                     continue;

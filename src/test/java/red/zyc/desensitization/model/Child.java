@@ -50,6 +50,9 @@ public class Child {
     @EmailSensitive
     private String email = "123456@qq.com";
 
+    @PasswordSensitive
+    private String password = "123456";
+
     @EraseSensitive
     private List<Parent> parents = new ArrayList<>();
 

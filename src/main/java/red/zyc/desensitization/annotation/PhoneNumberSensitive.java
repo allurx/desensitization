@@ -22,7 +22,7 @@ import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
 import java.lang.annotation.*;
 
 /**
- * 被该注解标注的字段表明是一个手机号类型的敏感字段。
+ * 手机号敏感标记注解
  *
  * @author zyc
  */

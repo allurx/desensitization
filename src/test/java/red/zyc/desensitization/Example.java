@@ -32,8 +32,8 @@ public class Example {
         Child child = new Child();
         child.getParents().add(new Father());
         child.getParents().add(new Mother());
-        log.info(child.toString());
+        log.info("before:" + child.toString());
         SensitiveUtil.desensitize(child);
-        log.info(child.toString());
+        log.info("end:" + child.toString());
     }
 }

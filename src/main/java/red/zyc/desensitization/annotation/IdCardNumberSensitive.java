@@ -22,7 +22,7 @@ import red.zyc.desensitization.handler.IdCardNumberSensitiveHandler;
 import java.lang.annotation.*;
 
 /**
- * 被该注解标注的字段表明是一个身份证类型的敏感字段。
+ * 身份证敏感标记注解
  *
  * @author zyc
  */
