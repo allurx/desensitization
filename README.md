@@ -7,7 +7,7 @@
 <dependency>
   <groupId>red.zyc</groupId>
   <artifactId>desensitization</artifactId>
-  <version>1.1.7</version>
+  <version>1.1.8</version>
 </dependency>
 ```
 ## 例子
