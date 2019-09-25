@@ -40,43 +40,45 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
         if (target == null || target.length() == 0) {
             return target;
         }
+        // 字符序列对应的字符数组
+        char[] chars = target.toString().toCharArray();
+
         // 使用正则表达式匹配擦除敏感信息
         if (isNotEmptyString(regexp)) {
-            char[] chars = target.toString().toCharArray();
             Matcher matcher = Pattern.compile(regexp).matcher(target);
             // 将正则匹配的每一项中的每一个字符都替换成占位符
             while (matcher.find()) {
                 // 排除空字符串
                 if (isNotEmptyString(matcher.group())) {
                     // 将匹配项的每一个字符都替换成占位符
-                    for (int i = matcher.start(); i < matcher.end(); i++) {
-                        chars[i] = placeholder;
-                    }
+                    erase(chars, matcher.start(), matcher.end());
                 }
             }
             return String.valueOf(chars);
         }
+
         // 使用位置偏移匹配擦除敏感信息
         check(startOffset, endOffset, target);
-        return target.subSequence(0, startOffset) + secret(target.length() - startOffset - endOffset) + target.subSequence(target.length() - endOffset, target.length());
+        erase(chars, startOffset, target.length() - endOffset);
+        return String.valueOf(chars);
     }
 
     /**
-     * 生成{@link AbstractSensitiveHandler#placeholder}字符串
+     * 擦除字符序列中的敏感信息
      *
-     * @param length 敏感信息字符序列长度
-     * @return {@link AbstractSensitiveHandler#placeholder}字符串
+     * @param chars 字符序列对应的字符数组
+     * @param start 敏感信息在字符序列中的起始索引
+     * @param end   敏感信息在字符序列中的结束索引
      */
-    private String secret(int length) {
-        StringBuilder secret = new StringBuilder();
-        while (length != 0) {
-            secret.append(placeholder);
-            length--;
+    private void erase(char[] chars, int start, int end) {
+        while (start < end) {
+            chars[start++] = placeholder;
         }
-        return secret.toString();
     }
 
     /**
+     * 校验起始偏移和结束偏移的合法性
+     *
      * @param startOffset 敏感信息在原字符序列中的起始偏移
      * @param endOffset   敏感信息在原字符序列中的结束偏移
      * @param target      原字符序列
@@ -89,8 +91,12 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
         }
     }
 
-    private boolean isNotEmptyString(String s) {
-        return !"".equals(s);
+    /**
+     * @param string 字符串对象
+     * @return 字符串是否不为空字符串
+     */
+    private boolean isNotEmptyString(String string) {
+        return !"".equals(string);
     }
 
 }

@@ -36,4 +36,5 @@ public class Example {
         SensitiveUtil.desensitize(child);
         log.info("end:" + child.toString());
     }
+
 }
