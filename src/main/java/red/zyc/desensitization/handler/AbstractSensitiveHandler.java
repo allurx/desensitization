@@ -34,7 +34,7 @@ public abstract class AbstractSensitiveHandler<A extends Annotation, T> implemen
     /**
      * 敏感信息擦除后的占位符
      */
-    protected String placeholder = "*";
+    protected char placeholder = '*';
 
     /**
      * 敏感信息处理注解的{@code Class}

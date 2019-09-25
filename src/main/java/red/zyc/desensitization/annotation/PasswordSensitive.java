@@ -17,7 +17,8 @@ import java.lang.annotation.*;
 public @interface PasswordSensitive {
 
     /**
-     * @return 处理被 {@link PasswordSensitive}注解的字段处理器，可以自定义子类重写默认的处理逻辑
+     * @return 处理被 {@link PasswordSensitive}注解的字段处理器，注意密码字段类型可能为其它任何类型，
+     * 所以此处的处理器支持的类型并没有作限制，可以自定义子类重写默认的处理逻辑
      */
     Class<? extends AbstractSensitiveHandler<PasswordSensitive, ?>> handler() default PasswordSensitiveHandler.class;
 

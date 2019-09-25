@@ -35,7 +35,7 @@ public @interface CharSequenceSensitive {
     /**
      * @return 处理被 {@link CharSequenceSensitive}注解的字段处理器，可以自定义子类重写默认的处理逻辑。
      */
-    Class<? extends AbstractSensitiveHandler<CharSequenceSensitive, ?>> handler() default CharSequenceSensitiveHandler.class;
+    Class<? extends AbstractSensitiveHandler<CharSequenceSensitive, CharSequence>> handler() default CharSequenceSensitiveHandler.class;
 
     /**
      * @return 敏感信息在原字符序列中的起始偏移

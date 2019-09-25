@@ -20,6 +20,7 @@ import lombok.Setter;
 import lombok.ToString;
 import red.zyc.desensitization.annotation.*;
 import red.zyc.desensitization.handler.AbstractSensitiveHandler;
+import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,10 @@ public class Child {
     private List<Parent> parents = new ArrayList<>();
 
     /**
-     * 自定义处理器处理数字类型的手机号码
+     * 自定义处理器处理数字类型的手机号码，默认的处理器只支持处理{@link CharSequence}类型的手机号码。
+     * 注意内部类必须定义成public的，否则反射初始化时会失败。
+     *
+     * @see PhoneNumberSensitiveHandler
      */
     public static class CustomizedPhoneNumberSensitiveHandler extends AbstractSensitiveHandler<PhoneNumberSensitive, Long> {
 

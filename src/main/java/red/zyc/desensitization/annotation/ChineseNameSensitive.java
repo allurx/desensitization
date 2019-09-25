@@ -34,7 +34,7 @@ public @interface ChineseNameSensitive {
     /**
      * @return 处理被 {@link ChineseNameSensitive}注解的字段处理器，可以自定义子类重写默认的处理逻辑。
      */
-    Class<? extends AbstractSensitiveHandler<ChineseNameSensitive, ?>> handler() default ChineseNameSensitiveHandler.class;
+    Class<? extends AbstractSensitiveHandler<ChineseNameSensitive, CharSequence>> handler() default ChineseNameSensitiveHandler.class;
 
     /**
      * @return 敏感信息在原字符序列中的起始偏移
