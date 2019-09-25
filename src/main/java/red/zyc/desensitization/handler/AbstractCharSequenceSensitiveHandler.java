@@ -16,6 +16,8 @@
 package red.zyc.desensitization.handler;
 
 import java.lang.annotation.Annotation;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 字符序列对象敏感信息处理者基类，为子类提供了一些快捷有用的方法处理{@link CharSequence}类型的敏感信息。
@@ -28,6 +30,7 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
      * 如果处理器支持的类型是 {@link CharSequence}类型，
      * 可以调用这个快捷方法生成{@link AbstractSensitiveHandler#placeholder}字符串替换原字符序列中的敏感信息。
      *
+     * @param regexp      敏感信息匹配的正则表达式
      * @param startOffset 敏感信息在原字符序列中的起始偏移
      * @param endOffset   敏感信息在原字符序列中的结束偏移
      * @param target      目标字符序列
@@ -37,17 +40,29 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
         if (target == null || target.length() == 0) {
             return target;
         }
-        // 使用正则表达式匹配敏感信息
-        if (!"".equals(regexp)) {
-            return target.toString().replaceAll(regexp, placeholder);
+        // 使用正则表达式匹配擦除敏感信息
+        if (isNotEmptyString(regexp)) {
+            char[] chars = target.toString().toCharArray();
+            Matcher matcher = Pattern.compile(regexp).matcher(target);
+            // 将正则匹配的每一项中的每一个字符都替换成占位符
+            while (matcher.find()) {
+                // 排除空字符串
+                if (isNotEmptyString(matcher.group())) {
+                    // 将匹配项的每一个字符都替换成占位符
+                    for (int i = matcher.start(); i < matcher.end(); i++) {
+                        chars[i] = placeholder;
+                    }
+                }
+            }
+            return String.valueOf(chars);
         }
-        // 使用位置偏移匹配敏感信息
+        // 使用位置偏移匹配擦除敏感信息
         check(startOffset, endOffset, target);
         return target.subSequence(0, startOffset) + secret(target.length() - startOffset - endOffset) + target.subSequence(target.length() - endOffset, target.length());
     }
 
     /**
-     * 生成"*"字符串
+     * 生成{@link AbstractSensitiveHandler#placeholder}字符串
      *
      * @param length 敏感信息字符序列长度
      * @return {@link AbstractSensitiveHandler#placeholder}字符串
@@ -72,6 +87,10 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
                 startOffset + endOffset >= target.length()) {
             throw new IllegalArgumentException("startOffset:" + startOffset + "," + "endOffset:" + endOffset);
         }
+    }
+
+    private boolean isNotEmptyString(String s) {
+        return !"".equals(s);
     }
 
 }
