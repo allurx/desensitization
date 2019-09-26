@@ -52,4 +52,9 @@ public @interface UsccSensitive {
      * 忽略{@link UsccSensitive#startOffset()}和{@link UsccSensitive#endOffset()}的值
      */
     String regexp() default "";
+
+    /**
+     * @return 敏感信息替换后的占位符
+     */
+    char placeholder() default '*';
 }

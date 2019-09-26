@@ -52,4 +52,10 @@ public @interface CharSequenceSensitive {
      * 忽略{@link CharSequenceSensitive#startOffset()}和{@link CharSequenceSensitive#endOffset()}的值
      */
     String regexp() default "";
+
+    /**
+     * @return 敏感信息替换后的占位符
+     */
+    char placeholder() default '*';
+
 }

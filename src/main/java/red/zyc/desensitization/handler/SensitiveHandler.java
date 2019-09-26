@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
  * @param <T> 实现类支持的处理类型
  * @author zyc
  */
+@FunctionalInterface
 public interface SensitiveHandler<A extends Annotation, T> {
 
     /**

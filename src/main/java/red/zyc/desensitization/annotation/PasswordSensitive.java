@@ -37,4 +37,9 @@ public @interface PasswordSensitive {
      * 忽略{@link PasswordSensitive#startOffset()}和{@link PasswordSensitive#endOffset()}的值
      */
     String regexp() default "";
+
+    /**
+     * @return 敏感信息替换后的占位符
+     */
+    char placeholder() default '*';
 }

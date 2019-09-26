@@ -53,4 +53,9 @@ public @interface PhoneNumberSensitive {
      * 忽略{@link PhoneNumberSensitive#startOffset()}和{@link PhoneNumberSensitive#endOffset()}的值
      */
     String regexp() default "";
+
+    /**
+     * @return 敏感信息替换后的占位符
+     */
+    char placeholder() default '*';
 }

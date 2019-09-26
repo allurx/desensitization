@@ -17,6 +17,7 @@
 package red.zyc.desensitization.handler;
 
 import red.zyc.desensitization.annotation.CharSequenceSensitive;
+import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
  * 通用的{@link CharSequence}类型敏感信息处理者
@@ -27,6 +28,13 @@ public class CharSequenceSensitiveHandler extends AbstractCharSequenceSensitiveH
 
     @Override
     public CharSequence handle(CharSequence target, CharSequenceSensitive annotation) {
-        return handleCharSequence(annotation.regexp(), annotation.startOffset(), annotation.endOffset(), target);
+        return handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequenceSensitive, CharSequence>builder()
+                .target(target)
+                .annotation(annotation)
+                .startOffset(annotation.startOffset())
+                .endOffset(annotation.endOffset())
+                .regexp(annotation.regexp())
+                .placeholder(annotation.placeholder())
+                .build());
     }
 }

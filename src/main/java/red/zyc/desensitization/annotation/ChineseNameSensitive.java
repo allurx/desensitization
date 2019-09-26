@@ -51,4 +51,9 @@ public @interface ChineseNameSensitive {
      * 忽略{@link ChineseNameSensitive#startOffset()}和{@link ChineseNameSensitive#endOffset()}的值
      */
     String regexp() default "";
+
+    /**
+     * @return 敏感信息替换后的占位符
+     */
+    char placeholder() default '*';
 }

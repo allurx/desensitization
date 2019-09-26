@@ -17,6 +17,7 @@
 package red.zyc.desensitization.handler;
 
 import red.zyc.desensitization.annotation.UsccSensitive;
+import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
  * 统一社会信用代码敏感信息处理者。
@@ -29,6 +30,13 @@ public class UsccSensitiveHandler extends AbstractCharSequenceSensitiveHandler<U
 
     @Override
     public CharSequence handle(CharSequence target, UsccSensitive annotation) {
-        return super.handleCharSequence(annotation.regexp(), annotation.startOffset(), annotation.endOffset(), target);
+        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<UsccSensitive, CharSequence>builder()
+                .target(target)
+                .annotation(annotation)
+                .startOffset(annotation.startOffset())
+                .endOffset(annotation.endOffset())
+                .regexp(annotation.regexp())
+                .placeholder(annotation.placeholder())
+                .build());
     }
 }

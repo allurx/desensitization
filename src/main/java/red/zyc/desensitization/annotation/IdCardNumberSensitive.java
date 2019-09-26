@@ -52,4 +52,9 @@ public @interface IdCardNumberSensitive {
      * 忽略{@link IdCardNumberSensitive#startOffset()}和{@link IdCardNumberSensitive#endOffset()}的值
      */
     String regexp() default "";
+
+    /**
+     * @return 敏感信息替换后的占位符
+     */
+    char placeholder() default '*';
 }

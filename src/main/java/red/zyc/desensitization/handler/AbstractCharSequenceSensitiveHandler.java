@@ -15,51 +15,54 @@
  */
 package red.zyc.desensitization.handler;
 
+import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
+
 import java.lang.annotation.Annotation;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 /**
  * 字符序列对象敏感信息处理者基类，为子类提供了一些快捷有用的方法处理{@link CharSequence}类型的敏感信息。
  *
+ * @param <A> 敏感处理注解类型
+ * @param <T> 目标对象类型
  * @author zyc
  */
 public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation, T extends CharSequence> extends AbstractSensitiveHandler<A, T> {
 
+
     /**
-     * 如果处理器支持的类型是 {@link CharSequence}类型，
-     * 可以调用这个快捷方法生成{@link AbstractSensitiveHandler#placeholder}字符串替换原字符序列中的敏感信息。
+     * * 如果处理器支持的目标对象是 {@link CharSequence}类型，
+     * * 可以调用这个快捷方法擦除原字符序列中的敏感信息。
      *
-     * @param regexp      敏感信息匹配的正则表达式
-     * @param startOffset 敏感信息在原字符序列中的起始偏移
-     * @param endOffset   敏感信息在原字符序列中的结束偏移
-     * @param target      目标字符序列
-     * @return {@link AbstractSensitiveHandler#placeholder}字符串，用来替换敏感信息
+     * @param descriptor {@link CharSequenceSensitiveDescriptor}
+     * @return 敏感信息被擦除后的字符序列
      */
-    public CharSequence handleCharSequence(String regexp, int startOffset, int endOffset, T target) {
-        if (target == null || target.length() == 0) {
-            return target;
+    public CharSequence handleCharSequence(CharSequenceSensitiveDescriptor<A, T> descriptor) {
+        if (descriptor.getTarget() == null || descriptor.getTarget().length() == 0) {
+            return descriptor.getTarget();
         }
         // 字符序列对应的字符数组
-        char[] chars = target.toString().toCharArray();
+        char[] chars = descriptor.getTarget().toString().toCharArray();
 
         // 使用正则表达式匹配擦除敏感信息
-        if (isNotEmptyString(regexp)) {
-            Matcher matcher = Pattern.compile(regexp).matcher(target);
+        if (isNotEmptyString(descriptor.getRegexp())) {
+            Matcher matcher = Pattern.compile(descriptor.getRegexp()).matcher(descriptor.getTarget());
             // 将正则匹配的每一项中的每一个字符都替换成占位符
             while (matcher.find()) {
                 // 排除空字符串
                 if (isNotEmptyString(matcher.group())) {
                     // 将匹配项的每一个字符都替换成占位符
-                    erase(chars, matcher.start(), matcher.end());
+                    erase(chars, matcher.start(), matcher.end(), descriptor.getPlaceholder());
                 }
             }
             return String.valueOf(chars);
         }
 
         // 使用位置偏移匹配擦除敏感信息
-        check(startOffset, endOffset, target);
-        erase(chars, startOffset, target.length() - endOffset);
+        check(descriptor.getStartOffset(), descriptor.getEndOffset(), descriptor.getTarget());
+        erase(chars, descriptor.getStartOffset(), descriptor.getTarget().length() - descriptor.getEndOffset(), descriptor.getPlaceholder());
         return String.valueOf(chars);
     }
 
@@ -70,7 +73,7 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
      * @param start 敏感信息在字符序列中的起始索引
      * @param end   敏感信息在字符序列中的结束索引
      */
-    private void erase(char[] chars, int start, int end) {
+    private void erase(char[] chars, int start, int end, char placeholder) {
         while (start < end) {
             chars[start++] = placeholder;
         }

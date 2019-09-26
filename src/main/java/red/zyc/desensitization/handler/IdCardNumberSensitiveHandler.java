@@ -17,6 +17,7 @@ package red.zyc.desensitization.handler;
 
 
 import red.zyc.desensitization.annotation.IdCardNumberSensitive;
+import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
  * 身份证号码敏感信息处理者
@@ -29,7 +30,14 @@ public class IdCardNumberSensitiveHandler extends AbstractCharSequenceSensitiveH
 
     @Override
     public CharSequence handle(CharSequence target, IdCardNumberSensitive annotation) {
-        return super.handleCharSequence(annotation.regexp(), annotation.startOffset(), annotation.endOffset(), target);
+        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<IdCardNumberSensitive, CharSequence>builder()
+                .target(target)
+                .annotation(annotation)
+                .startOffset(annotation.startOffset())
+                .endOffset(annotation.endOffset())
+                .regexp(annotation.regexp())
+                .placeholder(annotation.placeholder())
+                .build());
     }
 
 }

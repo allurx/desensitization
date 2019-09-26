@@ -33,7 +33,7 @@ import java.util.List;
 @ToString
 public class Child {
 
-    @ChineseNameSensitive
+    @ChineseNameSensitive(placeholder = 'x')
     private String name = "李富贵";
 
     @PhoneNumberSensitive(handler = CustomizedPhoneNumberSensitiveHandler.class)

@@ -41,7 +41,7 @@ public class SensitiveUtil {
     private static ThreadLocal<List<Object>> targets = ThreadLocal.withInitial(ArrayList::new);
 
     /**
-     * 对象脱敏
+     * 擦除对象内部敏感数据
      *
      * @param target 目标对象
      */
