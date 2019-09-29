@@ -16,8 +16,8 @@
 package red.zyc.desensitization.annotation;
 
 
-import red.zyc.desensitization.handler.AbstractSensitiveHandler;
 import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
+import red.zyc.desensitization.handler.SensitiveHandler;
 
 import java.lang.annotation.*;
 
@@ -36,7 +36,7 @@ public @interface PhoneNumberSensitive {
      * @return 处理被 {@link PhoneNumberSensitive}注解的字段处理器，注意手机号码字段类型可能为数字类型，
      * 所以此处的处理器支持的类型并没有作限制，可以自定义子类重写默认的处理逻辑
      */
-    Class<? extends AbstractSensitiveHandler<PhoneNumberSensitive, ?>> handler() default PhoneNumberSensitiveHandler.class;
+    Class<? extends SensitiveHandler<PhoneNumberSensitive, ?>> handler() default PhoneNumberSensitiveHandler.class;
 
     /**
      * @return 敏感信息在原字符序列中的起始偏移

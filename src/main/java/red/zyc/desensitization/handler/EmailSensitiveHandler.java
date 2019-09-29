@@ -8,7 +8,7 @@ import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
  *
  * @author zyc
  */
-public class EmailSensitiveHandler extends AbstractCharSequenceSensitiveHandler<EmailSensitive, CharSequence> {
+public class EmailSensitiveHandler extends AbstractCharSequenceSensitiveHandler<EmailSensitive, CharSequence> implements SensitiveHandler<EmailSensitive, CharSequence> {
 
     @Override
     public CharSequence handle(CharSequence target, EmailSensitive annotation) {

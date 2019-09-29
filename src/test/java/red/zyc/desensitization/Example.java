@@ -17,6 +17,8 @@ package red.zyc.desensitization;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import red.zyc.desensitization.annotation.EmailSensitive;
+import red.zyc.desensitization.handler.EmailSensitiveHandler;
 import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.model.Father;
 import red.zyc.desensitization.model.Mother;
@@ -35,5 +37,11 @@ public class Example {
         log.info("before:" + child.toString());
         SensitiveUtil.desensitize(child);
         log.info("end:" + child.toString());
+    }
+
+    @Test
+    public void test1() {
+        CharSequence s = SensitiveUtil.desensitize("123456@qq.com", new @EmailSensitive EmailSensitiveHandler() {});
+        System.out.println(s);
     }
 }

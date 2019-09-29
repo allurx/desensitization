@@ -23,7 +23,7 @@ import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
  *
  * @author zyc
  */
-public class ChineseNameSensitiveHandler extends AbstractCharSequenceSensitiveHandler<ChineseNameSensitive, CharSequence> {
+public class ChineseNameSensitiveHandler extends AbstractCharSequenceSensitiveHandler<ChineseNameSensitive, CharSequence> implements SensitiveHandler<ChineseNameSensitive, CharSequence> {
 
     @Override
     public CharSequence handle(CharSequence target, ChineseNameSensitive annotation) {

@@ -26,7 +26,7 @@ import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
  *
  * @author zyc
  */
-public class IdCardNumberSensitiveHandler extends AbstractCharSequenceSensitiveHandler<IdCardNumberSensitive, CharSequence> {
+public class IdCardNumberSensitiveHandler extends AbstractCharSequenceSensitiveHandler<IdCardNumberSensitive, CharSequence> implements SensitiveHandler<IdCardNumberSensitive, CharSequence> {
 
     @Override
     public CharSequence handle(CharSequence target, IdCardNumberSensitive annotation) {

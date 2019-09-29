@@ -15,6 +15,7 @@
  */
 package red.zyc.desensitization.handler;
 
+import lombok.extern.slf4j.Slf4j;
 import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 import java.lang.annotation.Annotation;
@@ -29,8 +30,8 @@ import java.util.regex.Pattern;
  * @param <T> 目标对象类型
  * @author zyc
  */
+@Slf4j
 public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation, T extends CharSequence> extends AbstractSensitiveHandler<A, T> {
-
 
     /**
      * * 如果处理器支持的目标对象是 {@link CharSequence}类型，
@@ -41,6 +42,11 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
      */
     public CharSequence handleCharSequence(CharSequenceSensitiveDescriptor<A, T> descriptor) {
         if (descriptor.getTarget() == null || descriptor.getTarget().length() == 0) {
+            return descriptor.getTarget();
+        }
+        // 判断Handler是否支持目标对象类型
+        if (!support(descriptor.getTarget().getClass())) {
+            log.warn(getClass().getName() + "不支持擦除" + descriptor.getTarget().getClass() + "类型的敏感信息");
             return descriptor.getTarget();
         }
         // 字符序列对应的字符数组

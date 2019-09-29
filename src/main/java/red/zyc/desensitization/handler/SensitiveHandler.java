@@ -34,4 +34,26 @@ public interface SensitiveHandler<A extends Annotation, T> {
      * @return 处理后的结果
      */
     T handle(T target, A annotation);
+
+    /**
+     * 获取目标对象上的第一个敏感处理注解
+     *
+     * @return 目标对象上的第一个敏感处理注解
+     */
+    @SuppressWarnings("unchecked")
+    default A getSensitiveAnnotation() {
+        return (A) getClass().getAnnotations()[0];
+    }
+
+    /**
+     * 这个方法的作用仅仅是用来类型转换
+     *
+     * @param target     {@link T}
+     * @param annotation {@link A}
+     * @return {@link T}
+     */
+    @SuppressWarnings("unchecked")
+    default T handling(Object target, Annotation annotation) {
+        return handle((T) target, (A) annotation);
+    }
 }

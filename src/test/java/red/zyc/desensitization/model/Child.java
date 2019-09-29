@@ -21,6 +21,7 @@ import lombok.ToString;
 import red.zyc.desensitization.annotation.*;
 import red.zyc.desensitization.handler.AbstractSensitiveHandler;
 import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
+import red.zyc.desensitization.handler.SensitiveHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +64,7 @@ public class Child {
      *
      * @see PhoneNumberSensitiveHandler
      */
-    public static class CustomizedPhoneNumberSensitiveHandler extends AbstractSensitiveHandler<PhoneNumberSensitive, Long> {
+    public static class CustomizedPhoneNumberSensitiveHandler extends AbstractSensitiveHandler<PhoneNumberSensitive, Long> implements SensitiveHandler<PhoneNumberSensitive, Long> {
 
         @Override
         public Long handle(Long target, PhoneNumberSensitive annotation) {

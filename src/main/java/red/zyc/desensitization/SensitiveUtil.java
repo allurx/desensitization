@@ -18,7 +18,7 @@ package red.zyc.desensitization;
 import lombok.extern.slf4j.Slf4j;
 import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.annotation.Sensitive;
-import red.zyc.desensitization.handler.AbstractSensitiveHandler;
+import red.zyc.desensitization.handler.SensitiveHandler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -51,6 +51,23 @@ public class SensitiveUtil {
         } finally {
             targets.remove();
         }
+    }
+
+    /**
+     * 擦除某个对象上的敏感数据
+     *
+     * @param target  目标对象
+     * @param handler 敏感处理器
+     * @param <A>     敏感处理注解类型
+     * @param <T>     目标对象类型
+     * @return 敏感信息被擦除后的值
+     */
+    public static <A extends Annotation, T> T desensitize(T target, SensitiveHandler<A, T> handler) {
+        A sensitiveAnnotation = handler.getSensitiveAnnotation();
+        if (sensitiveAnnotation != null && sensitiveAnnotation.annotationType().isAnnotationPresent(Sensitive.class)) {
+            return handler.handle(target, sensitiveAnnotation);
+        }
+        return target;
     }
 
     /**
@@ -104,15 +121,9 @@ public class SensitiveUtil {
                         Method method = annotationClass.getDeclaredMethod("handler");
                         // 通过反射实例化敏感注解的Handler
                         @SuppressWarnings("unchecked")
-                        Class<? extends AbstractSensitiveHandler<? extends Annotation, ?>> handlerClass = (Class<? extends AbstractSensitiveHandler<? extends Annotation, ?>>) method.invoke(annotation);
-                        AbstractSensitiveHandler<? extends Annotation, ?> sensitiveHandler = handlerClass.newInstance();
-                        Class<?> fieldClass = field.getType();
-                        // 判断Handler是否支持field的类型
-                        if (sensitiveHandler.support(fieldClass)) {
-                            field.set(target, sensitiveHandler.handling(fieldValue, annotation));
-                        } else {
-                            log.warn(handlerClass.getName() + "不支持擦除" + fieldClass + "类型的敏感信息");
-                        }
+                        Class<? extends SensitiveHandler<? extends Annotation, ?>> handlerClass = (Class<? extends SensitiveHandler<? extends Annotation, ?>>) method.invoke(annotation);
+                        SensitiveHandler<? extends Annotation, ?> sensitiveHandler = handlerClass.newInstance();
+                        field.set(target, sensitiveHandler.handling(fieldValue, annotation));
                         // 只处理field上的第一个敏感注解
                         break;
                     }

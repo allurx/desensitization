@@ -26,7 +26,7 @@ import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
  *
  * @author zyc
  */
-public class PhoneNumberSensitiveHandler extends AbstractCharSequenceSensitiveHandler<PhoneNumberSensitive, CharSequence> {
+public class PhoneNumberSensitiveHandler extends AbstractCharSequenceSensitiveHandler<PhoneNumberSensitive, CharSequence> implements SensitiveHandler<PhoneNumberSensitive, CharSequence> {
 
     @Override
     public CharSequence handle(CharSequence target, PhoneNumberSensitive annotation) {
