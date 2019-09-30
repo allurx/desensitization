@@ -15,6 +15,7 @@
  */
 package red.zyc.desensitization.handler;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 
 
@@ -24,7 +25,7 @@ import java.lang.annotation.Annotation;
  * @author zyc
  */
 @FunctionalInterface
-public interface SensitiveHandler<A extends Annotation, T> {
+public interface SensitiveHandler<T, A extends Annotation> extends Serializable {
 
     /**
      * 由子类实现敏感信息处理逻辑
@@ -36,13 +37,18 @@ public interface SensitiveHandler<A extends Annotation, T> {
     T handle(T target, A annotation);
 
     /**
-     * 获取目标对象上的第一个敏感处理注解
+     * 获取当前敏感处理器上的第一个敏感处理注解
      *
      * @return 目标对象上的第一个敏感处理注解
      */
     @SuppressWarnings("unchecked")
     default A getSensitiveAnnotation() {
-        return (A) getClass().getAnnotations()[0];
+        System.out.println(this.getClass().toGenericString());
+        Annotation[] annotations = getClass().getAnnotations();
+        if (annotations.length > 0) {
+            return (A) getClass().getAnnotations()[0];
+        }
+        return null;
     }
 
     /**

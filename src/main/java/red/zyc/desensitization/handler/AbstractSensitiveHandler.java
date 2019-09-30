@@ -33,7 +33,7 @@ import java.util.Arrays;
  */
 @Slf4j
 @Getter
-public abstract class AbstractSensitiveHandler<A extends Annotation, T> implements SensitiveHandler<A, T> {
+public abstract class AbstractSensitiveHandler<T, A extends Annotation> implements SensitiveHandler<T, A> {
 
     /**
      * 敏感信息处理注解的{@code Class}

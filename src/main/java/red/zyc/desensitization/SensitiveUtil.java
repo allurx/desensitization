@@ -62,7 +62,9 @@ public class SensitiveUtil {
      * @param <T>     目标对象类型
      * @return 敏感信息被擦除后的值
      */
-    public static <A extends Annotation, T> T desensitize(T target, SensitiveHandler<A, T> handler) {
+    public static <A extends Annotation, T> T desensitize(T target, SensitiveHandler<T, A> handler) {
+        //System.out.println(Arrays.toString(CallerUtil.getCallerCaller().getDeclaredMethods()));
+       // System.out.println(Arrays.toString(CallerUtil.getCallerCaller().getDeclaredMethods()[2].getParameterAnnotations()[0]));
         A sensitiveAnnotation = handler.getSensitiveAnnotation();
         if (sensitiveAnnotation != null && sensitiveAnnotation.annotationType().isAnnotationPresent(Sensitive.class)) {
             return handler.handle(target, sensitiveAnnotation);

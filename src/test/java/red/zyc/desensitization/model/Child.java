@@ -64,7 +64,7 @@ public class Child {
      *
      * @see PhoneNumberSensitiveHandler
      */
-    public static class CustomizedPhoneNumberSensitiveHandler extends AbstractSensitiveHandler<PhoneNumberSensitive, Long> implements SensitiveHandler<PhoneNumberSensitive, Long> {
+    public static class CustomizedPhoneNumberSensitiveHandler extends AbstractSensitiveHandler<Long, PhoneNumberSensitive> implements SensitiveHandler<Long, PhoneNumberSensitive> {
 
         @Override
         public Long handle(Long target, PhoneNumberSensitive annotation) {

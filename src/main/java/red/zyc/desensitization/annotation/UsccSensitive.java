@@ -35,7 +35,7 @@ public @interface UsccSensitive {
     /**
      * @return 处理被 {@link UsccSensitive}注解的字段处理器，可以自定义子类重写默认的处理逻辑
      */
-    Class<? extends SensitiveHandler<UsccSensitive, CharSequence>> handler() default UsccSensitiveHandler.class;
+    Class<? extends SensitiveHandler<CharSequence, UsccSensitive>> handler() default UsccSensitiveHandler.class;
 
     /**
      * @return 敏感信息在原字符序列中的起始偏移

@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  * @author zyc
  */
 @Slf4j
-public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation, T extends CharSequence> extends AbstractSensitiveHandler<A, T> {
+public abstract class AbstractCharSequenceSensitiveHandler<T extends CharSequence, A extends Annotation> extends AbstractSensitiveHandler<T, A> {
 
     /**
      * * 如果处理器支持的目标对象是 {@link CharSequence}类型，
@@ -40,7 +40,7 @@ public abstract class AbstractCharSequenceSensitiveHandler<A extends Annotation,
      * @param descriptor {@link CharSequenceSensitiveDescriptor}
      * @return 敏感信息被擦除后的字符序列
      */
-    public CharSequence handleCharSequence(CharSequenceSensitiveDescriptor<A, T> descriptor) {
+    public CharSequence handleCharSequence(CharSequenceSensitiveDescriptor<T, A> descriptor) {
         if (descriptor.getTarget() == null || descriptor.getTarget().length() == 0) {
             return descriptor.getTarget();
         }

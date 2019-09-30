@@ -30,7 +30,7 @@ import java.lang.annotation.Annotation;
  */
 @Builder
 @Getter
-public class CharSequenceSensitiveDescriptor<A extends Annotation, T extends CharSequence> {
+public class CharSequenceSensitiveDescriptor<T extends CharSequence, A extends Annotation> {
 
     /**
      * 目标对象
