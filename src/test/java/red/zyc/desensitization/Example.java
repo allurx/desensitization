@@ -22,21 +22,15 @@ import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.model.Father;
 import red.zyc.desensitization.model.Mother;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+
 /**
  * @author zyc
  */
 @Slf4j
 public class Example {
 
-    @Test
-    public void desensitizeObject() {
-        Child child = new Child();
-        child.getParents().add(new Father());
-        child.getParents().add(new Mother());
-        log.info("before:" + child.toString());
-        SensitiveUtil.desensitize(child);
-        log.info("end:" + child.toString());
-    }
 
 //    @Test
 //    public void desensitizeEmail() {
@@ -48,13 +42,28 @@ public class Example {
 //    }
 
     @Test
-    public void desensitizeEmail1() {
+    public void desensitizeObject() {
+        Child child = new Child();
+        child.getParents().add(new Father());
+        child.getParents().add(new Mother());
+        log.info("before:" + child.toString());
+        SensitiveUtil.desensitize(child);
+        log.info("end:" + child.toString());
+    }
+
+    @Test
+    public void desensitizeEmail1() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String email = "123456@qq.com";
 
         email = SensitiveUtil.
                 desensitize("123456@qq.com", (@EmailSensitive(regexp = "222") String target, EmailSensitive annotation) -> null);
-        email = SensitiveUtil.
-                desensitize("123456@qq.com", (@EmailSensitive(regexp = "222") String target, EmailSensitive annotation) -> null);
 
     }
+
+    @Test
+    public void t()  {
+        System.out.println(Arrays.toString(getClass().getDeclaredMethods()));
+
+    }
+
 }

@@ -19,9 +19,16 @@ import lombok.extern.slf4j.Slf4j;
 import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.annotation.Sensitive;
 import red.zyc.desensitization.handler.SensitiveHandler;
+import red.zyc.desensitization.util.CallerUtil;
+import sun.invoke.util.BytecodeDescriptor;
 
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -63,8 +70,25 @@ public class SensitiveUtil {
      * @return 敏感信息被擦除后的值
      */
     public static <A extends Annotation, T> T desensitize(T target, SensitiveHandler<T, A> handler) {
-        //System.out.println(Arrays.toString(CallerUtil.getCallerCaller().getDeclaredMethods()));
-       // System.out.println(Arrays.toString(CallerUtil.getCallerCaller().getDeclaredMethods()[2].getParameterAnnotations()[0]));
+        Class<?> caller = CallerUtil.getCallerCaller();
+        System.out.println(Arrays.toString(caller.getDeclaredMethods()));
+        Method method;
+        SerializedLambda invoke;
+        try {
+            method = handler.getClass().getDeclaredMethod("writeReplace");
+            method.setAccessible(true);
+            invoke = (SerializedLambda) method.invoke(handler);
+
+            List<Class<?>> classes = BytecodeDescriptor.parseMethod(invoke.getImplMethodSignature(), Thread.currentThread().getContextClassLoader());
+//            Method m=caller.getDeclaredMethod(invoke.getImplMethodName(), classes.get(0),classes.get(1));
+//            System.out.println(Arrays.toString(m.getParameters()[0].getAnnotations()));
+//            System.out.println(m);
+            MethodHandle methodHandle = MethodHandles.lookup().findStatic(caller, invoke.getImplMethodName(), MethodType.fromMethodDescriptorString(invoke.getImplMethodSignature(), Thread.currentThread().getContextClassLoader()));
+            System.out.println(methodHandle);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
         A sensitiveAnnotation = handler.getSensitiveAnnotation();
         if (sensitiveAnnotation != null && sensitiveAnnotation.annotationType().isAnnotationPresent(Sensitive.class)) {
             return handler.handle(target, sensitiveAnnotation);

@@ -39,16 +39,23 @@ public class CallerUtil {
     }
 
     /**
-     * @return {@linkplain red.zyc.desensitization.util.caller.Caller#getCaller()}
+     * @return {@linkplain Caller#getCaller()}
      */
     public static Class<?> getCaller() {
         return CALLER.getCaller();
     }
 
     /**
-     * @return {@linkplain red.zyc.desensitization.util.caller.Caller#getCallerCaller()}
+     * @return {@linkplain Caller#getCallerCaller()}
      */
     public static Class<?> getCallerCaller() {
         return CALLER.getCallerCaller();
+    }
+
+    /**
+     * @return {@linkplain Caller#getCaller(int)}
+     */
+    public static Class<?> getCaller(int depth) {
+        return CALLER.getCaller(depth);
     }
 }

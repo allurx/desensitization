@@ -43,7 +43,6 @@ public interface SensitiveHandler<T, A extends Annotation> extends Serializable 
      */
     @SuppressWarnings("unchecked")
     default A getSensitiveAnnotation() {
-        System.out.println(this.getClass().toGenericString());
         Annotation[] annotations = getClass().getAnnotations();
         if (annotations.length > 0) {
             return (A) getClass().getAnnotations()[0];
