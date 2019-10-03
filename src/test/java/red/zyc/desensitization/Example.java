@@ -53,8 +53,6 @@ public class Example {
 
         email = SensitiveUtil.
                 desensitize("123456@qq.com", (@EmailSensitive(regexp = "222") String target, EmailSensitive annotation) -> null);
-        email = SensitiveUtil.
-                desensitize("123456@qq.com", (@EmailSensitive(regexp = "222") String target, EmailSensitive annotation) -> null);
 
     }
 }

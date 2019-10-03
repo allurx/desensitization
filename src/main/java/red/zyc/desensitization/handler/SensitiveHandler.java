@@ -17,6 +17,10 @@ package red.zyc.desensitization.handler;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.util.Arrays;
 
 
 /**
@@ -42,8 +46,16 @@ public interface SensitiveHandler<T, A extends Annotation> extends Serializable 
      * @return 目标对象上的第一个敏感处理注解
      */
     @SuppressWarnings("unchecked")
-    default A getSensitiveAnnotation() {
-        System.out.println(this.getClass().toGenericString());
+    default A getSensitiveAnnotation()  {
+        System.out.println(getClass().getDeclaringClass());
+        System.out.println(Arrays.toString(getClass().getDeclaredMethods()));
+        MethodHandle writeReplace = null;
+        try {
+            writeReplace = MethodHandles.lookup().in(this.getClass()).findVirtual(Object.class, "writeReplace", MethodType.methodType(Object.class));
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        System.out.println(writeReplace);
         Annotation[] annotations = getClass().getAnnotations();
         if (annotations.length > 0) {
             return (A) getClass().getAnnotations()[0];

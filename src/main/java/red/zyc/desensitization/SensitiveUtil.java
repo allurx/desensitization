@@ -21,6 +21,9 @@ import red.zyc.desensitization.annotation.Sensitive;
 import red.zyc.desensitization.handler.SensitiveHandler;
 
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
