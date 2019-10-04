@@ -23,4 +23,13 @@ public interface Caller {
      * @return 调用调用当前方法对象的{@code Class}
      */
     Class<?> getCallerCaller();
+
+
+    /**
+     * 获取调用调用当前方法对象的
+     *
+     * @param depth 调用深度
+     * @return 调用调用当前方法对象的{@code Class}
+     */
+    Class<?> getCaller(int depth);
 }

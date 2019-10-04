@@ -36,20 +36,21 @@ import java.util.Arrays;
 public abstract class AbstractSensitiveHandler<T, A extends Annotation> implements SensitiveHandler<T, A> {
 
     /**
-     * 敏感信息处理注解的{@code Class}
-     */
-    protected Class<A> annotationClass;
-
-    /**
      * 敏感信息处理注解支持的目标{@code Class}
      */
     protected Class<T> supportedClass;
 
+    /**
+     * 敏感信息处理注解的{@code Class}
+     */
+    protected Class<A> annotationClass;
+
+
     @SuppressWarnings("unchecked")
     public AbstractSensitiveHandler() {
         Type[] actualTypeArgumentsOfSensitiveHandler = getActualTypeArgumentsOfSensitiveHandler();
-        annotationClass = (Class<A>) actualTypeArgumentsOfSensitiveHandler[0];
-        supportedClass = (Class<T>) actualTypeArgumentsOfSensitiveHandler[1];
+        supportedClass = (Class<T>) actualTypeArgumentsOfSensitiveHandler[0];
+        annotationClass = (Class<A>) actualTypeArgumentsOfSensitiveHandler[1];
     }
 
     /**

@@ -25,18 +25,19 @@ public class SecurityManagerCaller extends SecurityManager implements Caller {
 
     @Override
     public Class<?> getCaller() {
-        Class<?>[] classContext = getClassContext();
-        if (classContext != null && classContext.length > CURRENT_DEPTH) {
-            return getClassContext()[CURRENT_DEPTH];
-        }
-        return null;
+        return getCaller(1);
     }
 
     @Override
     public Class<?> getCallerCaller() {
+        return getCaller(2);
+    }
+
+    @Override
+    public Class<?> getCaller(int depth) {
         Class<?>[] classContext = getClassContext();
         if (classContext != null && classContext.length > CURRENT_DEPTH) {
-            return getClassContext()[CURRENT_DEPTH + 1];
+            return getClassContext()[CURRENT_DEPTH + depth];
         }
         return null;
     }

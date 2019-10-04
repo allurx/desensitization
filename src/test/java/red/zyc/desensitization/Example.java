@@ -18,9 +18,13 @@ package red.zyc.desensitization;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import red.zyc.desensitization.annotation.EmailSensitive;
+import red.zyc.desensitization.handler.AbstractSensitiveHandler;
 import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.model.Father;
 import red.zyc.desensitization.model.Mother;
+import red.zyc.desensitization.util.CallerUtil;
+
+import java.lang.annotation.Annotation;
 
 /**
  * @author zyc
@@ -47,12 +51,22 @@ public class Example {
 //        log.info("end:" + email);
 //    }
 
+    //    @Test
+//    public void desensitizeEmail1() {
+//        String email = "123456@qq.com";
+//
+//        email = SensitiveUtil.
+//                desensitize("123456@qq.com", (@EmailSensitive(regexp = "222") String target, EmailSensitive annotation) -> null);
+//
+//    }
     @Test
     public void desensitizeEmail1() {
         String email = "123456@qq.com";
 
         email = SensitiveUtil.
-                desensitize("123456@qq.com", (@EmailSensitive(regexp = "222") String target, EmailSensitive annotation) -> null);
+                desensitize("123456@qq.com", (@EmailSensitive String s) -> {
+                });
+        System.out.println(email);
 
     }
 }

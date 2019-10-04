@@ -23,23 +23,20 @@ public class StackTraceCaller implements Caller {
 
     @Override
     public Class<?> getCaller() {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        if (stackTrace.length > CURRENT_DEPTH) {
-            try {
-                return Class.forName(stackTrace[CURRENT_DEPTH].getClassName());
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
+        return getCaller(1);
     }
 
     @Override
     public Class<?> getCallerCaller() {
+        return getCaller(2);
+    }
+
+    @Override
+    public Class<?> getCaller(int depth) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         if (stackTrace.length > CURRENT_DEPTH) {
             try {
-                return Class.forName(stackTrace[CURRENT_DEPTH + 1].getClassName());
+                return Class.forName(stackTrace[CURRENT_DEPTH + depth].getClassName());
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
