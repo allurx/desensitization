@@ -15,19 +15,8 @@
  */
 package red.zyc.desensitization.handler;
 
-import red.zyc.desensitization.util.CallerUtil;
-import sun.invoke.util.BytecodeDescriptor;
-
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -46,31 +35,6 @@ public interface SensitiveHandler<T, A extends Annotation> extends Serializable 
      * @return 处理后的结果
      */
     T handle(T target, A annotation);
-
-    /**
-     * 获取当前敏感处理器上的第一个敏感处理注解
-     *
-     * @return 目标对象上的第一个敏感处理注解
-     */
-    @SuppressWarnings("unchecked")
-    default A getSensitiveAnnotation() {
-        try {
-            Method writeReplace = this.getClass().getDeclaredMethod("writeReplace");
-            writeReplace.setAccessible(true);
-            SerializedLambda serializedLambda = (SerializedLambda) writeReplace.invoke(this);
-            List<Class<?>> classes = BytecodeDescriptor.parseMethod(serializedLambda.getImplMethodSignature(), Thread.currentThread().getContextClassLoader());
-            Method lambdaStaticMethod = CallerUtil.getCaller(2).getDeclaredMethod(serializedLambda.getImplMethodName(), classes.get(0), classes.get(1));
-            lambdaStaticMethod.setAccessible(true);
-            System.out.println(Arrays.toString(lambdaStaticMethod.getParameters()[0].getAnnotations()));
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        Annotation[] annotations = getClass().getAnnotations();
-        if (annotations.length > 0) {
-            return (A) getClass().getAnnotations()[0];
-        }
-        return null;
-    }
 
     /**
      * 这个方法的作用仅仅是用来类型转换

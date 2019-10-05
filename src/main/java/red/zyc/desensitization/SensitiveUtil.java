@@ -22,9 +22,6 @@ import red.zyc.desensitization.handler.SensitiveHandler;
 import red.zyc.desensitization.metadata.SensitiveDescriptor;
 
 import java.lang.annotation.Annotation;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * @author zyc
@@ -60,36 +56,29 @@ public class SensitiveUtil {
     }
 
     /**
-     * 擦除某个对象上的敏感数据
+     * 擦除单个敏感值
      *
-     * @param target  目标对象
-     * @param handler 敏感处理器
-     * @param <A>     敏感处理注解类型
-     * @param <T>     目标对象类型
+     * @param target     目标对象
+     * @param descriptor 敏感信息描述者{@link SensitiveDescriptor}
+     * @param <T>        目标对象类型
+     * @param <A>        敏感注解类型
      * @return 敏感信息被擦除后的值
      */
-    public static <A extends Annotation, T> T desensitize(T target, SensitiveHandler<T, A> handler) {
-        //System.out.println(Arrays.toString(CallerUtil.getCallerCaller().getDeclaredMethods()));
-        // System.out.println(Arrays.toString(CallerUtil.getCallerCaller().getDeclaredMethods()[2].getParameterAnnotations()[0]));
-        A sensitiveAnnotation = handler.getSensitiveAnnotation();
-        if (sensitiveAnnotation != null && sensitiveAnnotation.annotationType().isAnnotationPresent(Sensitive.class)) {
-            return handler.handle(target, sensitiveAnnotation);
-        }
-        return target;
-    }
-
     public static <T, A extends Annotation> T desensitize(T target, SensitiveDescriptor<T, A> descriptor) {
         try {
             A sensitiveAnnotation = descriptor.getSensitiveAnnotation();
-            SensitiveHandler<T, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
-            // 找出field上的敏感注解
-            if (sensitiveHandler != null) {
-                return sensitiveHandler.handle(target, sensitiveAnnotation);
+            if (sensitiveAnnotation != null && sensitiveAnnotation.annotationType().isAnnotationPresent(Sensitive.class)) {
+                SensitiveHandler<T, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
+                // 找出field上的敏感注解
+                if (sensitiveHandler != null) {
+                    return sensitiveHandler.handle(target, sensitiveAnnotation);
+                }
             }
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
         }
-        return null;
+        // 发生任何异常不作任何处理，直接返回
+        return target;
     }
 
 
@@ -156,6 +145,8 @@ public class SensitiveUtil {
      * 通过反射实例化敏感注解对应的{@link SensitiveHandler}
      *
      * @param annotation 敏感注解
+     * @param <T>        目标对象的类型
+     * @param <A>        敏感注解类型
      * @return {@link SensitiveHandler}
      * @throws NoSuchMethodException     敏感注解没有定义handler方法
      * @throws IllegalAccessException    无法调用handler方法

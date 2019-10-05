@@ -18,13 +18,10 @@ package red.zyc.desensitization;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import red.zyc.desensitization.annotation.EmailSensitive;
-import red.zyc.desensitization.handler.AbstractSensitiveHandler;
+import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.model.Father;
 import red.zyc.desensitization.model.Mother;
-import red.zyc.desensitization.util.CallerUtil;
-
-import java.lang.annotation.Annotation;
 
 /**
  * @author zyc
@@ -39,34 +36,26 @@ public class Example {
         child.getParents().add(new Mother());
         log.info("before:" + child.toString());
         SensitiveUtil.desensitize(child);
-        log.info("end:" + child.toString());
+        log.info("after:" + child.toString());
     }
 
-//    @Test
-//    public void desensitizeEmail() {
-//        String email = "123456@qq.com";
-//        log.info("before:" + email);
-//        email = (String) SensitiveUtil.desensitize("123456@qq.com", new @EmailSensitive EmailSensitiveHandler() {
-//        });
-//        log.info("end:" + email);
-//    }
-
-    //    @Test
-//    public void desensitizeEmail1() {
-//        String email = "123456@qq.com";
-//
-//        email = SensitiveUtil.
-//                desensitize("123456@qq.com", (@EmailSensitive(regexp = "222") String target, EmailSensitive annotation) -> null);
-//
-//    }
     @Test
-    public void desensitizeEmail1() {
+    public void desensitizeValue() {
         String email = "123456@qq.com";
-
+        log.info("before:" + email);
         email = SensitiveUtil.
                 desensitize("123456@qq.com", (@EmailSensitive String s) -> {
                 });
-        System.out.println(email);
+        log.info("after使用Lambda表达式指定敏感信息描述者：" + email);
+
+        email = SensitiveUtil.
+                desensitize("123456@qq.com", new @EmailSensitive SensitiveDescriptor<String, EmailSensitive>() {
+                    @Override
+                    public void describe(String value) {
+
+                    }
+                });
+        log.info("after使用匿名内部类指定敏感信息描述者：" + email);
 
     }
 }
