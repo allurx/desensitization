@@ -77,7 +77,7 @@ public class SensitiveUtil {
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
         }
-        // 发生任何异常不作任何处理，直接返回
+        // 发生任何异常不作任何处理，直接返回原值
         return target;
     }
 
