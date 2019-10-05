@@ -19,14 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.annotation.Sensitive;
 import red.zyc.desensitization.handler.SensitiveHandler;
-import red.zyc.desensitization.util.CallerUtil;
-import sun.invoke.util.BytecodeDescriptor;
+import red.zyc.desensitization.metadata.SensitiveDescriptor;
 
 import java.lang.annotation.Annotation;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -61,40 +56,31 @@ public class SensitiveUtil {
     }
 
     /**
-     * 擦除某个对象上的敏感数据
+     * 擦除单个敏感值
      *
-     * @param target  目标对象
-     * @param handler 敏感处理器
-     * @param <A>     敏感处理注解类型
-     * @param <T>     目标对象类型
+     * @param target     目标对象
+     * @param descriptor 敏感信息描述者{@link SensitiveDescriptor}
+     * @param <T>        目标对象类型
+     * @param <A>        敏感注解类型
      * @return 敏感信息被擦除后的值
      */
-    public static <A extends Annotation, T> T desensitize(T target, SensitiveHandler<T, A> handler) {
-        Class<?> caller = CallerUtil.getCallerCaller();
-        System.out.println(Arrays.toString(caller.getDeclaredMethods()));
-        Method method;
-        SerializedLambda invoke;
+    public static <T, A extends Annotation> T desensitize(T target, SensitiveDescriptor<T, A> descriptor) {
         try {
-            method = handler.getClass().getDeclaredMethod("writeReplace");
-            method.setAccessible(true);
-            invoke = (SerializedLambda) method.invoke(handler);
-
-            List<Class<?>> classes = BytecodeDescriptor.parseMethod(invoke.getImplMethodSignature(), Thread.currentThread().getContextClassLoader());
-//            Method m=caller.getDeclaredMethod(invoke.getImplMethodName(), classes.get(0),classes.get(1));
-//            System.out.println(Arrays.toString(m.getParameters()[0].getAnnotations()));
-//            System.out.println(m);
-            MethodHandle methodHandle = MethodHandles.lookup().findStatic(caller, invoke.getImplMethodName(), MethodType.fromMethodDescriptorString(invoke.getImplMethodSignature(), Thread.currentThread().getContextClassLoader()));
-            System.out.println(methodHandle);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
+            A sensitiveAnnotation = descriptor.getSensitiveAnnotation();
+            if (sensitiveAnnotation != null && sensitiveAnnotation.annotationType().isAnnotationPresent(Sensitive.class)) {
+                SensitiveHandler<T, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
+                // 找出field上的敏感注解
+                if (sensitiveHandler != null) {
+                    return sensitiveHandler.handle(target, sensitiveAnnotation);
+                }
+            }
+        } catch (Throwable e) {
+            log.error(e.getMessage(), e);
         }
-
-        A sensitiveAnnotation = handler.getSensitiveAnnotation();
-        if (sensitiveAnnotation != null && sensitiveAnnotation.annotationType().isAnnotationPresent(Sensitive.class)) {
-            return handler.handle(target, sensitiveAnnotation);
-        }
+        // 发生任何异常不作任何处理，直接返回
         return target;
     }
+
 
     /**
      * 处理复杂的对象
@@ -141,23 +127,42 @@ public class SensitiveUtil {
                 // 找出field上的所有注解
                 Annotation[] annotations = field.getAnnotations();
                 for (Annotation annotation : annotations) {
-                    Class<? extends Annotation> annotationClass = annotation.annotationType();
+                    SensitiveHandler<?, ? extends Annotation> sensitiveHandler = getSensitiveHandler(annotation);
                     // 找出field上的敏感注解
-                    if (annotationClass.isAnnotationPresent(Sensitive.class)) {
-                        Method method = annotationClass.getDeclaredMethod("handler");
-                        // 通过反射实例化敏感注解的Handler
-                        @SuppressWarnings("unchecked")
-                        Class<? extends SensitiveHandler<? extends Annotation, ?>> handlerClass = (Class<? extends SensitiveHandler<? extends Annotation, ?>>) method.invoke(annotation);
-                        SensitiveHandler<? extends Annotation, ?> sensitiveHandler = handlerClass.newInstance();
+                    if (sensitiveHandler != null) {
                         field.set(target, sensitiveHandler.handling(fieldValue, annotation));
                         // 只处理field上的第一个敏感注解
                         break;
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    /**
+     * 通过反射实例化敏感注解对应的{@link SensitiveHandler}
+     *
+     * @param annotation 敏感注解
+     * @param <T>        目标对象的类型
+     * @param <A>        敏感注解类型
+     * @return {@link SensitiveHandler}
+     * @throws NoSuchMethodException     敏感注解没有定义handler方法
+     * @throws IllegalAccessException    无法调用handler方法
+     * @throws InstantiationException    无法实例化{@link SensitiveHandler}
+     * @throws InvocationTargetException 无法调用handler方法
+     */
+    private static <T, A extends Annotation> SensitiveHandler<T, A> getSensitiveHandler(Annotation annotation) throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+        Class<? extends Annotation> annotationClass = annotation.annotationType();
+        if (annotationClass.isAnnotationPresent(Sensitive.class)) {
+            Method method = annotationClass.getDeclaredMethod("handler");
+            // 通过反射实例化敏感注解的Handler
+            @SuppressWarnings("unchecked")
+            Class<? extends SensitiveHandler<T, A>> handlerClass = (Class<? extends SensitiveHandler<T, A>>) method.invoke(annotation);
+            return handlerClass.newInstance();
+        }
+        return null;
     }
 
     /**
