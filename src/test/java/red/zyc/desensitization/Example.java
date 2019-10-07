@@ -72,7 +72,7 @@ public class Example {
     }
 
     @Test
-    public void t() {
+    public void printStackTrace() {
         log.info(CallerUtil.getCaller().toString());
         CallerUtil.printStackTrace();
     }
