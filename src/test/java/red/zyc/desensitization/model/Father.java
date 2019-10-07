@@ -16,9 +16,6 @@
 
 package red.zyc.desensitization.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import red.zyc.desensitization.annotation.ChineseNameSensitive;
 import red.zyc.desensitization.annotation.IdCardNumberSensitive;
 import red.zyc.desensitization.annotation.PhoneNumberSensitive;
@@ -26,17 +23,50 @@ import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 /**
  * @author zyc
  */
-@Getter
-@Setter
-@ToString
 public class Father extends Parent {
-
     @ChineseNameSensitive
     private String name = "李强";
-
     @PhoneNumberSensitive
     private String phoneNumber = "12345678911";
-
     @IdCardNumberSensitive
     private String idCardNumber = "321181199301096001";
+
+    @Override
+    public String toString() {
+        return "Father{" +
+                "name='" + name + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", idCardNumber='" + idCardNumber + '\'' +
+                '}';
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    @Override
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    @Override
+    public String getIdCardNumber() {
+        return idCardNumber;
+    }
+
+    @Override
+    public void setIdCardNumber(String idCardNumber) {
+        this.idCardNumber = idCardNumber;
+    }
 }

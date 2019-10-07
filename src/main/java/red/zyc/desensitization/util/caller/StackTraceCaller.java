@@ -16,31 +16,38 @@
 
 package red.zyc.desensitization.util.caller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+
 /**
  * @author zyc
  */
 public class StackTraceCaller implements Caller {
 
-    @Override
-    public Class<?> getCaller() {
-        return getCaller(1);
-    }
+    private static Logger log = LoggerFactory.getLogger(StackTraceCaller.class);
 
     @Override
-    public Class<?> getCallerCaller() {
-        return getCaller(2);
+    public Class<?> getCaller() {
+        return getCaller(4);
     }
 
     @Override
     public Class<?> getCaller(int depth) {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        if (stackTrace.length > CURRENT_DEPTH) {
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        if (stackTraceElements.length > 0 && depth >= 0) {
             try {
-                return Class.forName(stackTrace[depth + CURRENT_DEPTH].getClassName());
+                return Class.forName(stackTraceElements[depth].getClassName());
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
         return null;
+    }
+
+    @Override
+    public void printStackTrace() {
+        log.info(Arrays.toString(Thread.currentThread().getStackTrace()));
     }
 }

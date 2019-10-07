@@ -15,8 +15,8 @@
  */
 package red.zyc.desensitization.handler;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.exception.InvalidSensitiveHandler;
 
 import java.lang.annotation.Annotation;
@@ -31,20 +31,21 @@ import java.util.Arrays;
  * @param <T> 实现类支持的处理类型
  * @author zyc
  */
-@Slf4j
-@Getter
 public abstract class AbstractSensitiveHandler<T, A extends Annotation> implements SensitiveHandler<T, A> {
 
     /**
      * 敏感信息处理注解支持的目标{@code Class}
      */
     protected Class<T> supportedClass;
-
     /**
      * 敏感信息处理注解的{@code Class}
      */
     protected Class<A> annotationClass;
 
+    /**
+     * {@link Logger}
+     */
+    protected Logger log = LoggerFactory.getLogger(getClass());
 
     @SuppressWarnings("unchecked")
     public AbstractSensitiveHandler() {

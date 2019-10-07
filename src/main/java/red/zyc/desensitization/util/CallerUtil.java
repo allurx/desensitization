@@ -21,6 +21,11 @@ import red.zyc.desensitization.util.caller.SecurityManagerCaller;
 import red.zyc.desensitization.util.caller.StackTraceCaller;
 
 /**
+ * 调用者工具类，用来返回当前调用该方法的对象的{@code Class}。
+ * 注意由于{@link Thread#getStackTrace()}相比较于{@link SecurityManager#getClassContext()}返回的执行堆栈信息更加全面，
+ * 因此当调用{@link CallerUtil#getCaller(int)}方法时，不同的{@link Caller}返回的值可能会不同。默认的{@link Caller}
+ * 是{@link SecurityManagerCaller}。可以调用{@link Caller#printStackTrace()}方法来输出当前执行的堆栈信息。
+ *
  * @author zyc
  */
 public class CallerUtil {
@@ -46,16 +51,16 @@ public class CallerUtil {
     }
 
     /**
-     * @return {@linkplain Caller#getCallerCaller()}
-     */
-    public static Class<?> getCallerCaller() {
-        return CALLER.getCallerCaller();
-    }
-
-    /**
      * @return {@linkplain Caller#getCaller(int)}
      */
     public static Class<?> getCaller(int depth) {
         return CALLER.getCaller(depth);
+    }
+
+    /**
+     * {@linkplain Caller#printStackTrace()}
+     */
+    public static void printStackTrace() {
+        CALLER.printStackTrace();
     }
 }

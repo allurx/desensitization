@@ -15,7 +15,6 @@
  */
 package red.zyc.desensitization.handler;
 
-import lombok.extern.slf4j.Slf4j;
 import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 import java.lang.annotation.Annotation;
@@ -30,7 +29,6 @@ import java.util.regex.Pattern;
  * @param <T> 目标对象类型
  * @author zyc
  */
-@Slf4j
 public abstract class AbstractCharSequenceSensitiveHandler<T extends CharSequence, A extends Annotation> extends AbstractSensitiveHandler<T, A> {
 
     /**
