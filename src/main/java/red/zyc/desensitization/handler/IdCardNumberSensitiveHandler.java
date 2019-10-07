@@ -26,11 +26,11 @@ import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
  *
  * @author zyc
  */
-public class IdCardNumberSensitiveHandler extends AbstractCharSequenceSensitiveHandler<IdCardNumberSensitive, CharSequence> {
+public class IdCardNumberSensitiveHandler extends AbstractCharSequenceSensitiveHandler<CharSequence, IdCardNumberSensitive> implements SensitiveHandler<CharSequence, IdCardNumberSensitive> {
 
     @Override
     public CharSequence handle(CharSequence target, IdCardNumberSensitive annotation) {
-        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<IdCardNumberSensitive, CharSequence>builder()
+        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, IdCardNumberSensitive>builder()
                 .target(target)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())

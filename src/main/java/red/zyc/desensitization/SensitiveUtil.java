@@ -15,10 +15,12 @@
  */
 package red.zyc.desensitization;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.annotation.Sensitive;
-import red.zyc.desensitization.handler.AbstractSensitiveHandler;
+import red.zyc.desensitization.handler.SensitiveHandler;
+import red.zyc.desensitization.metadata.SensitiveDescriptor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -32,7 +34,6 @@ import java.util.List;
 /**
  * @author zyc
  */
-@Slf4j
 public class SensitiveUtil {
 
     /**
@@ -41,7 +42,12 @@ public class SensitiveUtil {
     private static ThreadLocal<List<Object>> targets = ThreadLocal.withInitial(ArrayList::new);
 
     /**
-     * 擦除对象内部敏感数据
+     * {@link Logger}
+     */
+    private static Logger log = LoggerFactory.getLogger(SensitiveUtil.class);
+
+    /**
+     * 对象内部域值脱敏
      *
      * @param target 目标对象
      */
@@ -52,6 +58,34 @@ public class SensitiveUtil {
             targets.remove();
         }
     }
+
+    /**
+     * 单个值脱敏
+     *
+     * @param target     目标对象
+     * @param descriptor 敏感信息描述者{@link SensitiveDescriptor}
+     * @param <T>        目标对象类型
+     * @param <A>        敏感注解类型
+     * @return 敏感信息被擦除后的值
+     */
+    public static <T, A extends Annotation> T desensitize(T target, SensitiveDescriptor<T, A> descriptor) {
+        try {
+            A sensitiveAnnotation = descriptor.getSensitiveAnnotation();
+            if (sensitiveAnnotation != null && sensitiveAnnotation.annotationType().isAnnotationPresent(Sensitive.class)) {
+                SensitiveHandler<T, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
+                // 找出field上的敏感注解
+                if (sensitiveHandler != null) {
+                    return sensitiveHandler.handle(target, sensitiveAnnotation);
+                }
+            }
+            log.warn("没有在" + descriptor.getClass() + "上找到敏感注解");
+        } catch (Throwable e) {
+            log.error(e.getMessage(), e);
+        }
+        // 发生任何异常或者没有找到敏感注解的情况下不作任何处理，直接返回原值
+        return target;
+    }
+
 
     /**
      * 处理复杂的对象
@@ -98,29 +132,39 @@ public class SensitiveUtil {
                 // 找出field上的所有注解
                 Annotation[] annotations = field.getAnnotations();
                 for (Annotation annotation : annotations) {
-                    Class<? extends Annotation> annotationClass = annotation.annotationType();
+                    SensitiveHandler<?, ? extends Annotation> sensitiveHandler = getSensitiveHandler(annotation);
                     // 找出field上的敏感注解
-                    if (annotationClass.isAnnotationPresent(Sensitive.class)) {
-                        Method method = annotationClass.getDeclaredMethod("handler");
-                        // 通过反射实例化敏感注解的Handler
-                        @SuppressWarnings("unchecked")
-                        Class<? extends AbstractSensitiveHandler<? extends Annotation, ?>> handlerClass = (Class<? extends AbstractSensitiveHandler<? extends Annotation, ?>>) method.invoke(annotation);
-                        AbstractSensitiveHandler<? extends Annotation, ?> sensitiveHandler = handlerClass.newInstance();
-                        Class<?> fieldClass = field.getType();
-                        // 判断Handler是否支持field的类型
-                        if (sensitiveHandler.support(fieldClass)) {
-                            field.set(target, sensitiveHandler.handling(fieldValue, annotation));
-                        } else {
-                            log.warn(handlerClass.getName() + "不支持擦除" + fieldClass + "类型的敏感信息");
-                        }
+                    if (sensitiveHandler != null) {
+                        field.set(target, sensitiveHandler.handling(fieldValue, annotation));
                         // 只处理field上的第一个敏感注解
                         break;
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    /**
+     * 通过反射实例化敏感注解对应的{@link SensitiveHandler}
+     *
+     * @param annotation 敏感注解
+     * @param <T>        目标对象的类型
+     * @param <A>        敏感注解类型
+     * @return {@link SensitiveHandler}
+     * @throws Throwable 任何可能的 {@link Throwable}
+     */
+    private static <T, A extends Annotation> SensitiveHandler<T, A> getSensitiveHandler(Annotation annotation) throws Throwable {
+        Class<? extends Annotation> annotationClass = annotation.annotationType();
+        if (annotationClass.isAnnotationPresent(Sensitive.class)) {
+            Method method = annotationClass.getDeclaredMethod("handler");
+            // 通过反射实例化敏感注解的Handler
+            @SuppressWarnings("unchecked")
+            Class<? extends SensitiveHandler<T, A>> handlerClass = (Class<? extends SensitiveHandler<T, A>>) method.invoke(annotation);
+            return handlerClass.newInstance();
+        }
+        return null;
     }
 
     /**

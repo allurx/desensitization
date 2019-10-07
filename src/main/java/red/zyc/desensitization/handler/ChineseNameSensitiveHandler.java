@@ -23,11 +23,11 @@ import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
  *
  * @author zyc
  */
-public class ChineseNameSensitiveHandler extends AbstractCharSequenceSensitiveHandler<ChineseNameSensitive, CharSequence> {
+public class ChineseNameSensitiveHandler extends AbstractCharSequenceSensitiveHandler<CharSequence, ChineseNameSensitive> implements SensitiveHandler<CharSequence, ChineseNameSensitive> {
 
     @Override
     public CharSequence handle(CharSequence target, ChineseNameSensitive annotation) {
-        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<ChineseNameSensitive, CharSequence>builder()
+        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, ChineseNameSensitive>builder()
                 .target(target)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())

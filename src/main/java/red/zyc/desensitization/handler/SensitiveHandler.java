@@ -15,6 +15,7 @@
  */
 package red.zyc.desensitization.handler;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 
 
@@ -24,7 +25,7 @@ import java.lang.annotation.Annotation;
  * @author zyc
  */
 @FunctionalInterface
-public interface SensitiveHandler<A extends Annotation, T> {
+public interface SensitiveHandler<T, A extends Annotation> extends Serializable {
 
     /**
      * 由子类实现敏感信息处理逻辑
@@ -34,4 +35,16 @@ public interface SensitiveHandler<A extends Annotation, T> {
      * @return 处理后的结果
      */
     T handle(T target, A annotation);
+
+    /**
+     * 这个方法的作用仅仅是用来类型转换
+     *
+     * @param target     {@link T}
+     * @param annotation {@link A}
+     * @return {@link T}
+     */
+    @SuppressWarnings("unchecked")
+    default T handling(Object target, Annotation annotation) {
+        return handle((T) target, (A) annotation);
+    }
 }

@@ -15,12 +15,10 @@
  */
 package red.zyc.desensitization.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import red.zyc.desensitization.annotation.*;
 import red.zyc.desensitization.handler.AbstractSensitiveHandler;
 import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
+import red.zyc.desensitization.handler.SensitiveHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +26,6 @@ import java.util.List;
 /**
  * @author zyc
  */
-@Getter
-@Setter
-@ToString
 public class Child {
 
     @ChineseNameSensitive(placeholder = 'x')
@@ -57,18 +52,95 @@ public class Child {
     @EraseSensitive
     private List<Parent> parents = new ArrayList<>();
 
+    @Override
+    public String toString() {
+        return "Child{" +
+                "name='" + name + '\'' +
+                ", phoneNumber=" + phoneNumber +
+                ", idCardNumber='" + idCardNumber + '\'' +
+                ", unifiedSocialCreditCode='" + unifiedSocialCreditCode + '\'' +
+                ", string='" + string + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", parents=" + parents +
+                '}';
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Long getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(Long phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getIdCardNumber() {
+        return idCardNumber;
+    }
+
+    public void setIdCardNumber(String idCardNumber) {
+        this.idCardNumber = idCardNumber;
+    }
+
+    public String getUnifiedSocialCreditCode() {
+        return unifiedSocialCreditCode;
+    }
+
+    public void setUnifiedSocialCreditCode(String unifiedSocialCreditCode) {
+        this.unifiedSocialCreditCode = unifiedSocialCreditCode;
+    }
+
+    public String getString() {
+        return string;
+    }
+
+    public void setString(String string) {
+        this.string = string;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public List<Parent> getParents() {
+        return parents;
+    }
+
+    public void setParents(List<Parent> parents) {
+        this.parents = parents;
+    }
+
     /**
      * 自定义处理器处理数字类型的手机号码，默认的处理器只支持处理{@link CharSequence}类型的手机号码。
      * 注意内部类必须定义成public的，否则反射初始化时会失败。
      *
      * @see PhoneNumberSensitiveHandler
      */
-    public static class CustomizedPhoneNumberSensitiveHandler extends AbstractSensitiveHandler<PhoneNumberSensitive, Long> {
+    public static class CustomizedPhoneNumberSensitiveHandler extends AbstractSensitiveHandler<Long, PhoneNumberSensitive> implements SensitiveHandler<Long, PhoneNumberSensitive> {
 
         @Override
         public Long handle(Long target, PhoneNumberSensitive annotation) {
             return Long.parseLong(target.toString().replaceAll("4567", "0000"));
         }
     }
-
 }

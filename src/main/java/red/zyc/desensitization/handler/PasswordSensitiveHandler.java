@@ -8,13 +8,11 @@ import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
  *
  * @author zyc
  */
-public class PasswordSensitiveHandler extends AbstractCharSequenceSensitiveHandler<PasswordSensitive, CharSequence> {
-
-    static String s = "";
+public class PasswordSensitiveHandler extends AbstractCharSequenceSensitiveHandler<CharSequence, PasswordSensitive> implements SensitiveHandler<CharSequence, PasswordSensitive> {
 
     @Override
     public CharSequence handle(CharSequence target, PasswordSensitive annotation) {
-        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<PasswordSensitive, CharSequence>builder()
+        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, PasswordSensitive>builder()
                 .target(target)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())

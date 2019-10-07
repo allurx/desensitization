@@ -15,25 +15,65 @@
  */
 package red.zyc.desensitization;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import red.zyc.desensitization.annotation.EmailSensitive;
+import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.model.Father;
 import red.zyc.desensitization.model.Mother;
+import red.zyc.desensitization.util.CallerUtil;
 
 /**
  * @author zyc
  */
-@Slf4j
 public class Example {
 
+    private Logger log = LoggerFactory.getLogger(Example.class);
+
+    /**
+     * 对象内部域值脱敏
+     */
     @Test
-    public void test() {
+    public void desensitizeObject() {
         Child child = new Child();
         child.getParents().add(new Father());
         child.getParents().add(new Mother());
         log.info("before:" + child.toString());
         SensitiveUtil.desensitize(child);
-        log.info("end:" + child.toString());
+        log.info("after:" + child.toString());
+    }
+
+    /**
+     * 单个值脱敏
+     */
+    @Test
+    public void desensitizeValue() {
+        String email = "123456@qq.com";
+        log.info("before:" + email);
+
+        // 使用Lambda表达式
+        email = SensitiveUtil.
+                desensitize("123456@qq.com", (@EmailSensitive String s) -> {
+                });
+        log.info("after使用Lambda表达式指定敏感信息描述者：" + email);
+
+
+        // 使用匿名内部类
+        email = SensitiveUtil.
+                desensitize("123456@qq.com", new @EmailSensitive SensitiveDescriptor<String, EmailSensitive>() {
+                    @Override
+                    public void describe(String value) {
+
+                    }
+                });
+        log.info("after使用匿名内部类指定敏感信息描述者：" + email);
+    }
+
+    @Test
+    public void t() {
+        log.info(CallerUtil.getCaller().toString());
+        CallerUtil.printStackTrace();
     }
 }

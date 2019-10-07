@@ -15,11 +15,14 @@
  */
 package red.zyc.desensitization.handler;
 
-import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import red.zyc.desensitization.exception.InvalidSensitiveHandler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 
 /**
  * 敏感信息处理者基类，为子类提供了一些快捷有用的方法处理敏感信息。
@@ -28,18 +31,28 @@ import java.lang.reflect.Type;
  * @param <T> 实现类支持的处理类型
  * @author zyc
  */
-@Getter
-public abstract class AbstractSensitiveHandler<A extends Annotation, T> implements SensitiveHandler<A, T> {
+public abstract class AbstractSensitiveHandler<T, A extends Annotation> implements SensitiveHandler<T, A> {
 
+    /**
+     * 敏感信息处理注解支持的目标{@code Class}
+     */
+    protected Class<T> supportedClass;
     /**
      * 敏感信息处理注解的{@code Class}
      */
     protected Class<A> annotationClass;
 
     /**
-     * 敏感信息处理注解支持的目标{@code Class}
+     * {@link Logger}
      */
-    protected Class<T> supportedClass;
+    protected Logger log = LoggerFactory.getLogger(getClass());
+
+    @SuppressWarnings("unchecked")
+    public AbstractSensitiveHandler() {
+        Type[] actualTypeArgumentsOfSensitiveHandler = getActualTypeArgumentsOfSensitiveHandler();
+        supportedClass = (Class<T>) actualTypeArgumentsOfSensitiveHandler[0];
+        annotationClass = (Class<A>) actualTypeArgumentsOfSensitiveHandler[1];
+    }
 
     /**
      * 判断处理者是否支持将要处理的目标类型
@@ -51,23 +64,32 @@ public abstract class AbstractSensitiveHandler<A extends Annotation, T> implemen
         return supportedClass.isAssignableFrom(targetClass);
     }
 
-    @SuppressWarnings("unchecked")
-    public AbstractSensitiveHandler() {
-        Type[] types = ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments();
-        annotationClass = (Class<A>) types[0];
-        supportedClass = (Class<T>) types[1];
-    }
-
     /**
-     * 这个方法的作用仅仅是用来类型转换
-     *
-     * @param target     {@link T}
-     * @param annotation {@link A}
-     * @return {@link T}
+     * @return 当前敏感处理器直接实现或者由其某个父类实现的具有明确泛型参数的 {@link SensitiveHandler}接口的类型参数
      */
-    @SuppressWarnings("unchecked")
-    public T handling(Object target, Annotation annotation) {
-        return handle((T) target, (A) annotation);
+    private Type[] getActualTypeArgumentsOfSensitiveHandler() {
+        if (SensitiveHandler.class.isAssignableFrom(getClass())) {
+            Class<?> current = getClass();
+            while (current != null && current != Object.class) {
+                // 递归获取当前类或者父类实现的所有泛型接口
+                Type[] genericInterfaces = current.getGenericInterfaces();
+                for (Type type : genericInterfaces) {
+                    if (type instanceof ParameterizedType) {
+                        ParameterizedType parameterizedType = (ParameterizedType) type;
+                        Class<?> rawType = (Class<?>) parameterizedType.getRawType();
+                        // 当泛型接口是SensitiveHandler时返回其明确的类型参数，注意此时的参数可能为T，A之类的类型变量（TypeVariable）
+                        if (rawType == SensitiveHandler.class) {
+                            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                            if (Arrays.stream(actualTypeArguments).allMatch(actualType -> actualType instanceof Class)) {
+                                return parameterizedType.getActualTypeArguments();
+                            }
+                        }
+                    }
+                }
+                current = current.getSuperclass();
+            }
+        }
+        throw new InvalidSensitiveHandler(getClass() + "必须直接或间接实现具有明确泛型参数的" + SensitiveHandler.class.getName() + "接口");
     }
 
 }

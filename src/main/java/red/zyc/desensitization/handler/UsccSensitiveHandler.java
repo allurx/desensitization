@@ -26,11 +26,11 @@ import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
  *
  * @author zyc
  */
-public class UsccSensitiveHandler extends AbstractCharSequenceSensitiveHandler<UsccSensitive, CharSequence> {
+public class UsccSensitiveHandler extends AbstractCharSequenceSensitiveHandler<CharSequence, UsccSensitive> implements SensitiveHandler<CharSequence, UsccSensitive> {
 
     @Override
     public CharSequence handle(CharSequence target, UsccSensitive annotation) {
-        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<UsccSensitive, CharSequence>builder()
+        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, UsccSensitive>builder()
                 .target(target)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())
