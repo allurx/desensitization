@@ -129,6 +129,19 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!--指定启动类路径-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <source>1.8</source>
+                            <target>1.8</target>
+                            <encoding>UTF-8</encoding>
+                            <compilerArguments>
+                                <bootclasspath>${env.JAVA_HOME}/jre/lib/rt.jar</bootclasspath>
+                            </compilerArguments>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
