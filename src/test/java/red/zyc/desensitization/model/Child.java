@@ -20,6 +20,7 @@ import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
 import red.zyc.desensitization.handler.SensitiveHandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -51,6 +52,10 @@ public class Child {
     @EraseSensitive
     private List<Parent> parents = new ArrayList<>();
 
+    @EraseSensitive
+    @EmailSensitive
+    private List<String> emails = Arrays.asList("123456@qq.com", "1234567@qq.com", "1234568@qq.com");
+
     @Override
     public String toString() {
         return "Child{" +
@@ -62,6 +67,7 @@ public class Child {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", parents=" + parents +
+                ", emails=" + emails +
                 '}';
     }
 
@@ -127,6 +133,14 @@ public class Child {
 
     public void setParents(List<Parent> parents) {
         this.parents = parents;
+    }
+
+    public List<String> getEmails() {
+        return emails;
+    }
+
+    public void setEmails(List<String> emails) {
+        this.emails = emails;
     }
 
     /**

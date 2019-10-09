@@ -26,7 +26,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -124,21 +127,13 @@ public class SensitiveUtil {
                 // 递归擦除域中的敏感信息
                 Annotation sensitiveAnnotation = getFirstSensitiveAnnotationOnField(field);
                 if (field.isAnnotationPresent(EraseSensitive.class)) {
+                    // 域是集合，数组之类的容器，需要擦除内部的是单个敏感值
                     if (sensitiveAnnotation != null) {
-                        SensitiveHandler<Object, Annotation> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
-                        // 域是脱敏值集合
-                        if (fieldValue instanceof Collection) {
-                            field.set(target, ((Collection<?>) fieldValue).stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList()));
-                            continue;
-                        }
-                        // 域是脱敏值数组
-                        if (target instanceof Object[]) {
-                            field.set(target, Arrays.stream((Object[]) target).map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList()));
-                            continue;
-                        }
+                        field.set(target, eraseSingleContainerSensitiveValue(fieldValue, sensitiveAnnotation));
+                        // 域是普通的级联对象，需要递归擦除对象内部的敏感域值
+                    } else {
+                        handle(fieldValue);
                     }
-                    // 域是级联对象
-                    handle(fieldValue);
                     continue;
                 }
                 // 域是单个敏感值
@@ -149,6 +144,26 @@ public class SensitiveUtil {
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    /**
+     * 擦除容器类型内的单一类型的敏感值，例如集合中存放 {@link String} 类型的邮箱，目前只处理集合和数组类型的容器。
+     *
+     * @param value               对象值
+     * @param sensitiveAnnotation 单一类型的敏感值被标记的敏感注解，需要配合{@link EraseSensitive}注解使用
+     * @return 擦除后的对象值
+     */
+    private static Object eraseSingleContainerSensitiveValue(Object value, Annotation sensitiveAnnotation) throws Throwable {
+        SensitiveHandler<Object, Annotation> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
+        // 域是集合
+        if (value instanceof Collection) {
+            return ((Collection<?>) value).stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
+        }
+        // 域是数组
+        if (value instanceof Object[]) {
+            return Arrays.stream((Object[]) value).map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
+        }
+        return value;
     }
 
     /**
@@ -174,19 +189,14 @@ public class SensitiveUtil {
      * @param <T>        目标对象的类型
      * @param <A>        敏感注解类型
      * @return 敏感注解对应的 {@link SensitiveHandler}
-     * @throws Throwable 任何可能的异常
+     * @throws Throwable 反射获取敏感处理器时可能发生的任何异常
      */
-    private static <T, A extends Annotation> SensitiveHandler<T, A> getSensitiveHandler(Annotation annotation) {
-        try {
-            Class<? extends Annotation> annotationClass = annotation.annotationType();
-            Method method = annotationClass.getDeclaredMethod("handler");
-            @SuppressWarnings("unchecked")
-            Class<? extends SensitiveHandler<T, A>> handlerClass = (Class<? extends SensitiveHandler<T, A>>) method.invoke(annotation);
-            return handlerClass.newInstance();
-        } catch (Throwable t) {
-            log.error(t.getMessage(), t);
-        }
-        throw new RuntimeException();
+    private static <T, A extends Annotation> SensitiveHandler<T, A> getSensitiveHandler(A annotation) throws Throwable {
+        Class<? extends Annotation> annotationClass = annotation.annotationType();
+        Method method = annotationClass.getDeclaredMethod("handler");
+        @SuppressWarnings("unchecked")
+        Class<? extends SensitiveHandler<T, A>> handlerClass = (Class<? extends SensitiveHandler<T, A>>) method.invoke(annotation);
+        return handlerClass.newInstance();
     }
 
     /**

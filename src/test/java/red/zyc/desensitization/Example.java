@@ -19,11 +19,15 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.EmailSensitive;
+import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.model.Father;
 import red.zyc.desensitization.model.Mother;
 import red.zyc.desensitization.util.CallerUtil;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author zyc
@@ -73,11 +77,12 @@ public class Example {
 
     @Test
     public void desensitizeListValue() {
-//        List<String> emails = Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com");
-//        // 使用Lambda表达式
-//        emails = SensitiveUtil.
-//                desensitize(emails, ( List<@EmailSensitive String> s) -> {
-//                });
+        List<String> emails = Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com");
+        // 使用Lambda表达式
+        emails = SensitiveUtil.
+                desensitize(emails, (List<@EraseSensitive @EmailSensitive String> s) -> {
+                });
+        log.info(emails.toString());
 
     }
 
