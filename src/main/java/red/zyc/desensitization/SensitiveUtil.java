@@ -26,10 +26,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author zyc
@@ -51,12 +49,13 @@ public class SensitiveUtil {
      *
      * @param target 目标对象
      */
-    public static void desensitize(Object target) {
+    public static <T> T desensitize(T target) {
         try {
             handle(target);
         } finally {
             targets.remove();
         }
+        return target;
     }
 
     /**
@@ -71,14 +70,11 @@ public class SensitiveUtil {
     public static <T, A extends Annotation> T desensitize(T target, SensitiveDescriptor<T, A> descriptor) {
         try {
             A sensitiveAnnotation = descriptor.getSensitiveAnnotation();
-            if (sensitiveAnnotation != null && sensitiveAnnotation.annotationType().isAnnotationPresent(Sensitive.class)) {
+            if (sensitiveAnnotation != null) {
                 SensitiveHandler<T, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
-                // 找出field上的敏感注解
-                if (sensitiveHandler != null) {
-                    return sensitiveHandler.handle(target, sensitiveAnnotation);
-                }
+                return sensitiveHandler.handling(target, sensitiveAnnotation);
             }
-            log.warn("没有在" + descriptor.getClass() + "上找到敏感注解");
+            log.warn("没有在{}上找到敏感注解", descriptor.getClass());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
         }
@@ -126,19 +122,28 @@ public class SensitiveUtil {
                     continue;
                 }
                 // 递归擦除域中的敏感信息
+                Annotation sensitiveAnnotation = getFirstSensitiveAnnotationOnField(field);
                 if (field.isAnnotationPresent(EraseSensitive.class)) {
-                    handle(fieldValue);
-                }
-                // 找出field上的所有注解
-                Annotation[] annotations = field.getAnnotations();
-                for (Annotation annotation : annotations) {
-                    SensitiveHandler<?, ? extends Annotation> sensitiveHandler = getSensitiveHandler(annotation);
-                    // 找出field上的敏感注解
-                    if (sensitiveHandler != null) {
-                        field.set(target, sensitiveHandler.handling(fieldValue, annotation));
-                        // 只处理field上的第一个敏感注解
-                        break;
+                    if (sensitiveAnnotation != null) {
+                        SensitiveHandler<Object, Annotation> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
+                        // 域是脱敏值集合
+                        if (fieldValue instanceof Collection) {
+                            field.set(target, ((Collection<?>) fieldValue).stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList()));
+                            continue;
+                        }
+                        // 域是脱敏值数组
+                        if (target instanceof Object[]) {
+                            field.set(target, Arrays.stream((Object[]) target).map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList()));
+                            continue;
+                        }
                     }
+                    // 域是级联对象
+                    handle(fieldValue);
+                    continue;
+                }
+                // 域是单个敏感值
+                if (sensitiveAnnotation != null) {
+                    field.set(target, getSensitiveHandler(sensitiveAnnotation).handling(fieldValue, sensitiveAnnotation));
                 }
             }
         } catch (Throwable e) {
@@ -147,24 +152,41 @@ public class SensitiveUtil {
     }
 
     /**
+     * 获取对象域上的第一个敏感注解
+     *
+     * @param field 对象域
+     * @return 对象域上的第一个敏感注解
+     */
+    private static Annotation getFirstSensitiveAnnotationOnField(Field field) {
+        Annotation[] annotations = field.getAnnotations();
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
+                return annotation;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 通过反射实例化敏感注解对应的{@link SensitiveHandler}
      *
      * @param annotation 敏感注解
      * @param <T>        目标对象的类型
      * @param <A>        敏感注解类型
-     * @return {@link SensitiveHandler}
-     * @throws Throwable 任何可能的 {@link Throwable}
+     * @return 敏感注解对应的 {@link SensitiveHandler}
+     * @throws Throwable 任何可能的异常
      */
-    private static <T, A extends Annotation> SensitiveHandler<T, A> getSensitiveHandler(Annotation annotation) throws Throwable {
-        Class<? extends Annotation> annotationClass = annotation.annotationType();
-        if (annotationClass.isAnnotationPresent(Sensitive.class)) {
+    private static <T, A extends Annotation> SensitiveHandler<T, A> getSensitiveHandler(Annotation annotation) {
+        try {
+            Class<? extends Annotation> annotationClass = annotation.annotationType();
             Method method = annotationClass.getDeclaredMethod("handler");
-            // 通过反射实例化敏感注解的Handler
             @SuppressWarnings("unchecked")
             Class<? extends SensitiveHandler<T, A>> handlerClass = (Class<? extends SensitiveHandler<T, A>>) method.invoke(annotation);
             return handlerClass.newInstance();
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
         }
-        return null;
+        throw new RuntimeException();
     }
 
     /**

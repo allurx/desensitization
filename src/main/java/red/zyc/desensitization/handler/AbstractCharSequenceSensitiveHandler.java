@@ -42,11 +42,6 @@ public abstract class AbstractCharSequenceSensitiveHandler<T extends CharSequenc
         if (descriptor.getTarget() == null || descriptor.getTarget().length() == 0) {
             return descriptor.getTarget();
         }
-        // 判断Handler是否支持目标对象类型
-        if (!support(descriptor.getTarget().getClass())) {
-            log.warn(getClass().getName() + "不支持擦除" + descriptor.getTarget().getClass() + "类型的敏感信息");
-            return descriptor.getTarget();
-        }
         // 字符序列对应的字符数组
         char[] chars = descriptor.getTarget().toString().toCharArray();
 

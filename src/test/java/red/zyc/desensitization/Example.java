@@ -40,9 +40,9 @@ public class Example {
         Child child = new Child();
         child.getParents().add(new Father());
         child.getParents().add(new Mother());
-        log.info("before:" + child.toString());
-        SensitiveUtil.desensitize(child);
-        log.info("after:" + child.toString());
+        log.info("before:{}", child.toString());
+        Child c = SensitiveUtil.desensitize(child);
+        log.info("after:{}", c);
     }
 
     /**
@@ -51,13 +51,13 @@ public class Example {
     @Test
     public void desensitizeValue() {
         String email = "123456@qq.com";
-        log.info("before:" + email);
+        log.info("before:{}", email);
 
         // 使用Lambda表达式
         email = SensitiveUtil.
                 desensitize("123456@qq.com", (@EmailSensitive String s) -> {
                 });
-        log.info("after使用Lambda表达式指定敏感信息描述者：" + email);
+        log.info("after使用Lambda表达式指定敏感信息描述者:{}", email);
 
 
         // 使用匿名内部类
@@ -68,7 +68,17 @@ public class Example {
 
                     }
                 });
-        log.info("after使用匿名内部类指定敏感信息描述者：" + email);
+        log.info("after使用匿名内部类指定敏感信息描述者:{}", email);
+    }
+
+    @Test
+    public void desensitizeListValue() {
+//        List<String> emails = Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com");
+//        // 使用Lambda表达式
+//        emails = SensitiveUtil.
+//                desensitize(emails, ( List<@EmailSensitive String> s) -> {
+//                });
+
     }
 
     @Test

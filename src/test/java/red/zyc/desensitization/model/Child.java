@@ -16,7 +16,6 @@
 package red.zyc.desensitization.model;
 
 import red.zyc.desensitization.annotation.*;
-import red.zyc.desensitization.handler.AbstractSensitiveHandler;
 import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
 import red.zyc.desensitization.handler.SensitiveHandler;
 
@@ -136,7 +135,7 @@ public class Child {
      *
      * @see PhoneNumberSensitiveHandler
      */
-    public static class CustomizedPhoneNumberSensitiveHandler extends AbstractSensitiveHandler<Long, PhoneNumberSensitive> implements SensitiveHandler<Long, PhoneNumberSensitive> {
+    public static class CustomizedPhoneNumberSensitiveHandler implements SensitiveHandler<Long, PhoneNumberSensitive> {
 
         @Override
         public Long handle(Long target, PhoneNumberSensitive annotation) {
