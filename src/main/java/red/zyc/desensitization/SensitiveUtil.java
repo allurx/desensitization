@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author zyc
@@ -74,11 +75,10 @@ public class SensitiveUtil {
         try {
             A sensitiveAnnotation = descriptor.getSensitiveAnnotation();
             if (sensitiveAnnotation != null) {
-                SensitiveHandler<T, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
                 if (descriptor.isContainer(target)) {
                     return eraseSingleContainerSensitiveValue(target, sensitiveAnnotation);
                 }
-                return sensitiveHandler.handling(target, sensitiveAnnotation);
+                return SensitiveUtil.<T, A>getSensitiveHandler(sensitiveAnnotation).handling(target, sensitiveAnnotation);
             }
             log.warn("没有在{}上找到敏感注解", descriptor.getClass());
         } catch (Throwable e) {
@@ -156,20 +156,25 @@ public class SensitiveUtil {
      * @param sensitiveAnnotation 单一类型的敏感值被标记的敏感注解，需要配合{@link EraseSensitive}注解使用
      * @return 擦除后的对象值
      */
-    private static <T, A extends Annotation> T eraseSingleContainerSensitiveValue(T value, A sensitiveAnnotation) throws Throwable {
-        SensitiveHandler<Object, Annotation> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
+    private static <T, A extends Annotation, E> T eraseSingleContainerSensitiveValue(T value, A sensitiveAnnotation) throws Throwable {
+
         // 域是集合
-        if (value instanceof Collection) {
-            @SuppressWarnings("unchecked")
-            T result = (T) ((Collection<?>) value).stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
-            return result;
-        }
-        // 域是数组
-        if (value instanceof Object[]) {
-            @SuppressWarnings("unchecked")
-            T result = (T) Arrays.stream((Object[]) value).map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).toArray();
-            return result;
-        }
+//        if (value instanceof Collection) {
+//            SensitiveHandler<Collection<E>, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
+//            Collection<E> original = (Collection<E>) value;
+//            //@SuppressWarnings("unchecked")
+//            original.stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList() );
+//            original.clear();
+//            original.addAll(result);
+//            return value;
+//        }
+//        // 域是数组
+//        if (value instanceof Object[]) {
+//            Object[] original = Arrays.stream((Object[]) value).map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).toArray();
+//            @SuppressWarnings("unchecked")
+//            T result = (T) Arrays.copyOf(original, original.length, (Class<? extends E[]>) value.getClass());
+//            return result;
+//        }
         return value;
     }
 

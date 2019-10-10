@@ -25,8 +25,7 @@ import red.zyc.desensitization.model.Father;
 import red.zyc.desensitization.model.Mother;
 import red.zyc.desensitization.util.CallerUtil;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author zyc
@@ -56,7 +55,7 @@ public class Example {
 
         // 使用Lambda表达式
         String email1 = SensitiveUtil.
-                desensitize("123456@qq.com", (@EmailSensitive String s) -> false);
+                desensitize("123456@qq.com", (@EmailSensitive String value) -> false);
         log.info("after使用Lambda表达式指定敏感信息描述者:{}", email1);
 
 
@@ -78,14 +77,14 @@ public class Example {
     public void desensitizeList() {
 
         // 使用Lambda表达式
-        List<String> emails1 = SensitiveUtil.
-                desensitize(Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com"),
-                        (@EmailSensitive List<String> s) -> true);
+        Set<String> emails1 = SensitiveUtil.
+                desensitize(new HashSet<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com")),
+                        (@EmailSensitive Set<String> value) -> true);
         log.info("after使用Lambda表达式指定敏感信息描述者:{}", emails1);
 
         // 使用匿名内部类
         List<String> emails2 = SensitiveUtil.
-                desensitize(Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com"),
+                desensitize(new ArrayList<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com")),
                         new @EmailSensitive SensitiveDescriptor<List<String>, EmailSensitive>() {
                             @Override
                             public boolean isContainer(List<String> value) {
@@ -102,20 +101,19 @@ public class Example {
     public void desensitizeArray() {
 
         // 使用Lambda表达式
-//        String[] emails1 = SensitiveUtil.
-//                desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"}, (@EmailSensitive String[] s) -> true);
-//        log.info("after使用Lambda表达式指定敏感信息描述者:{}", Arrays.toString(emails1));
-//
-//        // 使用匿名内部类
-//        String[] emails2 = SensitiveUtil.
-//                desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
-//                        new @EmailSensitive SensitiveDescriptor<String[], EmailSensitive>() {
-//                            @Override
-//                            public boolean isContainer(String[] value) {
-//                                return true;
-//                            }
-//                        });
-//        log.info("after使用匿名内部类指定敏感信息描述者:{}", Arrays.toString(emails2));
+        String[] emails1 = SensitiveUtil.desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"}, (@EmailSensitive String[] value) -> true);
+        log.info("after使用Lambda表达式指定敏感信息描述者:{}", Arrays.toString(emails1));
+
+        // 使用匿名内部类
+        String[] emails2 = SensitiveUtil.
+                desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
+                        new @EmailSensitive SensitiveDescriptor<String[], EmailSensitive>() {
+                            @Override
+                            public boolean isContainer(String[] value) {
+                                return true;
+                            }
+                        });
+        log.info("after使用匿名内部类指定敏感信息描述者:{}", Arrays.toString(emails2));
     }
 
     @Test
