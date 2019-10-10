@@ -25,7 +25,9 @@ import red.zyc.desensitization.model.Father;
 import red.zyc.desensitization.model.Mother;
 import red.zyc.desensitization.util.CallerUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author zyc
@@ -54,8 +56,7 @@ public class Example {
     public void desensitizeValue() {
 
         // 使用Lambda表达式
-        String email1 = SensitiveUtil.
-                desensitize("123456@qq.com", (@EmailSensitive String value) -> false);
+        String email1 = SensitiveUtil.desensitize("123456@qq.com", (@EmailSensitive String value) -> false);
         log.info("after使用Lambda表达式指定敏感信息描述者:{}", email1);
 
 
@@ -67,7 +68,7 @@ public class Example {
                         return false;
                     }
                 });
-        log.info("after使用匿名内部类指定敏感信息描述者:{}", email2);
+        log.info("after使用匿名类指定敏感信息描述者:{}", email2);
     }
 
     /**
@@ -77,9 +78,7 @@ public class Example {
     public void desensitizeList() {
 
         // 使用Lambda表达式
-        Set<String> emails1 = SensitiveUtil.
-                desensitize(new HashSet<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com")),
-                        (@EmailSensitive Set<String> value) -> true);
+        List<String> emails1 = SensitiveUtil.desensitize(new ArrayList<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com")), (@EmailSensitive List<String> value) -> true);
         log.info("after使用Lambda表达式指定敏感信息描述者:{}", emails1);
 
         // 使用匿名内部类
@@ -91,7 +90,7 @@ public class Example {
                                 return true;
                             }
                         });
-        log.info("after使用匿名内部类指定敏感信息描述者:{}", emails2);
+        log.info("after使用匿名类指定敏感信息描述者:{}", emails2);
     }
 
     /**
@@ -113,7 +112,7 @@ public class Example {
                                 return true;
                             }
                         });
-        log.info("after使用匿名内部类指定敏感信息描述者:{}", Arrays.toString(emails2));
+        log.info("after使用匿名类指定敏感信息描述者:{}", Arrays.toString(emails2));
     }
 
     @Test

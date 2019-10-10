@@ -50,42 +50,45 @@ public interface SensitiveDescriptor<T, A extends Annotation> extends Serializab
      * </ol>
      *
      * @return 敏感描述者承载的第一个敏感注解，如果没有在敏感描述者上标记敏感注解则返回{@code null}
-     * @throws Throwable 任何可能的异常
      */
-    default A getSensitiveAnnotation() throws Throwable {
-        Class<?> clazz = getClass();
-        // Lambda
-        if (clazz.isSynthetic()) {
-            Method writeReplace = clazz.getDeclaredMethod("writeReplace");
-            writeReplace.setAccessible(true);
-            SerializedLambda serializedLambda = (SerializedLambda) writeReplace.invoke(this);
-            List<Class<?>> classes = BytecodeDescriptor.parseMethod(serializedLambda.getImplMethodSignature(), Thread.currentThread().getContextClassLoader());
-            Method lambdaStaticMethod = CallerUtil.getCaller(4).getDeclaredMethod(serializedLambda.getImplMethodName(), classes.get(0));
-            lambdaStaticMethod.setAccessible(true);
-            Annotation[] annotations = lambdaStaticMethod.getParameters()[0].getAnnotations();
-            if (annotations.length > 0) {
-                // 只返回生成的Lambda方法参数上的第一个敏感注解
-                for (Annotation annotation : annotations) {
-                    if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
-                        @SuppressWarnings("unchecked")
-                        A sensitiveAnnotation = (A) annotation;
-                        return sensitiveAnnotation;
+    default A getSensitiveAnnotation() {
+        try {
+            Class<?> clazz = getClass();
+            // Lambda
+            if (clazz.isSynthetic()) {
+                Method writeReplace = clazz.getDeclaredMethod("writeReplace");
+                writeReplace.setAccessible(true);
+                SerializedLambda serializedLambda = (SerializedLambda) writeReplace.invoke(this);
+                List<Class<?>> classes = BytecodeDescriptor.parseMethod(serializedLambda.getImplMethodSignature(), Thread.currentThread().getContextClassLoader());
+                Method lambdaStaticMethod = CallerUtil.getCaller(4).getDeclaredMethod(serializedLambda.getImplMethodName(), classes.get(0));
+                lambdaStaticMethod.setAccessible(true);
+                Annotation[] annotations = lambdaStaticMethod.getParameters()[0].getAnnotations();
+                if (annotations.length > 0) {
+                    // 只返回生成的Lambda方法参数上的第一个敏感注解
+                    for (Annotation annotation : annotations) {
+                        if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
+                            @SuppressWarnings("unchecked")
+                            A sensitiveAnnotation = (A) annotation;
+                            return sensitiveAnnotation;
+                        }
+                    }
+                }
+                // AnonymousClass
+            } else if (clazz.isAnonymousClass()) {
+                Annotation[] annotations = clazz.getAnnotations();
+                if (annotations.length > 0) {
+                    // 只返回匿名类上的第一个敏感注解
+                    for (Annotation annotation : annotations) {
+                        if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
+                            @SuppressWarnings("unchecked")
+                            A sensitiveAnnotation = (A) annotation;
+                            return sensitiveAnnotation;
+                        }
                     }
                 }
             }
-            // AnonymousClass
-        } else {
-            Annotation[] annotations = clazz.getAnnotations();
-            if (annotations.length > 0) {
-                // 只返回匿名内部类上的第一个敏感注解
-                for (Annotation annotation : annotations) {
-                    if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
-                        @SuppressWarnings("unchecked")
-                        A sensitiveAnnotation = (A) annotation;
-                        return sensitiveAnnotation;
-                    }
-                }
-            }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
         return null;
     }

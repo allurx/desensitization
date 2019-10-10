@@ -54,7 +54,7 @@ public class Child {
 
     @EraseSensitive
     @EmailSensitive
-    private List<String> emails = Arrays.asList("123456@qq.com", "1234567@qq.com", "1234568@qq.com");
+    private List<String> emails = new ArrayList<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "1234568@qq.com"));
 
     @Override
     public String toString() {

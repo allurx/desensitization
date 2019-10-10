@@ -26,12 +26,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author zyc
@@ -49,7 +45,7 @@ public class SensitiveUtil {
     private static Logger log = LoggerFactory.getLogger(SensitiveUtil.class);
 
     /**
-     * 对象内部域值脱敏
+     * 对象内部域值脱敏，注意该方法会改变原对象值
      *
      * @param target 目标对象
      */
@@ -63,7 +59,8 @@ public class SensitiveUtil {
     }
 
     /**
-     * 单个值脱敏
+     * 单个值脱敏，如果在脱敏期间发生任何异常或者没有找到敏感注解则不作任何处理，直接返回原值。
+     * 注意该方法会改变原对象值
      *
      * @param target     目标对象
      * @param descriptor 敏感信息描述者{@link SensitiveDescriptor}
@@ -72,20 +69,23 @@ public class SensitiveUtil {
      * @return 敏感信息被擦除后的值
      */
     public static <T, A extends Annotation> T desensitize(T target, SensitiveDescriptor<T, A> descriptor) {
-        try {
-            A sensitiveAnnotation = descriptor.getSensitiveAnnotation();
-            if (sensitiveAnnotation != null) {
+        if (target == null || descriptor == null) {
+            return target;
+        }
+        return Optional.ofNullable(descriptor.getSensitiveAnnotation()).map(sensitiveAnnotation -> {
+            try {
                 if (descriptor.isContainer(target)) {
-                    return eraseSingleContainerSensitiveValue(target, sensitiveAnnotation);
+                    return eraseContainerSensitiveValue(target, sensitiveAnnotation);
                 }
                 return SensitiveUtil.<T, A>getSensitiveHandler(sensitiveAnnotation).handling(target, sensitiveAnnotation);
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+                return target;
             }
+        }).orElseGet(() -> {
             log.warn("没有在{}上找到敏感注解", descriptor.getClass());
-        } catch (Throwable e) {
-            log.error(e.getMessage(), e);
-        }
-        // 发生任何异常或者没有找到敏感注解的情况下不作任何处理，直接返回原值
-        return target;
+            return target;
+        });
     }
 
 
@@ -132,7 +132,7 @@ public class SensitiveUtil {
                 if (field.isAnnotationPresent(EraseSensitive.class)) {
                     // 域是集合，数组之类的容器，需要擦除内部的是单个敏感值
                     if (sensitiveAnnotation != null) {
-                        field.set(target, eraseSingleContainerSensitiveValue(fieldValue, sensitiveAnnotation));
+                        field.set(target, eraseContainerSensitiveValue(fieldValue, sensitiveAnnotation));
                         // 域是普通的级联对象，需要递归擦除对象内部的敏感域值
                     } else {
                         handle(fieldValue);
@@ -154,27 +154,32 @@ public class SensitiveUtil {
      *
      * @param value               对象值
      * @param sensitiveAnnotation 单一类型的敏感值被标记的敏感注解，需要配合{@link EraseSensitive}注解使用
+     * @param <T>                 敏感对象类型
+     * @param <A>                 敏感注解类型
+     * @param <E>                 容器内部元素类型
      * @return 擦除后的对象值
+     * @throws Throwable 获取{@link SensitiveHandler}时可能会抛出相关异常
+     * @see SensitiveUtil#getSensitiveHandler(java.lang.annotation.Annotation)
      */
-    private static <T, A extends Annotation, E> T eraseSingleContainerSensitiveValue(T value, A sensitiveAnnotation) throws Throwable {
-
+    private static <T, A extends Annotation, E> T eraseContainerSensitiveValue(T value, A sensitiveAnnotation) throws Throwable {
+        SensitiveHandler<E, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
         // 域是集合
-//        if (value instanceof Collection) {
-//            SensitiveHandler<Collection<E>, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
-//            Collection<E> original = (Collection<E>) value;
-//            //@SuppressWarnings("unchecked")
-//            original.stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList() );
-//            original.clear();
-//            original.addAll(result);
-//            return value;
-//        }
-//        // 域是数组
-//        if (value instanceof Object[]) {
-//            Object[] original = Arrays.stream((Object[]) value).map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).toArray();
-//            @SuppressWarnings("unchecked")
-//            T result = (T) Arrays.copyOf(original, original.length, (Class<? extends E[]>) value.getClass());
-//            return result;
-//        }
+        if (value instanceof Collection) {
+            @SuppressWarnings("unchecked")
+            Collection<E> original = (Collection<E>) value;
+            Collection<E> result = original.stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
+            original.clear();
+            original.addAll(result);
+            return value;
+        }
+        // 域是数组
+        if (value instanceof Object[]) {
+            Object[] original = (Object[]) value;
+            // 返回的是Object[]对象，内部存放的是E类型的值，直接返回会抛出ClassCastException
+            Object[] result = Arrays.stream(original).map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).toArray();
+            System.arraycopy(result, 0, original, 0, original.length);
+            return value;
+        }
         return value;
     }
 
@@ -242,4 +247,5 @@ public class SensitiveUtil {
         }
         return fields.toArray(new Field[0]);
     }
+
 }
