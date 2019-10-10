@@ -7,11 +7,13 @@ import sun.invoke.util.BytecodeDescriptor;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.invoke.SerializedLambda;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
 
 /**
- * 敏感信息描述者，用来承载敏感信息注解，实现{@link Serializable}以在运行时获取{@link SerializedLambda}
+ * 单个敏感信息描述者，用来承载敏感信息注解，实现{@link Serializable}以在运行时获取{@link SerializedLambda}
  *
  * @param <T>
  * @author zyc
@@ -21,11 +23,21 @@ import java.util.List;
 public interface SensitiveDescriptor<T, A extends Annotation> extends Serializable {
 
     /**
-     * 标记方法，没有实际性作用
+     * 判断单个敏感值对象是否是容器类型的敏感值，例如：
+     * <ul>
+     *     <li>
+     *         包含{@link String}类型敏感值的{@link Collection}
+     *     </li>
+     *     <li>
+     *         包含{@link String}类型敏感值的{@link Array}
+     *     </li>
+     * </ul>
+     * 目前只处理以上几种类型
      *
      * @param value 敏感字段值
+     * @return 是否是容器类型的敏感值
      */
-    void describe(T value);
+    boolean isContainer(T value);
 
     /**
      * <ol>

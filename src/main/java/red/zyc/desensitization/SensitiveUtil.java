@@ -75,6 +75,9 @@ public class SensitiveUtil {
             A sensitiveAnnotation = descriptor.getSensitiveAnnotation();
             if (sensitiveAnnotation != null) {
                 SensitiveHandler<T, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
+                if (descriptor.isContainer(target)) {
+                    return eraseSingleContainerSensitiveValue(target, sensitiveAnnotation);
+                }
                 return sensitiveHandler.handling(target, sensitiveAnnotation);
             }
             log.warn("没有在{}上找到敏感注解", descriptor.getClass());
@@ -147,21 +150,25 @@ public class SensitiveUtil {
     }
 
     /**
-     * 擦除容器类型内的单一类型的敏感值，例如集合中存放 {@link String} 类型的邮箱，目前只处理集合和数组类型的容器。
+     * 擦除容器类型内的单一类型的敏感值，例如集合中存放 {@link String} 类型的邮箱。目前只处理集合和数组类型的容器。
      *
      * @param value               对象值
      * @param sensitiveAnnotation 单一类型的敏感值被标记的敏感注解，需要配合{@link EraseSensitive}注解使用
      * @return 擦除后的对象值
      */
-    private static Object eraseSingleContainerSensitiveValue(Object value, Annotation sensitiveAnnotation) throws Throwable {
+    private static <T, A extends Annotation> T eraseSingleContainerSensitiveValue(T value, A sensitiveAnnotation) throws Throwable {
         SensitiveHandler<Object, Annotation> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
         // 域是集合
         if (value instanceof Collection) {
-            return ((Collection<?>) value).stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
+            @SuppressWarnings("unchecked")
+            T result = (T) ((Collection<?>) value).stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
+            return result;
         }
         // 域是数组
         if (value instanceof Object[]) {
-            return Arrays.stream((Object[]) value).map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
+            @SuppressWarnings("unchecked")
+            T result = (T) Arrays.stream((Object[]) value).map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).toArray();
+            return result;
         }
         return value;
     }
