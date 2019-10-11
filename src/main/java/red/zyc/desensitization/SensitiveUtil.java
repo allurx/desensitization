@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.annotation.Sensitive;
 import red.zyc.desensitization.handler.SensitiveHandler;
+import red.zyc.desensitization.metadata.MapSensitiveDescriptor;
 import red.zyc.desensitization.metadata.SensitiveDescriptor;
 
 import java.lang.annotation.Annotation;
@@ -27,6 +28,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -40,9 +42,60 @@ public class SensitiveUtil {
     private static ThreadLocal<List<Object>> targets = ThreadLocal.withInitial(ArrayList::new);
 
     /**
+     * {@link ReentrantLock}
+     */
+    private static ReentrantLock lock = new ReentrantLock();
+
+    /**
      * {@link Logger}
      */
     private static Logger log = LoggerFactory.getLogger(SensitiveUtil.class);
+
+
+    public static <T extends Map<K, V>, K, V> T desensitizeMap(T target, MapSensitiveDescriptor<K, V> descriptor) {
+        try {
+            target.entrySet().stream().map(entry -> {
+                desensitize(entry.getKey(), descriptor.keySensitiveDescriptor());
+                desensitize(entry.getValue(), descriptor.valueSensitiveDescriptor());
+                return null;
+            });
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+        }
+        return target;
+    }
+
+    public static <E> E[] desensitizeArray(E[] target, SensitiveDescriptor<E> descriptor) {
+        try {
+            Annotation sensitiveAnnotation = descriptor.getSensitiveAnnotation();
+            SensitiveHandler<E, Annotation> sensitiveHandler = getSensitiveHandler(descriptor.getSensitiveAnnotation());
+            // 返回的是Object[]对象，内部存放的是E类型的值，直接返回会抛出ClassCastException
+            Object[] result = Arrays.stream(target).map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).toArray();
+            System.arraycopy(result, 0, target, 0, target.length);
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+        }
+        return target;
+    }
+
+    public static <T extends Collection<E>, E> T desensitizeCollection(T target, SensitiveDescriptor<E> descriptor) {
+        try {
+            try {
+                Annotation sensitiveAnnotation = descriptor.getSensitiveAnnotation();
+                SensitiveHandler<E, Annotation> sensitiveHandler = getSensitiveHandler(descriptor.getSensitiveAnnotation());
+                // 集合可能是非线程安全的容器
+                lock.lock();
+                List<E> result = target.stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
+                return (T) result;
+            } finally {
+                lock.unlock();
+            }
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+        }
+        return target;
+    }
+
 
     /**
      * 对象内部域值脱敏，注意该方法会改变原对象值
@@ -65,21 +118,17 @@ public class SensitiveUtil {
      * @param target     目标对象
      * @param descriptor 敏感信息描述者{@link SensitiveDescriptor}
      * @param <T>        目标对象类型
-     * @param <A>        敏感注解类型
      * @return 敏感信息被擦除后的值
      */
-    public static <T, A extends Annotation> T desensitize(T target, SensitiveDescriptor<T, A> descriptor) {
+    public static <T> T desensitize(T target, SensitiveDescriptor<T> descriptor) {
         if (target == null || descriptor == null) {
             return target;
         }
         return Optional.ofNullable(descriptor.getSensitiveAnnotation()).map(sensitiveAnnotation -> {
             try {
-                if (descriptor.isContainer(target)) {
-                    return eraseContainerSensitiveValue(target, sensitiveAnnotation);
-                }
-                return SensitiveUtil.<T, A>getSensitiveHandler(sensitiveAnnotation).handling(target, sensitiveAnnotation);
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+                return SensitiveUtil.<T, Annotation>getSensitiveHandler(sensitiveAnnotation).handling(target, sensitiveAnnotation);
+            } catch (Throwable t) {
+                log.error(t.getMessage(), t);
                 return target;
             }
         }).orElseGet(() -> {
@@ -152,7 +201,7 @@ public class SensitiveUtil {
     /**
      * 擦除容器类型内的单一类型的敏感值，例如集合中存放 {@link String} 类型的邮箱。目前只处理集合和数组类型的容器。
      *
-     * @param value               对象值
+     * @param value               容器对象
      * @param sensitiveAnnotation 单一类型的敏感值被标记的敏感注解，需要配合{@link EraseSensitive}注解使用
      * @param <T>                 敏感对象类型
      * @param <A>                 敏感注解类型
@@ -163,16 +212,22 @@ public class SensitiveUtil {
      */
     private static <T, A extends Annotation, E> T eraseContainerSensitiveValue(T value, A sensitiveAnnotation) throws Throwable {
         SensitiveHandler<E, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
-        // 域是集合
+        // 集合
         if (value instanceof Collection) {
             @SuppressWarnings("unchecked")
             Collection<E> original = (Collection<E>) value;
-            Collection<E> result = original.stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
-            original.clear();
-            original.addAll(result);
+            // 集合可能是非线程安全的容器
+            try {
+                lock.lock();
+                Collection<E> result = original.stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
+                original.clear();
+                original.addAll(result);
+            } finally {
+                lock.unlock();
+            }
             return value;
         }
-        // 域是数组
+        // 数组
         if (value instanceof Object[]) {
             Object[] original = (Object[]) value;
             // 返回的是Object[]对象，内部存放的是E类型的值，直接返回会抛出ClassCastException

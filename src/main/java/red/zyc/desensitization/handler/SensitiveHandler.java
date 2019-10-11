@@ -48,9 +48,9 @@ public interface SensitiveHandler<T, A extends Annotation> {
      * @param targetClass 需要擦除敏感信息的目标对象的 {@code Class}
      * @return 处理者是否支持目标类型
      */
-    @SuppressWarnings("unchecked")
     default boolean support(Class<?> targetClass) {
         Type[] actualTypeArgumentsOfSensitiveHandler = getActualTypeArgumentsOfSensitiveHandler();
+        @SuppressWarnings("unchecked")
         Class<T> supportedClass = (Class<T>) actualTypeArgumentsOfSensitiveHandler[0];
         return supportedClass.isAssignableFrom(targetClass);
     }
