@@ -56,6 +56,7 @@ public interface MapSensitiveDescriptor<K, V> extends Descriptor {
             public void describe(V value) {
 
             }
+
             @Override
             public Annotation getSensitiveAnnotation() {
                 Annotation[] annotations = MapSensitiveDescriptor.this.getDescription().getParameters()[1].getAnnotations();

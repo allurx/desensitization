@@ -20,16 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.ChineseNameSensitive;
 import red.zyc.desensitization.annotation.EmailSensitive;
+import red.zyc.desensitization.metadata.MapSensitiveDescriptor;
 import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.model.Father;
 import red.zyc.desensitization.model.Mother;
 import red.zyc.desensitization.util.CallerUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author zyc
@@ -81,14 +79,14 @@ public class Example {
     public void desensitizeList() {
 
         // 使用Lambda表达式
-        List<String> emails1 = SensitiveUtil.
+        Collection<String> emails1 = SensitiveUtil.
                 desensitizeCollection(new ArrayList<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com")),
                         (@EmailSensitive String value) -> {
                         });
         log.info("after使用Lambda表达式指定敏感信息描述者:{}", emails1);
 
         // 使用匿名内部类
-        List<String> emails2 = SensitiveUtil.
+        Collection<String> emails2 = SensitiveUtil.
                 desensitizeCollection(new ArrayList<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com")),
                         new SensitiveDescriptor<String>() {
                             @Override
@@ -132,22 +130,25 @@ public class Example {
         map.put("张三", "123456@qq.com");
         map.put("小明", "1234567@qq.com");
         map.put("李四", "1234568@qq.com");
+
+        log.info("before:{}", map);
         // 使用Lambda表达式
-        HashMap<String, String> emails1 = SensitiveUtil.desensitizeMap(map,
+        Map<String, String> emails1 = SensitiveUtil.desensitizeMap(map,
                 (@ChineseNameSensitive String key, @EmailSensitive String value) -> {
                 });
         log.info("after使用Lambda表达式指定敏感信息描述者:{}", emails1);
 
+
         // 使用匿名内部类
-        String[] emails2 = SensitiveUtil.
-                desensitizeArray(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
-                        new SensitiveDescriptor<String>() {
+        Map<String, String> emails2 = SensitiveUtil.
+                desensitizeMap(map,
+                        new MapSensitiveDescriptor<String, String>() {
                             @Override
-                            public void describe(@EmailSensitive String element) {
+                            public void describe(@ChineseNameSensitive String key, String value) {
 
                             }
                         });
-        log.info("after使用匿名类指定敏感信息描述者:{}", Arrays.toString(emails2));
+        log.info("after使用匿名类指定敏感信息描述者:{}", emails2);
     }
 
     @Test

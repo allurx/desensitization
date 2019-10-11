@@ -52,19 +52,36 @@ public class SensitiveUtil {
     private static Logger log = LoggerFactory.getLogger(SensitiveUtil.class);
 
 
-    public static <T extends Map<K, V>, K, V> T desensitizeMap(T target, MapSensitiveDescriptor<K, V> descriptor) {
+    /**
+     * 擦除{@link Map}内部单一类型的敏感值，注意该方法不会修改原Map中的元素。
+     *
+     * @param target     Map对象
+     * @param descriptor 敏感值描述者，用来描述Map内部的敏感信息
+     * @param <K>        Map的键类型
+     * @param <V>        Map的值类型
+     * @return 一个新的 {@link HashMap}，其中包含了原先Map中键值对被擦除敏感信息后的值
+     */
+    public static <K, V> Map<K, V> desensitizeMap(Map<K, V> target, MapSensitiveDescriptor<K, V> descriptor) {
+        if (target == null || descriptor == null) {
+            return target;
+        }
         try {
-            target.entrySet().stream().map(entry -> {
-                desensitize(entry.getKey(), descriptor.keySensitiveDescriptor());
-                desensitize(entry.getValue(), descriptor.valueSensitiveDescriptor());
-                return null;
-            });
+            return target.entrySet().stream().collect(Collectors.toMap(entry -> desensitize(entry.getKey(),
+                    descriptor.keySensitiveDescriptor()), entry -> desensitize(entry.getValue(), descriptor.valueSensitiveDescriptor())));
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
         }
         return target;
     }
 
+    /**
+     * 擦除数组内部单一类型的敏感值，注意该方法不会修改原数组中的元素。
+     *
+     * @param target     数组对象
+     * @param descriptor 敏感值描述者，用来描述数组内部的敏感信息
+     * @param <E>        数组中元素的类型
+     * @return 一个新的和原数组大小类型相同数组，其中包含了原先数组中每一个被擦除敏感信息的元素
+     */
     public static <E> E[] desensitizeArray(E[] target, SensitiveDescriptor<E> descriptor) {
         try {
             Annotation sensitiveAnnotation = descriptor.getSensitiveAnnotation();
@@ -78,15 +95,22 @@ public class SensitiveUtil {
         return target;
     }
 
-    public static <T extends Collection<E>, E> T desensitizeCollection(T target, SensitiveDescriptor<E> descriptor) {
+    /**
+     * 擦除集合内部单一类型的敏感值，注意该方法不会修改原集合中的元素。
+     *
+     * @param target     集合对象
+     * @param descriptor 敏感值描述者，用来描述集合内部的敏感信息
+     * @param <E>        集合中元素类型
+     * @return 一个新的 {@link ArrayList}，其中包含了原先集合中元素被擦除敏感信息后的值
+     */
+    public static <E> Collection<E> desensitizeCollection(Collection<E> target, SensitiveDescriptor<E> descriptor) {
         try {
             try {
                 Annotation sensitiveAnnotation = descriptor.getSensitiveAnnotation();
                 SensitiveHandler<E, Annotation> sensitiveHandler = getSensitiveHandler(descriptor.getSensitiveAnnotation());
                 // 集合可能是非线程安全的容器
                 lock.lock();
-                List<E> result = target.stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
-                return (T) result;
+                return target.stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
             } finally {
                 lock.unlock();
             }
