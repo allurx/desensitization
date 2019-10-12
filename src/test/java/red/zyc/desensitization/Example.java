@@ -76,11 +76,12 @@ public class Example {
      * 集合内部值脱敏
      */
     @Test
-    public void desensitizeList() {
+    public void desensitizeCollection() {
+        List<String> collection = new ArrayList<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com"));
 
         // 使用Lambda表达式
         Collection<String> emails1 = SensitiveUtil.
-                desensitizeCollection(new ArrayList<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com")),
+                desensitizeCollection(collection,
                         (@EmailSensitive String value) -> {
                         });
         log.info("after使用Lambda表达式指定敏感信息描述者:{}", emails1);
@@ -132,6 +133,7 @@ public class Example {
         map.put("李四", "1234568@qq.com");
 
         log.info("before:{}", map);
+
         // 使用Lambda表达式
         Map<String, String> emails1 = SensitiveUtil.desensitizeMap(map,
                 (@ChineseNameSensitive String key, @EmailSensitive String value) -> {
@@ -144,7 +146,7 @@ public class Example {
                 desensitizeMap(map,
                         new MapSensitiveDescriptor<String, String>() {
                             @Override
-                            public void describe(@ChineseNameSensitive String key, String value) {
+                            public void describe(@ChineseNameSensitive String key, @EmailSensitive String value) {
 
                             }
                         });

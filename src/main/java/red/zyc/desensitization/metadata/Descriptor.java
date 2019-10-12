@@ -1,9 +1,11 @@
 package red.zyc.desensitization.metadata;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import red.zyc.desensitization.exception.SensitiveDescriptionNotFound;
 import sun.invoke.util.BytecodeDescriptor;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -13,12 +15,23 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * 敏感描述者的顶级接口，为获取敏感注解提供了一些有用的方法。
+ * 注意继承该接口的{@link FunctionalInterface}接口需要注意以下几点：
+ * <ul>
+ *     <li>
+ *          必须定义一个名称为describe的抽象的方法来承载敏感注解
+ *     </li>
+ * </ul>
+ * 该接口实现{@link Serializable}的目的是为了在运行时如果{@code this}对象是以Lambda表达式的形式存在的话，
+ * 则获取相应的{@link SerializedLambda}对象
+ *
  * @author zyc
+ * @see SerializedLambda
  */
 public interface Descriptor extends Serializable {
 
     /**
-     * 获取描述方法
+     * 获取描述敏感信息的描述方法
      * <ol>
      *     <li>
      *         如果{@code this}是Lambda表达式，则返回Lambda表达式生成的静态方法
@@ -28,9 +41,9 @@ public interface Descriptor extends Serializable {
      *     </li>
      * </ol>
      *
-     * @return 敏感描述者承载的第一个敏感注解，如果没有在敏感描述者上标记敏感注解则返回{@code null}
+     * @return 描述敏感信息的描述方法
      */
-    default Method getDescription() {
+    default Method getSensitiveDescription() {
         try {
             Class<?> clazz = getClass();
             // Lambda
@@ -53,15 +66,15 @@ public interface Descriptor extends Serializable {
         } catch (Throwable t) {
             t.printStackTrace();
         }
-        throw new RuntimeException();
+        throw new SensitiveDescriptionNotFound("没有在" + getClass() + "中找到敏感描述方法");
     }
 
     /**
-     * 获取敏感注解，继承该接口的其它接口必须重写该方法。
+     * 获取{@link Logger}
      *
-     * @return 敏感注解
+     * @return {@link Logger}
      */
-    default Annotation getSensitiveAnnotation() {
-        throw new RuntimeException();
+    default Logger getLogger() {
+        return LoggerFactory.getLogger(getClass());
     }
 }

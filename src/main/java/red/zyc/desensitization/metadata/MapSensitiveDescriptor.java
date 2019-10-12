@@ -5,13 +5,15 @@ import red.zyc.desensitization.annotation.Sensitive;
 import java.lang.annotation.Annotation;
 
 /**
+ * Map类型的敏感对象描述者
+ *
  * @author zyc
  */
 @FunctionalInterface
 public interface MapSensitiveDescriptor<K, V> extends Descriptor {
 
     /**
-     * 用来承载敏感注解以处理Map内的敏感信息
+     * 描述Map的键值对是什么类型的敏感信息，用来承载敏感注解以处理Map内的敏感信息
      *
      * @param key   {@link K}
      * @param value {@link V}
@@ -33,12 +35,13 @@ public interface MapSensitiveDescriptor<K, V> extends Descriptor {
 
             @Override
             public Annotation getSensitiveAnnotation() {
-                Annotation[] annotations = MapSensitiveDescriptor.this.getDescription().getParameters()[0].getAnnotations();
+                Annotation[] annotations = MapSensitiveDescriptor.this.getSensitiveDescription().getParameters()[0].getAnnotations();
                 for (Annotation annotation : annotations) {
                     if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
                         return annotation;
                     }
                 }
+                getLogger().warn("没有在{}上找到敏感注解", getClass());
                 return null;
             }
         };
@@ -53,29 +56,28 @@ public interface MapSensitiveDescriptor<K, V> extends Descriptor {
         return new ValueSensitiveDescriptor<V>() {
 
             @Override
-            public void describe(V value) {
+            public void describe(Object value) {
 
             }
 
             @Override
             public Annotation getSensitiveAnnotation() {
-                Annotation[] annotations = MapSensitiveDescriptor.this.getDescription().getParameters()[1].getAnnotations();
+                Annotation[] annotations = MapSensitiveDescriptor.this.getSensitiveDescription().getParameters()[1].getAnnotations();
                 for (Annotation annotation : annotations) {
                     if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
                         return annotation;
                     }
                 }
+                getLogger().warn("没有在{}上找到敏感注解", getClass());
                 return null;
             }
         };
     }
 
-    interface KeySensitiveDescriptor<E> extends SensitiveDescriptor<E> {
-
+    interface KeySensitiveDescriptor<K> extends SensitiveDescriptor<K> {
     }
 
-    interface ValueSensitiveDescriptor<E> extends SensitiveDescriptor<E> {
-
+    interface ValueSensitiveDescriptor<V> extends SensitiveDescriptor<V> {
     }
 
 }

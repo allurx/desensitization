@@ -13,6 +13,7 @@
     <properties>
         <junit.version>4.12</junit.version>
         <logback.version>1.2.3</logback.version>
+        <javapoet.version>1.11.1</javapoet.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -48,6 +49,11 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+            <version>${javapoet.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
