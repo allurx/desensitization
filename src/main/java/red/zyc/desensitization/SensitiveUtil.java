@@ -15,6 +15,7 @@
  */
 package red.zyc.desensitization;
 
+import com.zyc.My;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.EraseSensitive;
@@ -35,7 +36,15 @@ import java.util.stream.Collectors;
 /**
  * @author zyc
  */
-public class SensitiveUtil {
+@My(name = "1")
+public class SensitiveUtil<@My(name = "2") T> {
+
+    private List<@My(name = "3") String> aaaaaa = new ArrayList<String>();
+
+    public void t() {
+        @My(name = "4") List<@My(name = "5") String> bbbbbbb = new ArrayList<>();
+        System.out.println(bbbbbbb);
+    }
 
     /**
      * 保存被处理过的对象
