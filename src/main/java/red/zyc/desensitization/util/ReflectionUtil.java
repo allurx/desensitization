@@ -19,6 +19,7 @@ package red.zyc.desensitization.util;
 import red.zyc.desensitization.annotation.Sensitive;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +37,17 @@ public class ReflectionUtil {
      * @return 对象域上的第一个敏感注解
      */
     public static Annotation getFirstSensitiveAnnotationOnField(Field field) {
-        Annotation[] annotations = field.getAnnotations();
+        Annotation[] annotations = field.getDeclaredAnnotations();
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
+                return annotation;
+            }
+        }
+        return null;
+    }
+
+    public static Annotation getFirstSensitiveAnnotationOnAnnotatedType(AnnotatedType annotatedType) {
+        Annotation[] annotations = annotatedType.getDeclaredAnnotations();
         for (Annotation annotation : annotations) {
             if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
                 return annotation;

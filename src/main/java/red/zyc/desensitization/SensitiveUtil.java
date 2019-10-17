@@ -15,7 +15,6 @@
  */
 package red.zyc.desensitization;
 
-import com.zyc.My;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.EraseSensitive;
@@ -26,9 +25,7 @@ import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -36,15 +33,7 @@ import java.util.stream.Collectors;
 /**
  * @author zyc
  */
-@My(name = "1")
-public class SensitiveUtil<@My(name = "2") T> {
-
-    private List<@My(name = "3") String> aaaaaa = new ArrayList<String>();
-
-    public void t() {
-        @My(name = "4") List<@My(name = "5") String> bbbbbbb = new ArrayList<>();
-        System.out.println(bbbbbbb);
-    }
+public class SensitiveUtil {
 
     /**
      * 保存被处理过的对象
@@ -174,7 +163,7 @@ public class SensitiveUtil<@My(name = "2") T> {
             }
             Class<?> targetClass = target.getClass();
             // 目标对象是集合
-            if (Collection.class.isAssignableFrom(targetClass)) {
+            if (target instanceof Collection) {
                 Collection<?> collection = (Collection<?>) target;
                 collection.forEach(SensitiveUtil::handle);
             }
@@ -197,64 +186,84 @@ public class SensitiveUtil<@My(name = "2") T> {
                     continue;
                 }
                 // 递归擦除域中的敏感信息
-                Annotation sensitiveAnnotation = ReflectionUtil.getFirstSensitiveAnnotationOnField(field);
                 if (field.isAnnotationPresent(EraseSensitive.class)) {
-                    // 域是集合，数组之类的容器，需要擦除内部的是单个敏感值
-                    if (sensitiveAnnotation != null) {
-                        field.set(target, eraseContainerSensitiveValue(fieldValue, sensitiveAnnotation));
+                    AnnotatedType annotatedType = field.getAnnotatedType();
+                    if (annotatedType instanceof AnnotatedParameterizedType) {
+                        AnnotatedType[] annotatedActualTypeArguments = ((AnnotatedParameterizedType) annotatedType).getAnnotatedActualTypeArguments();
+                        if (fieldValue instanceof Collection) {
+                            Collection<Object> collection = (Collection<Object>) fieldValue;
+                            Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[0]))
+                                    .ifPresent(annotation -> desensitizeCollection(collection, new SensitiveDescriptor<Object>() {
+                                        @Override
+                                        public void describe(Object value) {
+                                        }
+
+                                        @Override
+                                        public Annotation getSensitiveAnnotation() {
+                                            return annotation;
+                                        }
+                                    }));
+                            continue;
+                        } else if (fieldValue instanceof Map) {
+                            Map<Object, Object> map = (Map<Object, Object>) fieldValue;
+                            desensitizeMap(map, new MapSensitiveDescriptor<Object, Object>() {
+                                @Override
+                                public void describe(Object key, Object value) {
+
+                                }
+
+                                @Override
+                                public KeySensitiveDescriptor<Object> keySensitiveDescriptor() {
+                                    return new KeySensitiveDescriptor<Object>() {
+                                        @Override
+                                        public void describe(Object value) {
+
+                                        }
+
+                                        @Override
+                                        public Annotation getSensitiveAnnotation() {
+                                            return ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[0]);
+                                        }
+                                    };
+                                }
+
+                                @Override
+                                public ValueSensitiveDescriptor<Object> valueSensitiveDescriptor() {
+                                    return new ValueSensitiveDescriptor<Object>() {
+
+                                        @Override
+                                        public void describe(Object value) {
+
+                                        }
+
+                                        @Override
+                                        public Annotation getSensitiveAnnotation() {
+                                            return ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[1]);
+                                        }
+                                    };
+                                }
+                            });
+                            continue;
+                        }
                         // 域是普通的级联对象，需要递归擦除对象内部的敏感域值
                     } else {
                         handle(fieldValue);
+                        continue;
                     }
-                    continue;
                 }
                 // 域是单个敏感值
-                if (sensitiveAnnotation != null) {
-                    field.set(target, getSensitiveHandler(sensitiveAnnotation).handling(fieldValue, sensitiveAnnotation));
-                }
+                Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnField(field))
+                        .ifPresent(annotation -> {
+                            try {
+                                field.set(target, handling(fieldValue, annotation));
+                            } catch (IllegalAccessException e) {
+                                log.error(e.getMessage(), e);
+                            }
+                        });
             }
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
         }
-    }
-
-    /**
-     * 擦除容器类型内的单一类型的敏感值，例如集合中存放 {@link String} 类型的邮箱。目前只处理集合和数组类型的容器。
-     *
-     * @param value               容器对象
-     * @param sensitiveAnnotation 单一类型的敏感值被标记的敏感注解，需要配合{@link EraseSensitive}注解使用
-     * @param <T>                 敏感对象类型
-     * @param <A>                 敏感注解类型
-     * @param <E>                 容器内部元素类型
-     * @return 擦除后的对象值
-     * @see SensitiveUtil#getSensitiveHandler(java.lang.annotation.Annotation)
-     */
-    private static <T, A extends Annotation, E> T eraseContainerSensitiveValue(T value, A sensitiveAnnotation) {
-        SensitiveHandler<E, A> sensitiveHandler = getSensitiveHandler(sensitiveAnnotation);
-        // 集合
-        if (value instanceof Collection) {
-            @SuppressWarnings("unchecked")
-            Collection<E> original = (Collection<E>) value;
-            // 集合可能是非线程安全的容器
-            try {
-                lock.lock();
-                Collection<E> result = original.stream().map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).collect(Collectors.toList());
-                original.clear();
-                original.addAll(result);
-            } finally {
-                lock.unlock();
-            }
-            return value;
-        }
-        // 数组
-        if (value instanceof Object[]) {
-            Object[] original = (Object[]) value;
-            // 返回的是Object[]对象，内部存放的是E类型的值，直接返回会抛出ClassCastException
-            Object[] result = Arrays.stream(original).map(o -> sensitiveHandler.handling(o, sensitiveAnnotation)).toArray();
-            System.arraycopy(result, 0, original, 0, original.length);
-            return value;
-        }
-        return value;
     }
 
     /**

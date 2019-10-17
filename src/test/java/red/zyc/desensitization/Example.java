@@ -27,6 +27,7 @@ import red.zyc.desensitization.model.Father;
 import red.zyc.desensitization.model.Mother;
 import red.zyc.desensitization.util.CallerUtil;
 
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -157,6 +158,48 @@ public class Example {
     public void printStackTrace() {
         log.info(CallerUtil.getCaller().toString());
         CallerUtil.printStackTrace();
+    }
+
+    @Test
+    public void t() throws Exception {
+        Field[] declaredFields = P.class.getDeclaredFields();
+        for (Field field : declaredFields) {
+            field.setAccessible(true);
+            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>" + field.getName() + ":" + field.getAnnotatedType().getClass());
+            AnnotatedType annotatedType = field.getAnnotatedType();
+            if (annotatedType instanceof AnnotatedParameterizedType) {
+                AnnotatedType[] annotatedActualTypeArguments = ((AnnotatedParameterizedType) annotatedType).getAnnotatedActualTypeArguments();
+                Arrays.stream(annotatedActualTypeArguments).forEach(type -> System.out.println(Arrays.toString(type.getDeclaredAnnotations())));
+            } else if (annotatedType instanceof AnnotatedTypeVariable) {
+                AnnotatedType[] annotatedBounds = ((AnnotatedTypeVariable) annotatedType).getAnnotatedBounds();
+                Arrays.stream(annotatedBounds).forEach(type -> System.out.println(Arrays.toString(type.getDeclaredAnnotations())));
+            } else if (annotatedType instanceof AnnotatedArrayType) {
+                AnnotatedType annotatedGenericComponentType = ((AnnotatedArrayType) annotatedType).getAnnotatedGenericComponentType();
+                System.out.println(Arrays.toString(annotatedGenericComponentType.getDeclaredAnnotations()));
+                System.out.println(Arrays.toString(annotatedType.getDeclaredAnnotations()));
+            } else {
+                System.out.println(Arrays.toString(annotatedType.getDeclaredAnnotations()));
+            }
+
+            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>" + field.getName() + ":" + field.getAnnotatedType().getClass());
+        }
+    }
+
+    static class P<@EmailSensitive T extends @EmailSensitive(placeholder = '#') Number> {
+        private @EmailSensitive T a;
+
+        private List<@EmailSensitive T> b;
+
+        private Map<@EmailSensitive String, @EmailSensitive T> c;
+
+        private String d;
+
+        private List<? extends T> e;
+
+        private T@EmailSensitive [] f;
+
+        private List g;
+
     }
 
 

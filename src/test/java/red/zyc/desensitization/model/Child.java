@@ -19,9 +19,6 @@ import red.zyc.desensitization.annotation.*;
 import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
 import red.zyc.desensitization.handler.SensitiveHandler;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,23 +49,11 @@ public class Child {
     @PasswordSensitive
     private String password = "123456";
 
-    @ChineseNameSensitive
     @EraseSensitive
-    private @EmailSensitive List<@EmailSensitive Parent> parents = new ArrayList<>();
+    private List<Parent> parents = new ArrayList<>();
 
     @EraseSensitive
-    @EmailSensitive
-    private List<String> emails = new ArrayList<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "1234568@qq.com"));
-
-    public static void main(String[] args) throws Exception {
-        Field field = Child.class.getDeclaredField("parents");
-        field.setAccessible(true);
-        System.out.println(field.toGenericString());
-        System.out.println(Arrays.toString(field.getAnnotations()));
-        ParameterizedType genericType = (ParameterizedType) field.getGenericType();
-        System.out.println(genericType.getRawType());
-        Type actualTypeArgument = genericType.getActualTypeArguments()[0];
-    }
+    private List<@EmailSensitive String> emails = new ArrayList<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "1234568@qq.com"));
 
     @Override
     public String toString() {
