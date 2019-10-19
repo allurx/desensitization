@@ -21,6 +21,10 @@ import red.zyc.desensitization.handler.SensitiveHandler;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author zyc
@@ -54,113 +58,37 @@ public class Child {
     @EraseSensitive
     private Father father = new Father();
 
-    private List<@EraseSensitive Parent> parents = Arrays.asList(new Father(), new Mother());
+    private List<@EraseSensitive Parent> parents1 = Arrays.asList(new Father(), new Mother());
 
-    private List<@EmailSensitive String> emails = Arrays.asList("123456@qq.com", "1234567@qq.com", "1234568@qq.com");
+    private List<@EmailSensitive String> emails1 = Arrays.asList("123456@qq.com", "1234567@qq.com", "1234568@qq.com");
+
+    private Map<@ChineseNameSensitive String, @EmailSensitive String> emails2 = Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com"));
+
+    private Map<@EraseSensitive Parent, @EmailSensitive String> parents2 = Stream.of(new Father(), new Mother()).collect(Collectors.toMap(p -> p, p -> "123456@qq.com"));
+
+    private @PasswordSensitive String[] passwords = {"123456", "1234567", "12345678"};
+
+    private @EraseSensitive Parent[] parents3 = {new Father(), new Mother()};
 
     @Override
     public String toString() {
-        return "Child{" +
-                "name='" + name + '\'' +
-                ", phoneNumber=" + phoneNumber +
-                ", idCardNumber='" + idCardNumber + '\'' +
-                ", unifiedSocialCreditCode='" + unifiedSocialCreditCode + '\'' +
-                ", string='" + string + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", mother=" + mother +
-                ", father=" + father +
-                ", parents=" + parents +
-                ", emails=" + emails +
-                '}';
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(Long phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getIdCardNumber() {
-        return idCardNumber;
-    }
-
-    public void setIdCardNumber(String idCardNumber) {
-        this.idCardNumber = idCardNumber;
-    }
-
-    public String getUnifiedSocialCreditCode() {
-        return unifiedSocialCreditCode;
-    }
-
-    public void setUnifiedSocialCreditCode(String unifiedSocialCreditCode) {
-        this.unifiedSocialCreditCode = unifiedSocialCreditCode;
-    }
-
-    public String getString() {
-        return string;
-    }
-
-    public void setString(String string) {
-        this.string = string;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Mother getMother() {
-        return mother;
-    }
-
-    public void setMother(Mother mother) {
-        this.mother = mother;
-    }
-
-    public Father getFather() {
-        return father;
-    }
-
-    public void setFather(Father father) {
-        this.father = father;
-    }
-
-    public List<Parent> getParents() {
-        return parents;
-    }
-
-    public void setParents(List<Parent> parents) {
-        this.parents = parents;
-    }
-
-    public List<String> getEmails() {
-        return emails;
-    }
-
-    public void setEmails(List<String> emails) {
-        this.emails = emails;
+        return new StringJoiner(", ", Child.class.getSimpleName() + "[", "]")
+                .add("name='" + name + "'")
+                .add("phoneNumber=" + phoneNumber)
+                .add("idCardNumber='" + idCardNumber + "'")
+                .add("unifiedSocialCreditCode='" + unifiedSocialCreditCode + "'")
+                .add("string='" + string + "'")
+                .add("email='" + email + "'")
+                .add("password='" + password + "'")
+                .add("mother=" + mother)
+                .add("father=" + father)
+                .add("parents1=" + parents1)
+                .add("emails1=" + emails1)
+                .add("emails2=" + emails2)
+                .add("parents2=" + parents2)
+                .add("passwords=" + Arrays.toString(passwords))
+                .add("parents3=" + Arrays.toString(parents3))
+                .toString();
     }
 
     /**

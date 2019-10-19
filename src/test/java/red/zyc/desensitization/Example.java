@@ -25,7 +25,6 @@ import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.util.CallerUtil;
 
-import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -41,9 +40,9 @@ public class Example {
     @Test
     public void desensitizeObject() {
         Child child = new Child();
-        log.info("before:{}", child.toString());
+        log.info("before擦除复杂对象内部敏感信息:{}", child.toString());
         Child c = SensitiveUtil.desensitize(child);
-        log.info("after:{}", c);
+        log.info("after擦除复杂对象内部敏感信息:{}", c);
     }
 
     /**
@@ -52,21 +51,25 @@ public class Example {
     @Test
     public void desensitizeValue() {
 
+        String email = "123456@qq.com";
+
+        log.info("before擦除单个敏感者:{}", email);
+
         // 使用Lambda表达式
-        String email1 = SensitiveUtil.desensitize("123456@qq.com", (@EmailSensitive String value) -> {
+        String email1 = SensitiveUtil.desensitize(email, (@EmailSensitive String value) -> {
         });
-        log.info("after使用Lambda表达式指定敏感信息描述者:{}", email1);
+        log.info("after使用Lambda表达式指定单个敏感信息描述者:{}", email1);
 
 
         // 使用匿名内部类
         String email2 = SensitiveUtil.
-                desensitize("123456@qq.com", new SensitiveDescriptor<String>() {
+                desensitize(email, new SensitiveDescriptor<String>() {
                     @Override
                     public void describe(@EmailSensitive String value) {
 
                     }
                 });
-        log.info("after使用匿名类指定敏感信息描述者:{}", email2);
+        log.info("after使用匿名类指定单个敏感信息描述者:{}", email2);
     }
 
     /**
@@ -74,14 +77,17 @@ public class Example {
      */
     @Test
     public void desensitizeCollection() {
+
         List<String> collection = new ArrayList<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "12345678@qq.com"));
+
+        log.info("before擦除Collection类型敏感值:{}", collection);
 
         // 使用Lambda表达式
         Collection<String> emails1 = SensitiveUtil.
                 desensitizeCollection(collection,
                         (@EmailSensitive String value) -> {
                         });
-        log.info("after使用Lambda表达式指定敏感信息描述者:{}", emails1);
+        log.info("after使用Lambda表达式指定Collection类型敏感信息描述者:{}", emails1);
 
         // 使用匿名内部类
         Collection<String> emails2 = SensitiveUtil.
@@ -92,7 +98,7 @@ public class Example {
 
                             }
                         });
-        log.info("after使用匿名类指定敏感信息描述者:{}", emails2);
+        log.info("after使用匿名类指定Collection类型敏感信息描述者:{}", emails2);
     }
 
     /**
@@ -101,22 +107,26 @@ public class Example {
     @Test
     public void desensitizeArray() {
 
+        String[] emails = {"123456@qq.com", "1234567@qq.com", "12345678@qq.com"};
+
+        log.info("before擦除Array类型敏感值:{}", Arrays.toString(emails));
+
         // 使用Lambda表达式
-        String[] emails1 = SensitiveUtil.desensitizeArray(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
+        String[] emails1 = SensitiveUtil.desensitizeArray(emails,
                 (@EmailSensitive String value) -> {
                 });
-        log.info("after使用Lambda表达式指定敏感信息描述者:{}", Arrays.toString(emails1));
+        log.info("after使用Lambda表达式指定Array类型敏感信息描述者:{}", Arrays.toString(emails1));
 
         // 使用匿名内部类
         String[] emails2 = SensitiveUtil.
-                desensitizeArray(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
+                desensitizeArray(emails,
                         new SensitiveDescriptor<String>() {
                             @Override
                             public void describe(@EmailSensitive String element) {
 
                             }
                         });
-        log.info("after使用匿名类指定敏感信息描述者:{}", Arrays.toString(emails2));
+        log.info("after使用匿名类指定Array类型敏感信息描述者:{}", Arrays.toString(emails2));
     }
 
     /**
@@ -129,13 +139,13 @@ public class Example {
         map.put("小明", "1234567@qq.com");
         map.put("李四", "1234568@qq.com");
 
-        log.info("before:{}", map);
+        log.info("before擦除Map类型敏感值:{}", map);
 
         // 使用Lambda表达式
         Map<String, String> emails1 = SensitiveUtil.desensitizeMap(map,
                 (@ChineseNameSensitive String key, @EmailSensitive String value) -> {
                 });
-        log.info("after使用Lambda表达式指定敏感信息描述者:{}", emails1);
+        log.info("after使用Lambda表达式指定Map类型敏感信息描述者:{}", emails1);
 
 
         // 使用匿名内部类
@@ -147,7 +157,7 @@ public class Example {
 
                             }
                         });
-        log.info("after使用匿名类指定敏感信息描述者:{}", emails2);
+        log.info("after使用匿名类指定Map类型敏感信息描述者:{}", emails2);
     }
 
     @Test
@@ -155,51 +165,5 @@ public class Example {
         log.info(CallerUtil.getCaller().toString());
         CallerUtil.printStackTrace();
     }
-
-    @Test
-    public void t() throws Exception {
-        Field[] declaredFields = P.class.getDeclaredFields();
-        for (Field field : declaredFields) {
-            field.setAccessible(true);
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>" + field.getName() + ":" + field.getAnnotatedType().getClass());
-            AnnotatedType annotatedType = field.getAnnotatedType();
-            if (annotatedType instanceof AnnotatedParameterizedType) {
-                AnnotatedType[] annotatedActualTypeArguments = ((AnnotatedParameterizedType) annotatedType).getAnnotatedActualTypeArguments();
-                System.out.println(annotatedActualTypeArguments.length);
-                Arrays.stream(annotatedActualTypeArguments).forEach(type -> System.out.println(Arrays.toString(type.getDeclaredAnnotations())));
-            } else if (annotatedType instanceof AnnotatedTypeVariable) {
-                AnnotatedType[] annotatedBounds = ((AnnotatedTypeVariable) annotatedType).getAnnotatedBounds();
-                Arrays.stream(annotatedBounds).forEach(type -> System.out.println(Arrays.toString(type.getDeclaredAnnotations())));
-            } else if (annotatedType instanceof AnnotatedArrayType) {
-                AnnotatedType annotatedGenericComponentType = ((AnnotatedArrayType) annotatedType).getAnnotatedGenericComponentType();
-                System.out.println(Arrays.toString(annotatedGenericComponentType.getDeclaredAnnotations()));
-                System.out.println(Arrays.toString(annotatedType.getDeclaredAnnotations()));
-            } else {
-                System.out.println(Arrays.toString(annotatedType.getDeclaredAnnotations()));
-            }
-
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>" + field.getName() + ":" + field.getAnnotatedType().getClass());
-        }
-    }
-
-    static class P<@EmailSensitive T extends @EmailSensitive(placeholder = '#') Number> {
-        private @EmailSensitive T a;
-
-        private List<@EmailSensitive T> b;
-
-        private Map<@EmailSensitive String,  T> c;
-
-        private String d;
-
-        private List<? extends T> e;
-
-        private @EmailSensitive(placeholder = '1')String@EmailSensitive(placeholder = '2') [] f;
-
-        private List g;
-
-        private List<?> h;
-
-    }
-
 
 }

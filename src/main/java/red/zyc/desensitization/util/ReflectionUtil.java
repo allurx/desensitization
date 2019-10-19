@@ -18,6 +18,7 @@ package red.zyc.desensitization.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.annotation.Sensitive;
 
 import java.lang.annotation.Annotation;
@@ -61,6 +62,10 @@ public class ReflectionUtil {
             }
         }
         return null;
+    }
+
+    public static Annotation getEraseSensitiveAnnotationOnAnnotatedType(AnnotatedType annotatedType) {
+        return annotatedType.getDeclaredAnnotation(EraseSensitive.class);
     }
 
     public static void setFieldValue(Object target, Field field, Object value) {
