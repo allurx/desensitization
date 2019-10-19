@@ -19,7 +19,6 @@ import red.zyc.desensitization.annotation.*;
 import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
 import red.zyc.desensitization.handler.SensitiveHandler;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,10 +49,14 @@ public class Child {
     private String password = "123456";
 
     @EraseSensitive
-    private List<Parent> parents = new ArrayList<>();
+    private Mother mother = new Mother();
 
     @EraseSensitive
-    private List<@EmailSensitive String> emails = new ArrayList<>(Arrays.asList("123456@qq.com", "1234567@qq.com", "1234568@qq.com"));
+    private Father father = new Father();
+
+    private List<@EraseSensitive Parent> parents = Arrays.asList(new Father(), new Mother());
+
+    private List<@EmailSensitive String> emails = Arrays.asList("123456@qq.com", "1234567@qq.com", "1234568@qq.com");
 
     @Override
     public String toString() {
@@ -65,6 +68,8 @@ public class Child {
                 ", string='" + string + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", mother=" + mother +
+                ", father=" + father +
                 ", parents=" + parents +
                 ", emails=" + emails +
                 '}';
@@ -124,6 +129,22 @@ public class Child {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Mother getMother() {
+        return mother;
+    }
+
+    public void setMother(Mother mother) {
+        this.mother = mother;
+    }
+
+    public Father getFather() {
+        return father;
+    }
+
+    public void setFather(Father father) {
+        this.father = father;
     }
 
     public List<Parent> getParents() {

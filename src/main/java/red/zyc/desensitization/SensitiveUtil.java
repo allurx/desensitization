@@ -185,85 +185,50 @@ public class SensitiveUtil {
                 if (fieldValue == null) {
                     continue;
                 }
-                // 递归擦除域中的敏感信息
+
+                Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnField(field))
+                        .ifPresent(sensitiveAnnotation -> ReflectionUtil.setFieldValue(target, field, handling(fieldValue, sensitiveAnnotation)));
+
                 if (field.isAnnotationPresent(EraseSensitive.class)) {
-                    AnnotatedType annotatedType = field.getAnnotatedType();
-                    if (annotatedType instanceof AnnotatedParameterizedType) {
-                        AnnotatedType[] annotatedActualTypeArguments = ((AnnotatedParameterizedType) annotatedType).getAnnotatedActualTypeArguments();
-                        if (fieldValue instanceof Collection) {
-                            Collection<Object> collection = (Collection<Object>) fieldValue;
-                            Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[0]))
-                                    .ifPresent(annotation -> desensitizeCollection(collection, new SensitiveDescriptor<Object>() {
-                                        @Override
-                                        public void describe(Object value) {
-                                        }
+                    handle(fieldValue);
+                    continue;
+                }
 
-                                        @Override
-                                        public Annotation getSensitiveAnnotation() {
-                                            return annotation;
-                                        }
-                                    }));
-                            continue;
-                        } else if (fieldValue instanceof Map) {
-                            Map<Object, Object> map = (Map<Object, Object>) fieldValue;
-                            desensitizeMap(map, new MapSensitiveDescriptor<Object, Object>() {
-                                @Override
-                                public void describe(Object key, Object value) {
-
-                                }
-
-                                @Override
-                                public KeySensitiveDescriptor<Object> keySensitiveDescriptor() {
-                                    return new KeySensitiveDescriptor<Object>() {
-                                        @Override
-                                        public void describe(Object value) {
-
-                                        }
-
-                                        @Override
-                                        public Annotation getSensitiveAnnotation() {
-                                            return ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[0]);
-                                        }
-                                    };
-                                }
-
-                                @Override
-                                public ValueSensitiveDescriptor<Object> valueSensitiveDescriptor() {
-                                    return new ValueSensitiveDescriptor<Object>() {
-
-                                        @Override
-                                        public void describe(Object value) {
-
-                                        }
-
-                                        @Override
-                                        public Annotation getSensitiveAnnotation() {
-                                            return ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[1]);
-                                        }
-                                    };
-                                }
-                            });
-                            continue;
-                        }
-                        // 域是普通的级联对象，需要递归擦除对象内部的敏感域值
-                    } else {
-                        handle(fieldValue);
+                AnnotatedType annotatedType = field.getAnnotatedType();
+                if (annotatedType instanceof AnnotatedParameterizedType) {
+                    AnnotatedType[] annotatedActualTypeArguments = ((AnnotatedParameterizedType) annotatedType).getAnnotatedActualTypeArguments();
+                    if (fieldValue instanceof Collection) {
+                        Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[0]))
+                                .ifPresent(sensitiveAnnotationOnCollection -> ReflectionUtil.setFieldValue(target, field, ((Collection<?>) fieldValue).stream().map(e -> handling(e, sensitiveAnnotationOnCollection)).collect(Collectors.toList())));
                         continue;
                     }
+                    if (fieldValue instanceof Map) {
+                        Optional.of(Arrays.stream(annotatedActualTypeArguments).anyMatch(annotatedParameterizedType -> ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedParameterizedType) != null))
+                                .filter(existSensitiveAnnotation -> existSensitiveAnnotation)
+                                .ifPresent(existSensitiveAnnotation -> ReflectionUtil.setFieldValue(target, field, ((Map<?, ?>) fieldValue).entrySet()
+                                        .stream()
+                                        .collect(Collectors.toMap(
+                                                entry -> handling(entry.getKey(), ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[0])),
+                                                entry -> handling(entry.getValue(), ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[1])
+                                                )))));
+                        continue;
+                    }
+                    continue;
                 }
-                // 域是单个敏感值
-                Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnField(field))
-                        .ifPresent(annotation -> {
-                            try {
-                                field.set(target, handling(fieldValue, annotation));
-                            } catch (IllegalAccessException e) {
-                                log.error(e.getMessage(), e);
-                            }
-                        });
+                // 数组
+                if (annotatedType instanceof AnnotatedArrayType) {
+                    Object[] array = cast(fieldValue);
+                    Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(((AnnotatedArrayType) annotatedType).getAnnotatedGenericComponentType()))
+                            .ifPresent(sensitiveAnnotation -> ReflectionUtil.setFieldValue(target, field, Optional.of(Arrays.stream(array).map(o -> handling(o, sensitiveAnnotation)).toArray())
+                                    .map(result -> Arrays.copyOf(result, result.length, getClass(array))).get()
+                            ));
+                }
             }
-        } catch (Throwable e) {
+        } catch (
+                Throwable e) {
             log.error(e.getMessage(), e);
         }
+
     }
 
     /**
@@ -331,4 +296,17 @@ public class SensitiveUtil {
         return (Class<T>) value.getClass();
     }
 
+
+    /**
+     * 帮助方法用来将确定类型的对象转换为相应类型的对象
+     *
+     * @param value 对象值
+     * @param <T>   原对象类型
+     * @param <O>   确定的类型
+     * @return 转换后的对象值
+     */
+    @SuppressWarnings("unchecked")
+    private static <T, O> T cast(O value) {
+        return (T) value;
+    }
 }

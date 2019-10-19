@@ -16,6 +16,8 @@
 
 package red.zyc.desensitization.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.Sensitive;
 
 import java.lang.annotation.Annotation;
@@ -29,6 +31,11 @@ import java.util.List;
  * @author zyc
  */
 public class ReflectionUtil {
+
+    /**
+     * {@link Logger}
+     */
+    private static Logger log = LoggerFactory.getLogger(ReflectionUtil.class);
 
     /**
      * 获取对象域上的第一个敏感注解
@@ -54,6 +61,14 @@ public class ReflectionUtil {
             }
         }
         return null;
+    }
+
+    public static void setFieldValue(Object target, Field field, Object value) {
+        try {
+            field.set(target, value);
+        } catch (IllegalAccessException e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     /**

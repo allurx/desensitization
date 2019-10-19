@@ -23,8 +23,6 @@ import red.zyc.desensitization.annotation.EmailSensitive;
 import red.zyc.desensitization.metadata.MapSensitiveDescriptor;
 import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.model.Child;
-import red.zyc.desensitization.model.Father;
-import red.zyc.desensitization.model.Mother;
 import red.zyc.desensitization.util.CallerUtil;
 
 import java.lang.reflect.*;
@@ -43,8 +41,6 @@ public class Example {
     @Test
     public void desensitizeObject() {
         Child child = new Child();
-        child.getParents().add(new Father());
-        child.getParents().add(new Mother());
         log.info("before:{}", child.toString());
         Child c = SensitiveUtil.desensitize(child);
         log.info("after:{}", c);
@@ -169,6 +165,7 @@ public class Example {
             AnnotatedType annotatedType = field.getAnnotatedType();
             if (annotatedType instanceof AnnotatedParameterizedType) {
                 AnnotatedType[] annotatedActualTypeArguments = ((AnnotatedParameterizedType) annotatedType).getAnnotatedActualTypeArguments();
+                System.out.println(annotatedActualTypeArguments.length);
                 Arrays.stream(annotatedActualTypeArguments).forEach(type -> System.out.println(Arrays.toString(type.getDeclaredAnnotations())));
             } else if (annotatedType instanceof AnnotatedTypeVariable) {
                 AnnotatedType[] annotatedBounds = ((AnnotatedTypeVariable) annotatedType).getAnnotatedBounds();
@@ -190,15 +187,17 @@ public class Example {
 
         private List<@EmailSensitive T> b;
 
-        private Map<@EmailSensitive String, @EmailSensitive T> c;
+        private Map<@EmailSensitive String,  T> c;
 
         private String d;
 
         private List<? extends T> e;
 
-        private T@EmailSensitive [] f;
+        private @EmailSensitive(placeholder = '1')String@EmailSensitive(placeholder = '2') [] f;
 
         private List g;
+
+        private List<?> h;
 
     }
 

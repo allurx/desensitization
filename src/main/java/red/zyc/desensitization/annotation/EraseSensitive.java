@@ -19,10 +19,10 @@ import java.lang.annotation.*;
 
 
 /**
- * 被注解的元素在运行期间需要擦除一些敏感信息。
+ * 级联擦除被注解元素内部的敏感信息。
  * <ul>
  *     <li>
- *         标注在方法上代表对该方法的返回值进行敏感信息擦除。
+ *         标注在方法上代表级联擦除方法返回值中的敏感信息。
  *     </li>
  *     <li>
  *         标注在对象域上代表级联擦除该域中的敏感信息
@@ -31,7 +31,7 @@ import java.lang.annotation.*;
  *
  * @author zyc
  */
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface EraseSensitive {
