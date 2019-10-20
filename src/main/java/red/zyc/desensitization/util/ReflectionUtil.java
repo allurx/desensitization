@@ -22,6 +22,7 @@ import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.annotation.Sensitive;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -39,21 +40,11 @@ public class ReflectionUtil {
     private static Logger log = LoggerFactory.getLogger(ReflectionUtil.class);
 
     /**
-     * 获取对象域上的第一个敏感注解
+     * 获取{@link AnnotatedType}上的第一个敏感注解
      *
-     * @param field 对象域
-     * @return 对象域上的第一个敏感注解
+     * @param annotatedType {@link AnnotatedType}对象
+     * @return {@link AnnotatedType}上的第一个敏感注解
      */
-    public static Annotation getFirstSensitiveAnnotationOnField(Field field) {
-        Annotation[] annotations = field.getDeclaredAnnotations();
-        for (Annotation annotation : annotations) {
-            if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
-                return annotation;
-            }
-        }
-        return null;
-    }
-
     public static Annotation getFirstSensitiveAnnotationOnAnnotatedType(AnnotatedType annotatedType) {
         Annotation[] annotations = annotatedType.getDeclaredAnnotations();
         for (Annotation annotation : annotations) {
@@ -64,10 +55,24 @@ public class ReflectionUtil {
         return null;
     }
 
+    /**
+     * 获取{@link AnnotatedType}上的{@link EraseSensitive}注解
+     *
+     * @param annotatedType {@link AnnotatedType}对象
+     * @return {@link AnnotatedType}上的{@link EraseSensitive}注解
+     */
     public static Annotation getEraseSensitiveAnnotationOnAnnotatedType(AnnotatedType annotatedType) {
         return annotatedType.getDeclaredAnnotation(EraseSensitive.class);
     }
 
+    /**
+     * 设置指定对象中某个{@link Field}的值，注意该方法可能会导致{@link IllegalAccessException}，
+     * 请确保在调用该方法请提前调用{@link AccessibleObject#setAccessible(boolean)}方法设置允许访问域对象。
+     *
+     * @param target 指定对象
+     * @param field  指定对象的{@link Field}
+     * @param value  将要设置的值
+     */
     public static void setFieldValue(Object target, Field field, Object value) {
         try {
             field.set(target, value);
