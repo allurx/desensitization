@@ -22,11 +22,10 @@ import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.annotation.Sensitive;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.Field;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -95,5 +94,24 @@ public class ReflectionUtil {
             superclass = superclass.getSuperclass();
         }
         return fields.toArray(new Field[0]);
+    }
+
+    /**
+     * 克隆一个和原集合类型一样的集合。
+     * 注意集合对象必须遵守{@link Collection}中的约定，定义一个无参构造函数以及
+     * 带有一个{@link Collection}类型参数的构造函数。
+     *
+     * @param collection 原集合对象
+     * @return 克隆后的集合对象
+     * @see Collection
+     */
+    public static Collection<?> cloneCollection(Collection<?> collection) {
+        try {
+            Constructor<?> declaredConstructor = collection.getClass().getDeclaredConstructor(Collection.class);
+            return (Collection<?>) declaredConstructor.newInstance(collection);
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            log.error(e.getMessage(), e);
+        }
+        return null;
     }
 }

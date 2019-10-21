@@ -25,6 +25,10 @@ import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.util.CallerUtil;
 
+import java.lang.reflect.AnnotatedParameterizedType;
+import java.lang.reflect.AnnotatedTypeVariable;
+import java.lang.reflect.AnnotatedWildcardType;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -164,6 +168,133 @@ public class Example {
     public void printStackTrace() {
         log.info(CallerUtil.getCaller().toString());
         CallerUtil.printStackTrace();
+    }
+
+
+    @Test
+    public void t() throws Exception {
+        for (Field field : P.class.getDeclaredFields()) {
+            System.out.println(">>>>>>>>>>>>>>");
+            field.setAccessible(true);
+//            AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) field.getAnnotatedType();
+//            for(AnnotatedType annotatedType:annotatedParameterizedType.getAnnotatedActualTypeArguments()){
+//                AnnotatedParameterizedType annotatedParameterizedType1= (AnnotatedParameterizedType) annotatedType;
+//                System.out.println(Arrays.toString(annotatedParameterizedType1.getAnnotatedActualTypeArguments()[0].getDeclaredAnnotations()));;
+//            }
+            if (field.getAnnotatedType() instanceof AnnotatedTypeVariable) {
+                // Arrays.stream(((AnnotatedTypeVariable) field.getAnnotatedType()).getAnnotatedBounds()).forEach(annotatedType -> System.out.println(((Class<?>) annotatedType.getType())));
+            }
+            if (field.getAnnotatedType() instanceof AnnotatedParameterizedType) {
+                AnnotatedWildcardType annotatedType = (AnnotatedWildcardType) ((AnnotatedParameterizedType) field.getAnnotatedType()).getAnnotatedActualTypeArguments()[0];
+                System.out.println(Arrays.toString(annotatedType.getAnnotatedLowerBounds()));
+                System.out.println(Arrays.toString(annotatedType.getAnnotatedUpperBounds()));
+            }
+
+            System.out.println(">>>>>>>>>>>>>>");
+            P<B> p = new P<>();
+            p.b = new B();
+        }
+    }
+
+    static class P<T extends Number & Collection<String>> {
+        //List<List<@EmailSensitive String>> a;
+
+        T b;
+
+        List<? extends Collection<String>> c;
+
+        //List<@EmailSensitive ?> b;
+
+        //List<String[]> c;
+
+    }
+
+    static class B extends Number implements Collection<String> {
+
+        @Override
+        public int intValue() {
+            return 0;
+        }
+
+        @Override
+        public long longValue() {
+            return 0;
+        }
+
+        @Override
+        public float floatValue() {
+            return 0;
+        }
+
+        @Override
+        public double doubleValue() {
+            return 0;
+        }
+
+        @Override
+        public int size() {
+            return 0;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return false;
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return false;
+        }
+
+        @Override
+        public Iterator<String> iterator() {
+            return null;
+        }
+
+        @Override
+        public Object[] toArray() {
+            return new Object[0];
+        }
+
+        @Override
+        public <T> T[] toArray(T[] a) {
+            return null;
+        }
+
+        @Override
+        public boolean add(String s) {
+            return false;
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            return false;
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> c) {
+            return false;
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends String> c) {
+            return false;
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> c) {
+            return false;
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> c) {
+            return false;
+        }
+
+        @Override
+        public void clear() {
+
+        }
     }
 
 }

@@ -265,7 +265,7 @@ public class SensitiveUtil {
      * @param <T>                 敏感值类型
      * @return 敏感处理者处理后的值
      */
-    private static <T> T handling(T value, Annotation sensitiveAnnotation) {
+    public static <T> T handling(T value, Annotation sensitiveAnnotation) {
         return SensitiveUtil.<T, Annotation>getSensitiveHandler(sensitiveAnnotation).handling(value, sensitiveAnnotation);
     }
 
