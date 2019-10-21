@@ -16,12 +16,22 @@
 
 package red.zyc.desensitization.metadata.resolver;
 
-import java.util.Collection;
+import java.lang.reflect.AnnotatedType;
+import java.util.Map;
 
 /**
  * @author zyc
  */
-public class MapResolver extends CollectionResolver implements Resolver<Collection<?>> {
+public class MapResolver implements Resolver<Map<?, ?>> {
 
 
+    @Override
+    public void resolve(Map<?, ?> value, AnnotatedType... typeArguments) {
+        COLLECTION_RESOLVER.resolve(value.keySet(), typeArguments[0]);
+        COLLECTION_RESOLVER.resolve(value.values(), typeArguments[1]);
+    }
+
+    @Override
+    public void resolveOther(Map<?, ?> value, AnnotatedType typeArgument) {
+    }
 }

@@ -58,9 +58,9 @@ public class Child {
     @EraseSensitive
     private Father father = new Father();
 
-    private List<@EraseSensitive Parent> parents1 = Arrays.asList(new Father(), new Mother());
+    private List<@EraseSensitive Parent> parents1 = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
 
-    private List<@EmailSensitive String> emails1 = Arrays.asList("123456@qq.com", "1234567@qq.com", "1234568@qq.com");
+    private List<@EmailSensitive String> emails1 = Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList());
 
     private Map<@ChineseNameSensitive String, @EmailSensitive String> emails2 = Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com"));
 

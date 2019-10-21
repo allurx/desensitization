@@ -21,12 +21,15 @@ import red.zyc.desensitization.exception.SensitiveHandlerNotFound;
 import red.zyc.desensitization.handler.SensitiveHandler;
 import red.zyc.desensitization.metadata.MapSensitiveDescriptor;
 import red.zyc.desensitization.metadata.SensitiveDescriptor;
+import red.zyc.desensitization.metadata.resolver.Resolver;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -38,11 +41,6 @@ public class SensitiveUtil {
      * 保存被处理过的对象
      */
     private static ThreadLocal<List<Object>> targets = ThreadLocal.withInitial(ArrayList::new);
-
-    /**
-     * {@link ReentrantLock}
-     */
-    private static ReentrantLock lock = new ReentrantLock();
 
     /**
      * {@link Logger}
@@ -175,60 +173,19 @@ public class SensitiveUtil {
                 }
 
                 AnnotatedType annotatedType = field.getAnnotatedType();
-                // AnnotatedParameterizedType
-                if (annotatedType instanceof AnnotatedParameterizedType) {
-                    AnnotatedType[] annotatedActualTypeArguments = ((AnnotatedParameterizedType) annotatedType).getAnnotatedActualTypeArguments();
-                    if (fieldValue instanceof Collection) {
-                        Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[0]))
-                                .ifPresent(sensitiveAnnotation -> ReflectionUtil.setFieldValue(target, field, ((Collection<?>) fieldValue).stream()
-                                        .map(e -> handling(e, sensitiveAnnotation))
-                                        .collect(Collectors.toList())
-                                ));
-                        Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[0]))
-                                .ifPresent(eraseSensitiveAnnotation -> ((Collection<?>) fieldValue).forEach(SensitiveUtil::handle));
+                if (fieldValue instanceof Collection) {
+                    Resolver.COLLECTION_RESOLVER.resolve((Collection<?>) fieldValue, annotatedType);
+                } else if (fieldValue instanceof Map) {
+                    Resolver.MAP_RESOLVER.resolve((Map<?, ?>) fieldValue, annotatedType);
+                } else if (fieldValue instanceof Object[]) {
+                    Resolver.ARRAY_RESOLVER.resolve((Object[]) fieldValue, annotatedType);
+                } else {
+                    Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
+                            .ifPresent(sensitiveAnnotation -> ReflectionUtil.setFieldValue(target, field, handling(fieldValue, sensitiveAnnotation)));
 
-                        continue;
-                    }
-                    if (fieldValue instanceof Map) {
-                        Optional.of(Arrays.stream(annotatedActualTypeArguments).anyMatch(annotatedParameterizedType -> ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedParameterizedType) != null))
-                                .filter(existSensitiveAnnotation -> existSensitiveAnnotation)
-                                .ifPresent(existSensitiveAnnotation -> ReflectionUtil.setFieldValue(target, field, ((Map<?, ?>) fieldValue).entrySet()
-                                        .stream()
-                                        .collect(Collectors.toMap(
-                                                entry -> Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[0]))
-                                                        .map(sensitiveAnnotation -> handling(entry.getKey(), sensitiveAnnotation))
-                                                        .orElse(entry.getKey()),
-                                                entry -> Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[1]))
-                                                        .map(sensitiveAnnotation -> handling(entry.getValue(), sensitiveAnnotation))
-                                                        .orElse(entry.getValue())
-                                        ))));
-                        Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[0]))
-                                .ifPresent(eraseSensitiveAnnotation -> ((Map<?, ?>) fieldValue).keySet().forEach(SensitiveUtil::handle));
-                        Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedActualTypeArguments[1]))
-                                .ifPresent(eraseSensitiveAnnotation -> ((Map<?, ?>) fieldValue).values().forEach(SensitiveUtil::handle));
-                        continue;
-                    }
-                    continue;
+                    Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedType))
+                            .ifPresent(eraseSensitiveAnnotation -> handle(fieldValue));
                 }
-                // AnnotatedArrayType
-                if (annotatedType instanceof AnnotatedArrayType) {
-                    Object[] array = cast(fieldValue);
-                    AnnotatedType annotatedGenericComponentType = ((AnnotatedArrayType) annotatedType).getAnnotatedGenericComponentType();
-                    Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedGenericComponentType))
-                            .ifPresent(sensitiveAnnotation -> ReflectionUtil.setFieldValue(target, field, Optional.of(Arrays.stream(array).map(o -> handling(o, sensitiveAnnotation)).toArray())
-                                    .map(result -> Arrays.copyOf(result, result.length, getClass(array))).get()
-                            ));
-                    Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedGenericComponentType))
-                            .ifPresent(eraseSensitiveAnnotation -> Arrays.stream(array).forEach(SensitiveUtil::handle));
-                    continue;
-                }
-
-                // AnnotatedTypeVariable or AnnotatedTypeBaseImpl
-                Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
-                        .ifPresent(sensitiveAnnotation -> ReflectionUtil.setFieldValue(target, field, handling(fieldValue, sensitiveAnnotation)));
-
-                Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedType))
-                        .ifPresent(eraseSensitiveAnnotation -> handle(fieldValue));
             }
         } catch (Throwable e) {
             log.error(e.getMessage(), e);

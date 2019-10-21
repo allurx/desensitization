@@ -24,37 +24,37 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author zyc
  */
-public class CollectionResolver implements Resolver<Collection<?>> {
+public class ArrayResolver implements Resolver<Object[]> {
 
     @Override
-    public void resolve(Collection<?> value, AnnotatedType... typeArguments) {
+    public void resolve(Object[] value, AnnotatedType... typeArguments) {
         AnnotatedType typeArgument = typeArguments[0];
         if (typeArgument instanceof AnnotatedParameterizedType) {
             AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) typeArgument;
-            Class<?> rawType = (Class<?>) annotatedParameterizedType.getAnnotatedActualTypeArguments()[0].getType();
+            ParameterizedType type = (ParameterizedType) typeArgument.getType();
+            Class<?> rawType = (Class<?>) type.getRawType();
             if (Collection.class.isAssignableFrom(rawType)) {
-                value.forEach(o -> resolve((Collection<?>) o, annotatedParameterizedType.getAnnotatedActualTypeArguments()[0]));
+                Arrays.stream(value).forEach(o -> COLLECTION_RESOLVER.resolve((Collection<?>) o, annotatedParameterizedType.getAnnotatedActualTypeArguments()[0]));
             } else if (Map.class.isAssignableFrom(rawType)) {
-                value.forEach(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, annotatedParameterizedType.getAnnotatedActualTypeArguments()[0], annotatedParameterizedType.getAnnotatedActualTypeArguments()[1]));
+                Arrays.stream(value).forEach(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, annotatedParameterizedType.getAnnotatedActualTypeArguments()[0], annotatedParameterizedType.getAnnotatedActualTypeArguments()[1]));
             } else {
-                resolveOther(value, annotatedParameterizedType.getAnnotatedActualTypeArguments()[0]);
+                resolveOther(value, typeArgument);
             }
         } else if (typeArgument instanceof AnnotatedArrayType) {
-            value.forEach(o -> ARRAY_RESOLVER.resolve((Object[]) o, ((AnnotatedArrayType) typeArgument).getAnnotatedGenericComponentType()));
+            Arrays.stream(value).forEach(o -> resolve((Object[]) o, ((AnnotatedArrayType) typeArgument).getAnnotatedGenericComponentType()));
         } else if (typeArgument instanceof AnnotatedTypeVariable) {
             Arrays.stream(((AnnotatedTypeVariable) typeArgument).getAnnotatedBounds()).forEach(annotatedBound -> {
                 Class<?> rawType = (Class<?>) annotatedBound.getType();
                 if (Collection.class.isAssignableFrom(rawType)
                         && annotatedBound instanceof AnnotatedParameterizedType) {
-                    value.forEach(o -> resolve((Collection<?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[0]));
+                    Arrays.stream(value).forEach(o -> COLLECTION_RESOLVER.resolve((Collection<?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[0]));
                 } else if (Map.class.isAssignableFrom(rawType)
                         && annotatedBound instanceof AnnotatedParameterizedType) {
-                    value.forEach(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[0], ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[1]));
+                    Arrays.stream(value).forEach(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[0], ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[1]));
                 } else {
                     resolveOther(value, typeArgument);
                 }
@@ -66,10 +66,10 @@ public class CollectionResolver implements Resolver<Collection<?>> {
             Arrays.stream(annotatedBounds).forEach(annotatedBound -> {
                 if (Collection.class.isAssignableFrom((Class<?>) annotatedBound.getType())
                         && annotatedBound instanceof AnnotatedParameterizedType) {
-                    value.forEach(o -> resolve((Collection<?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[0]));
+                    Arrays.stream(value).forEach(o -> COLLECTION_RESOLVER.resolve((Collection<?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[0]));
                 } else if (Map.class.isAssignableFrom((Class<?>) annotatedBound.getType())
                         && annotatedBound instanceof AnnotatedParameterizedType) {
-                    value.forEach(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[0], ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[1]));
+                    Arrays.stream(value).forEach(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[0], ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments()[1]));
                 } else {
                     resolveOther(value, typeArgument);
                 }
@@ -81,14 +81,16 @@ public class CollectionResolver implements Resolver<Collection<?>> {
     }
 
     @Override
-    public void resolveOther(Collection<?> value, AnnotatedType typeArgument) {
+    public void resolveOther(Object[] value, AnnotatedType typeArgument) {
         Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(typeArgument))
                 .ifPresent(sensitiveAnnotation -> {
-                    Collection<?> collect = value.stream().map(e -> SensitiveUtil.handling(e, sensitiveAnnotation)).collect(Collectors.toList());
-                    value.clear();
-                    value.addAll((Collection) collect);
+                    Object[] result = Arrays.stream(value).map(o -> SensitiveUtil.handling(o, sensitiveAnnotation)).toArray();
+                    System.arraycopy(result, 0, value, 0, value.length);
                 });
         Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(typeArgument))
-                .ifPresent(eraseSensitiveAnnotation -> value.forEach(SensitiveUtil::desensitize));
+                .ifPresent(eraseSensitiveAnnotation -> {
+                    Object[] result = Arrays.stream(value).map(SensitiveUtil::desensitize).toArray();
+                    System.arraycopy(result, 0, value, 0, value.length);
+                });
     }
 }
