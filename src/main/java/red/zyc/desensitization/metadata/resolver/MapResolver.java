@@ -16,7 +16,12 @@
 
 package red.zyc.desensitization.metadata.resolver;
 
+import red.zyc.desensitization.util.ReflectionUtil;
+
 import java.lang.reflect.AnnotatedType;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -26,12 +31,20 @@ public class MapResolver implements Resolver<Map<?, ?>> {
 
 
     @Override
-    public void resolve(Map<?, ?> value, AnnotatedType... typeArguments) {
-        COLLECTION_RESOLVER.resolve(value.keySet(), typeArguments[0]);
-        COLLECTION_RESOLVER.resolve(value.values(), typeArguments[1]);
+    public Map<?, ?> resolve(Map<?, ?> value, AnnotatedType... typeArguments) {
+        Collection<?> keys = COLLECTION_RESOLVER.resolve(new ArrayList<>(value.keySet()), typeArguments[0]);
+        Collection<?> values = COLLECTION_RESOLVER.resolve(new ArrayList<>(value.values()), typeArguments[1]);
+        Map<Object, Object> map = (Map<Object, Object>) ReflectionUtil.constructMap(ReflectionUtil.getClass(value));
+        Iterator<?> keyIterator = keys.iterator();
+        Iterator<?> valueIterator = values.iterator();
+        while (keyIterator.hasNext() && valueIterator.hasNext()) {
+            map.put(keyIterator.next(), valueIterator.next());
+        }
+        return map;
     }
 
     @Override
-    public void resolveOther(Map<?, ?> value, AnnotatedType typeArgument) {
+    public Map<?, ?> resolveOther(Map<?, ?> value, AnnotatedType typeArgument) {
+        throw new UnsupportedOperationException();
     }
 }

@@ -25,10 +25,7 @@ import red.zyc.desensitization.metadata.resolver.Resolver;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -119,7 +116,7 @@ public class SensitiveUtil {
                 .map(SensitiveDescriptor::getSensitiveAnnotation)
                 // 返回的是Object[]对象，内部存放的是E类型的值，直接返回会抛出ClassCastException，所以这里需要将其转换成原有的数组类型
                 .map(sensitiveAnnotation -> Arrays.stream(target).map(o -> handling(o, sensitiveAnnotation)).toArray())
-                .map(result -> Arrays.copyOf(result, result.length, getClass(target)))
+                .map(result -> Arrays.copyOf(result, result.length, ReflectionUtil.getClass(target)))
                 .orElse(target);
 
 
@@ -171,14 +168,17 @@ public class SensitiveUtil {
                 if (fieldValue == null) {
                     continue;
                 }
-
                 AnnotatedType annotatedType = field.getAnnotatedType();
                 if (fieldValue instanceof Collection) {
-                    Resolver.COLLECTION_RESOLVER.resolve((Collection<?>) fieldValue, annotatedType);
+                    if (annotatedType instanceof AnnotatedParameterizedType) {
+                        field.set(target, Resolver.COLLECTION_RESOLVER.resolve((Collection<?>) fieldValue, ((AnnotatedParameterizedType) annotatedType).getAnnotatedActualTypeArguments()));
+                    }
                 } else if (fieldValue instanceof Map) {
-                    Resolver.MAP_RESOLVER.resolve((Map<?, ?>) fieldValue, annotatedType);
+                    if (annotatedType instanceof AnnotatedParameterizedType) {
+                        field.set(target, Resolver.MAP_RESOLVER.resolve((Map<?, ?>) fieldValue, ((AnnotatedParameterizedType) annotatedType).getAnnotatedActualTypeArguments()));
+                    }
                 } else if (fieldValue instanceof Object[]) {
-                    Resolver.ARRAY_RESOLVER.resolve((Object[]) fieldValue, annotatedType);
+                    field.set(target, Resolver.ARRAY_RESOLVER.resolve((Object[]) fieldValue, ((AnnotatedArrayType) annotatedType).getAnnotatedGenericComponentType()));
                 } else {
                     Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
                             .ifPresent(sensitiveAnnotation -> ReflectionUtil.setFieldValue(target, field, handling(fieldValue, sensitiveAnnotation)));
@@ -242,20 +242,6 @@ public class SensitiveUtil {
         }
         list.add(target);
         return false;
-    }
-
-
-    /**
-     * 类型转换方法用来获取指定类型对象的{@link Class}，因为{@link Object#getClass()}方法返回的
-     * {@link Class}的泛型是通配符类型
-     *
-     * @param value 对象值
-     * @param <T>   对象类型
-     * @return 指定类型对象的 {@link Class}
-     */
-    @SuppressWarnings("unchecked")
-    private static <T> Class<T> getClass(T value) {
-        return (Class<T>) value.getClass();
     }
 
 

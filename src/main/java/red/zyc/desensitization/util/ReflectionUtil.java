@@ -23,10 +23,7 @@ import red.zyc.desensitization.annotation.Sensitive;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author zyc
@@ -97,21 +94,44 @@ public class ReflectionUtil {
     }
 
     /**
-     * 克隆一个和原集合类型一样的集合。
+     * 克隆一个和原集合类型一样的空集合。
      * 注意集合对象必须遵守{@link Collection}中的约定，定义一个无参构造函数以及
      * 带有一个{@link Collection}类型参数的构造函数。
      *
-     * @param collection 原集合对象
+     * @param collectionClass 原集合对象的{@link Class}
      * @return 克隆后的集合对象
      * @see Collection
      */
-    public static Collection<?> cloneCollection(Collection<?> collection) {
+    public static Collection<?> constructCollection(Class<? extends Collection<?>> collectionClass) {
         try {
-            Constructor<?> declaredConstructor = collection.getClass().getDeclaredConstructor(Collection.class);
-            return (Collection<?>) declaredConstructor.newInstance(collection);
+            Constructor<? extends Collection<?>> declaredConstructor = collectionClass.getDeclaredConstructor(Collection.class);
+            return declaredConstructor.newInstance(new ArrayList<>());
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             log.error(e.getMessage(), e);
         }
         return null;
+    }
+
+    public static Map<?, ?> constructMap(Class<? extends Map<?, ?>> mapClass) {
+        try {
+            Constructor<? extends Map<?, ?>> declaredConstructor = mapClass.getDeclaredConstructor(Map.class);
+            return declaredConstructor.newInstance(new HashMap<>(16));
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            log.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    /**
+     * 类型转换方法用来获取指定类型对象的{@link Class}，因为{@link Object#getClass()}方法返回的
+     * {@link Class}的泛型是通配符类型
+     *
+     * @param value 对象值
+     * @param <T>   对象类型
+     * @return 指定类型对象的 {@link Class}
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T> getClass(T value) {
+        return (Class<T>) value.getClass();
     }
 }

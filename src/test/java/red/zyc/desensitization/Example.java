@@ -26,8 +26,6 @@ import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.util.CallerUtil;
 
 import java.lang.reflect.AnnotatedParameterizedType;
-import java.lang.reflect.AnnotatedTypeVariable;
-import java.lang.reflect.AnnotatedWildcardType;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -176,30 +174,22 @@ public class Example {
         for (Field field : P.class.getDeclaredFields()) {
             System.out.println(">>>>>>>>>>>>>>");
             field.setAccessible(true);
-//            AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) field.getAnnotatedType();
-//            for(AnnotatedType annotatedType:annotatedParameterizedType.getAnnotatedActualTypeArguments()){
-//                AnnotatedParameterizedType annotatedParameterizedType1= (AnnotatedParameterizedType) annotatedType;
-//                System.out.println(Arrays.toString(annotatedParameterizedType1.getAnnotatedActualTypeArguments()[0].getDeclaredAnnotations()));;
-//            }
-            if (field.getAnnotatedType() instanceof AnnotatedTypeVariable) {
-                // Arrays.stream(((AnnotatedTypeVariable) field.getAnnotatedType()).getAnnotatedBounds()).forEach(annotatedType -> System.out.println(((Class<?>) annotatedType.getType())));
-            }
-            if (field.getAnnotatedType() instanceof AnnotatedParameterizedType) {
-                AnnotatedWildcardType annotatedType = (AnnotatedWildcardType) ((AnnotatedParameterizedType) field.getAnnotatedType()).getAnnotatedActualTypeArguments()[0];
-                System.out.println(Arrays.toString(annotatedType.getAnnotatedLowerBounds()));
-                System.out.println(Arrays.toString(annotatedType.getAnnotatedUpperBounds()));
-            }
-
-            System.out.println(">>>>>>>>>>>>>>");
-            P<B> p = new P<>();
-            p.b = new B();
+            AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) field.getAnnotatedType();
+            System.out.println(Arrays.toString(annotatedParameterizedType.getAnnotatedActualTypeArguments()));
         }
+        String [] a={"1","2"};
+        a(a);
+        a("3","4");
+    }
+
+    void a(String... strings){
+        System.out.println(Arrays.toString(strings));
     }
 
     static class P<T extends Number & Collection<String>> {
-        //List<List<@EmailSensitive String>> a;
+        List<List<@EmailSensitive String>> a;
 
-        T b;
+        //T b;
 
         List<? extends Collection<String>> c;
 

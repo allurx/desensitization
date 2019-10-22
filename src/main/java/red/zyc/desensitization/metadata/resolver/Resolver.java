@@ -19,8 +19,8 @@ public interface Resolver<T> {
      * @param value         将要解析的对象
      * @param typeArguments 将要解析的对象的{@link AnnotatedType}
      */
-    void resolve(T value, AnnotatedType... typeArguments);
+    T resolve(T value, AnnotatedType... typeArguments);
 
-    void resolveOther(T value, AnnotatedType typeArgument);
+    T resolveOther(T value, AnnotatedType typeArgument);
 
 }
