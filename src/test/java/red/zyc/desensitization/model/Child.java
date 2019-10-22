@@ -19,10 +19,7 @@ import red.zyc.desensitization.annotation.*;
 import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
 import red.zyc.desensitization.handler.SensitiveHandler;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -69,6 +66,22 @@ public class Child {
     private @PasswordSensitive String[] passwords = {"123456", "1234567", "12345678"};
 
     private @EraseSensitive Parent[] parents3 = {new Father(), new Mother()};
+
+    private static Map<List<@EmailSensitive String[]>, Map<@ChineseNameSensitive String, List<@EmailSensitive String>[]>> map = new HashMap<>();
+
+    static {
+        List<String[]> a = new ArrayList<>();
+        a.add(new String[]{"123456", "1234567", "12345678"});
+
+        Map<String, List<String>[]> b = new HashMap<>();
+        List<String> c = new ArrayList<>();
+        c.add("123456");
+        c.add("1234567");
+
+        List<?>[] d = {c};
+        b.put("张三", (List<String>[]) d);
+        map.put(a, b);
+    }
 
     @Override
     public String toString() {
