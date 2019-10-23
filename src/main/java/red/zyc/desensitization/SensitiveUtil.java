@@ -22,6 +22,7 @@ import red.zyc.desensitization.handler.SensitiveHandler;
 import red.zyc.desensitization.metadata.MapSensitiveDescriptor;
 import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.metadata.resolver.Resolver;
+import red.zyc.desensitization.util.Optional;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.annotation.Annotation;
@@ -171,20 +172,20 @@ public class SensitiveUtil {
                 AnnotatedType annotatedType = field.getAnnotatedType();
                 if (fieldValue instanceof Collection) {
                     if (annotatedType instanceof AnnotatedParameterizedType) {
-                        field.set(target, Resolver.COLLECTION_RESOLVER.resolve((Collection<?>) fieldValue, ((AnnotatedParameterizedType) annotatedType).getAnnotatedActualTypeArguments()));
+                        field.set(target, Resolver.COLLECTION_RESOLVER.resolve((Collection<?>) fieldValue, annotatedType));
                     }
                 } else if (fieldValue instanceof Map) {
                     if (annotatedType instanceof AnnotatedParameterizedType) {
-                        field.set(target, Resolver.MAP_RESOLVER.resolve((Map<?, ?>) fieldValue, ((AnnotatedParameterizedType) annotatedType).getAnnotatedActualTypeArguments()));
+                        field.set(target, Resolver.MAP_RESOLVER.resolve((Map<?, ?>) fieldValue, annotatedType));
                     }
                 } else if (fieldValue instanceof Object[]) {
-                    field.set(target, Resolver.ARRAY_RESOLVER.resolve((Object[]) fieldValue, ((AnnotatedArrayType) annotatedType).getAnnotatedGenericComponentType()));
+                    field.set(target, Resolver.ARRAY_RESOLVER.resolve((Object[]) fieldValue, annotatedType));
                 } else {
-                    Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
-                            .ifPresent(sensitiveAnnotation -> ReflectionUtil.setFieldValue(target, field, handling(fieldValue, sensitiveAnnotation)));
-
-                    Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedType))
-                            .ifPresent(eraseSensitiveAnnotation -> handle(fieldValue));
+                    field.set(target, Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
+                            .map(sensitiveAnnotation -> handling(fieldValue, sensitiveAnnotation))
+                            .or(() -> Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedType))
+                                    .map(eraseSensitiveAnnotation -> desensitize(fieldValue)))
+                            .orElse(fieldValue));
                 }
             }
         } catch (Throwable e) {

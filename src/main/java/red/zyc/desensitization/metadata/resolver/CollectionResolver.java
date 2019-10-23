@@ -32,65 +32,51 @@ import java.util.stream.Collectors;
 public class CollectionResolver implements Resolver<Collection<?>> {
 
     @Override
-    public Collection<?> resolve(Collection<?> value, AnnotatedType... typeArguments) {
-        AnnotatedType typeArgument = typeArguments[0];
-        if (typeArgument instanceof AnnotatedParameterizedType) {
-            AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) typeArgument;
-            AnnotatedType[] annotatedActualTypeArguments = annotatedParameterizedType.getAnnotatedActualTypeArguments();
-            if (ReflectionUtil.isCollection(typeArgument)) {
-                return value.stream().map(o -> resolve((Collection<?>) o, annotatedActualTypeArguments)).collect(collectCollection(value));
-            } else if (ReflectionUtil.isMap(typeArgument)) {
-                return value.stream().map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, annotatedActualTypeArguments)).collect(collectMap(value));
-            } else {
-                return resolveOther(value, typeArgument);
-            }
+    public Collection<?> resolve(Collection<?> value, AnnotatedType annotatedType) {
+        if (!(annotatedType instanceof AnnotatedParameterizedType)) {
+            return value;
+        }
+        AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) annotatedType;
+        AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
+        if (ReflectionUtil.isCollection(typeArgument)) {
+            return value.stream().map(o -> resolve((Collection<?>) o, typeArgument)).collect(collectCollection(value));
+        } else if (ReflectionUtil.isMap(typeArgument)) {
+            return value.stream().map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, typeArgument)).collect(collectMap(value));
         } else if (typeArgument instanceof AnnotatedArrayType) {
-            return value.stream().map(o -> ARRAY_RESOLVER.resolve((Object[]) o, ((AnnotatedArrayType) typeArgument).getAnnotatedGenericComponentType())).collect(collectArray(value));
+            System.out.println(value);
+            return value.stream().map(o -> ARRAY_RESOLVER.resolve((Object[]) o, typeArgument)).collect(collectArray(value));
         } else if (typeArgument instanceof AnnotatedTypeVariable) {
             for (AnnotatedType annotatedBound : ((AnnotatedTypeVariable) typeArgument).getAnnotatedBounds()) {
                 if (ReflectionUtil.isCollection(annotatedBound)) {
-                    if (annotatedBound instanceof AnnotatedParameterizedType) {
-                        return value.stream().map(o -> resolve((Collection<?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments())).collect(collectCollection(value));
-                    }
-                    return value;
+                    value = value.stream().map(o -> resolve((Collection<?>) o, annotatedBound)).collect(collectCollection(value));
                 } else if (ReflectionUtil.isMap(annotatedBound)) {
-                    if (annotatedBound instanceof AnnotatedParameterizedType) {
-                        return value.stream().map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments())).collect(collectMap(value));
-                    }
-                    return value;
-                } else {
-                    return resolveOther(value, typeArgument);
+                    value = value.stream().map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, annotatedBound)).collect(collectMap(value));
                 }
             }
-            return resolveOther(value, typeArgument);
+            return resolveValue(value, typeArgument);
         } else if (typeArgument instanceof AnnotatedWildcardType) {
             AnnotatedWildcardType annotatedWildcardType = (AnnotatedWildcardType) typeArgument;
             AnnotatedType[] annotatedUpperBounds = annotatedWildcardType.getAnnotatedUpperBounds();
             AnnotatedType[] annotatedBounds = annotatedUpperBounds.length == 0 ? annotatedWildcardType.getAnnotatedLowerBounds() : annotatedUpperBounds;
             for (AnnotatedType annotatedBound : annotatedBounds) {
                 if (ReflectionUtil.isCollection(annotatedBound)) {
-                    if (annotatedBound instanceof AnnotatedParameterizedType) {
-                        return value.stream().map(o -> resolve((Collection<?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments())).collect(collectCollection(value));
-                    }
-                    return value;
+                    value = value.stream().map(o -> resolve((Collection<?>) o, annotatedBound)).collect(collectCollection(value));
                 } else if (ReflectionUtil.isMap(annotatedBound)) {
-                    if (annotatedBound instanceof AnnotatedParameterizedType) {
-                        return value.stream().map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments())).collect(collectMap(value));
-                    }
-                    return value;
-                } else {
-                    return resolveOther(value, typeArgument);
+                    value = value.stream().map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, annotatedBound)).collect(collectMap(value));
                 }
             }
-            return resolveOther(value, typeArgument);
-            // AnnotatedTypeBaseImpl
+            return resolveValue(value, typeArgument);
         } else {
-            return resolveOther(value, typeArgument);
+            return resolveValue(value, typeArgument);
         }
     }
 
     @Override
-    public Collection<?> resolveOther(Collection<?> value, AnnotatedType typeArgument) {
+    public Collection<?> resolveValue(Collection<?> value, AnnotatedType typeArgument) {
+        // 泛型参数是没有标明泛型参数的Collection或Map
+        if (ReflectionUtil.isCollection(typeArgument) || ReflectionUtil.isMap(typeArgument)) {
+            return value;
+        }
         return Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(typeArgument))
                 .map(sensitiveAnnotation -> value.stream().map(o -> SensitiveUtil.handling(o, sensitiveAnnotation)).collect(collectValue(value)))
                 .or(() -> Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(typeArgument))

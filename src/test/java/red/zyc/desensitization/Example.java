@@ -26,7 +26,8 @@ import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.util.CallerUtil;
 import red.zyc.desensitization.util.ReflectionUtil;
 
-import java.lang.reflect.*;
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -183,20 +184,16 @@ public class Example {
         }
     }
 
-    static class P<E extends Integer & Collection<String>, T extends E> {
+    static class P<E extends Integer & Collection<String> & Cloneable, CloneAble, T extends E> {
 
         List<String> d;
         List<List<@EmailSensitive String>> a;
+        List<? extends Collection<String>> c = new ArrayList<>();
         private T e;
-
         private E hh;
-
         private T[] a1;
         private E[] a2;
         private List<String>[] a3;
-
-        List<? extends Collection<String>> c = new ArrayList<>();
-
         private String gg;
 
         //List<@EmailSensitive ?> b;

@@ -152,20 +152,20 @@ public class ReflectionUtil {
      * <ol>
      *     <li>
      *         对于{@link AnnotatedParameterizedType}类型，返回的是其本身（不是类型参数）的{@link Class}对象。
-     *         例如{@code List<String>}，返回的就是{@code List}的{@link Class}对象。
+     *         例如{@code List<String>}，返回的就是{@code List.class}。
      *     </li>
      *     <li>
-     *         对于{@link AnnotatedArrayType}类型，返回的是数组内部元素的{@link Class}对象。
-     *         例如{@code String[]}，返回的就是{@code String}的{@link Class}对象。
+     *         对于{@link AnnotatedArrayType}类型，返回的是数组的{@link Class}对象。
+     *         例如{@code String[]}，返回的就是{@code String[].class}。
      *     </li>
      *     <li>
      *         对于{@link AnnotatedTypeVariable}类型，返回的就是其边界的所有{@link Class}对象。
-     *         例如{@code <O extends Number & Cloneable, T extends O> }，其中对于T和O返回的都是
-     *         {@link Number}和{@link Cloneable}两个{@link Class}对象。
+     *         例如{@code <O extends Number & Cloneable, T extends O> }，其中对于T和O返回的是
+     *         {@code Number.class}和{@code Cloneable.class}这两个{@link Class}对象。
      *     </li>
      *     <li>
      *         对于{@link AnnotatedWildcardType}类型，返回的就是其上边界或者下边界的所有{@link Class}对象。
-     *         例如{@code ? extend Number & Cloneable}，返回的就是{@link Number}和{@link Cloneable}两个{@link Class}对象。
+     *         例如{@code ? extend Number & Cloneable}，返回的是{@code Number.class}和{@code Cloneable.class}这两个{@link Class}对象。
      *     </li>
      *     <li>
      *         对于{@code AnnotatedTypeFactory.AnnotatedTypeBaseImpl}类型，（以上四种类型之外的普通类型），其本身的{@link Type}
@@ -186,8 +186,7 @@ public class ReflectionUtil {
             return new Class<?>[]{(Class<?>) parameterizedType.getRawType()};
         }
         if (type instanceof AnnotatedArrayType) {
-            AnnotatedArrayType annotatedArrayType = (AnnotatedArrayType) type;
-            return getRawClass(annotatedArrayType.getAnnotatedGenericComponentType());
+            return new Class<?>[]{(Class<?>) type.getType()};
         }
         if (type instanceof AnnotatedTypeVariable) {
             AnnotatedTypeVariable annotatedTypeVariable = (AnnotatedTypeVariable) type;
@@ -225,6 +224,16 @@ public class ReflectionUtil {
      */
     public static boolean isMap(AnnotatedType type) {
         return Arrays.stream(getRawClass(type)).anyMatch(Map.class::isAssignableFrom);
+    }
+
+    /**
+     * 判断{@link AnnotatedType}代表的原始{@link Class}是否是{@link Array}
+     *
+     * @param type {@link AnnotatedType}
+     * @return {@link AnnotatedType}代表的原始{@link Class}是否是{@link Array}
+     */
+    public static boolean isArray(AnnotatedType type) {
+        return Arrays.stream(getRawClass(type)).anyMatch(Object[].class::isAssignableFrom);
     }
 
     /**
