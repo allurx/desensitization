@@ -17,7 +17,7 @@ package red.zyc.desensitization;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import red.zyc.desensitization.exception.SensitiveHandlerNotFound;
+import red.zyc.desensitization.exception.SensitiveHandlerNotFoundException;
 import red.zyc.desensitization.handler.SensitiveHandler;
 import red.zyc.desensitization.metadata.MapSensitiveDescriptor;
 import red.zyc.desensitization.metadata.SensitiveDescriptor;
@@ -211,7 +211,7 @@ public class SensitiveUtil {
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
         }
-        throw new SensitiveHandlerNotFound("没有在" + annotation + "中找到敏感处理者");
+        throw new SensitiveHandlerNotFoundException("没有在" + annotation + "中找到敏感处理者");
     }
 
     /**

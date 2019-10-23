@@ -1,6 +1,7 @@
 package red.zyc.desensitization.metadata.resolver;
 
 import java.lang.reflect.AnnotatedType;
+import java.util.Collection;
 
 /**
  * @author zyc
@@ -23,4 +24,5 @@ public interface Resolver<T> {
 
     T resolveOther(T value, AnnotatedType typeArgument);
 
+    Collection<?> resolveOther(Collection<?> value, AnnotatedType typeArgument);
 }

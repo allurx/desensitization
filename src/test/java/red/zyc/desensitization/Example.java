@@ -24,6 +24,7 @@ import red.zyc.desensitization.metadata.MapSensitiveDescriptor;
 import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.util.CallerUtil;
+import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -175,7 +176,7 @@ public class Example {
             field.setAccessible(true);
             AnnotatedType annotatedType = field.getAnnotatedType();
             //AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) field.getAnnotatedType();
-            System.out.println(get(annotatedType));
+            System.out.println(Arrays.toString(ReflectionUtil.getRawClass(annotatedType)));
 
             //Arrays.stream(annotatedParameterizedType.getAnnotatedActualTypeArguments()).forEach(annotatedType -> System.out.println(get(annotatedType.getType())));
             System.out.println(">>>>>>>>>>>>>>");
@@ -188,51 +189,21 @@ public class Example {
         List<List<@EmailSensitive String>> a;
         private T e;
 
-        //T b;
+        private E hh;
+
+        private T[] a1;
+        private E[] a2;
+        private List<String>[] a3;
 
         List<? extends Collection<String>> c = new ArrayList<>();
+
+        private String gg;
 
         //List<@EmailSensitive ?> b;
 
         //List<String[]> c;
 
 
-    }
-
-    public Class<?>[] get(AnnotatedType type) {
-        if (type instanceof AnnotatedParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) type;
-            return new Class<?>[]{(Class<?>) parameterizedType.getRawType()};
-        }
-        if (type instanceof AnnotatedArrayType) {
-            return get(type);
-        }
-        if (type instanceof AnnotatedTypeVariable) {
-            AnnotatedTypeVariable annotatedTypeVariable = (AnnotatedTypeVariable) type;
-            return Arrays.stream(annotatedTypeVariable.getAnnotatedBounds()).map()
-            AnnotatedType[] annotatedBounds = annotatedTypeVariable.getAnnotatedBounds();
-        }
-        if (type instanceof AnnotatedWildcardType) {
-
-        }
-
-//
-//        if (type instanceof ParameterizedType) {
-//            ParameterizedType parameterizedType = (ParameterizedType) type;
-//            return (Class<?>) parameterizedType.getRawType();
-//        }
-//        if (type instanceof GenericArrayType) {
-//            return get(type);
-//        }
-//        if (type instanceof TypeVariable) {
-//            TypeVariable<Class<?>> typeVariable = (TypeVariable<Class<?>>) type;
-//            return typeVariable.getGenericDeclaration();
-//        }
-//        if (type instanceof WildcardType) {
-//
-//        }
-//
-//        return (Class<?>) type;
     }
 
     static class B extends Number implements Collection<String> {

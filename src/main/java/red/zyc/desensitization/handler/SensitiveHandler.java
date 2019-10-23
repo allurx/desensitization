@@ -17,7 +17,7 @@ package red.zyc.desensitization.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import red.zyc.desensitization.exception.InvalidSensitiveHandler;
+import red.zyc.desensitization.exception.InvalidSensitiveHandlerException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
@@ -100,7 +100,7 @@ public interface SensitiveHandler<T, A extends Annotation> {
                 current = current.getSuperclass();
             }
         }
-        throw new InvalidSensitiveHandler(getClass() + "必须直接或间接实现具有明确泛型参数的" + SensitiveHandler.class.getName() + "接口");
+        throw new InvalidSensitiveHandlerException(getClass() + "必须直接或间接实现具有明确泛型参数的" + SensitiveHandler.class.getName() + "接口");
     }
 
     /**

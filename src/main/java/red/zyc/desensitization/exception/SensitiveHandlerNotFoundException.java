@@ -19,9 +19,9 @@ package red.zyc.desensitization.exception;
 /**
  * @author zyc
  */
-public class SensitiveHandlerNotFound extends AbstractSensitiveException {
+public class SensitiveHandlerNotFoundException extends AbstractSensitiveException {
 
-    public SensitiveHandlerNotFound(String message) {
+    public SensitiveHandlerNotFoundException(String message) {
         super(message);
     }
 }

@@ -2,7 +2,7 @@ package red.zyc.desensitization.metadata;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import red.zyc.desensitization.exception.SensitiveDescriptionNotFound;
+import red.zyc.desensitization.exception.SensitiveDescriptionNotFoundException;
 import sun.invoke.util.BytecodeDescriptor;
 
 import java.io.Serializable;
@@ -66,7 +66,7 @@ public interface Descriptor extends Serializable {
         } catch (Throwable t) {
             t.printStackTrace();
         }
-        throw new SensitiveDescriptionNotFound("没有在" + getClass() + "中找到敏感描述方法");
+        throw new SensitiveDescriptionNotFoundException("没有在" + getClass() + "中找到敏感描述方法");
     }
 
     /**

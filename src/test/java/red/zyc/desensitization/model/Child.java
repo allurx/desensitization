@@ -67,16 +67,16 @@ public class Child {
 
     private @EraseSensitive Parent[] parents3 = {new Father(), new Mother()};
 
-    private static Map<List<@EmailSensitive String[]>, Map<@ChineseNameSensitive String, List<@EmailSensitive String>[]>> map = new HashMap<>();
+    private  Map<List<@EmailSensitive String[]>, Map<@ChineseNameSensitive String, List<@EmailSensitive String>[]>> map = new HashMap<>();
 
-    static {
+     {
         List<String[]> a = new ArrayList<>();
-        a.add(new String[]{"123456", "1234567", "12345678"});
+        a.add(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"});
 
         Map<String, List<String>[]> b = new HashMap<>();
         List<String> c = new ArrayList<>();
-        c.add("123456");
-        c.add("1234567");
+        c.add("123456@qq.com");
+        c.add("1234567@qq.com");
 
         List<?>[] d = {c};
         b.put("张三", (List<String>[]) d);
@@ -85,23 +85,24 @@ public class Child {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", Child.class.getSimpleName() + "[", "]")
-                .add("name='" + name + "'")
-                .add("phoneNumber=" + phoneNumber)
-                .add("idCardNumber='" + idCardNumber + "'")
-                .add("unifiedSocialCreditCode='" + unifiedSocialCreditCode + "'")
-                .add("string='" + string + "'")
-                .add("email='" + email + "'")
-                .add("password='" + password + "'")
-                .add("mother=" + mother)
-                .add("father=" + father)
-                .add("parents1=" + parents1)
-                .add("emails1=" + emails1)
-                .add("emails2=" + emails2)
-                .add("parents2=" + parents2)
-                .add("passwords=" + Arrays.toString(passwords))
-                .add("parents3=" + Arrays.toString(parents3))
-                .toString();
+        return "Child{" +
+                "name='" + name + '\'' +
+                ", phoneNumber=" + phoneNumber +
+                ", idCardNumber='" + idCardNumber + '\'' +
+                ", unifiedSocialCreditCode='" + unifiedSocialCreditCode + '\'' +
+                ", string='" + string + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", mother=" + mother +
+                ", father=" + father +
+                ", parents1=" + parents1 +
+                ", emails1=" + emails1 +
+                ", emails2=" + emails2 +
+                ", parents2=" + parents2 +
+                ", passwords=" + Arrays.toString(passwords) +
+                ", parents3=" + Arrays.toString(parents3) +
+                ", map=" + map +
+                '}';
     }
 
     /**

@@ -36,11 +36,10 @@ public class ArrayResolver implements Resolver<Object[]> {
         if (typeArgument instanceof AnnotatedParameterizedType) {
             AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) typeArgument;
             AnnotatedType[] annotatedActualTypeArguments = annotatedParameterizedType.getAnnotatedActualTypeArguments();
-            Class<?> rawType = (Class<?>) typeArgument.getType();
-            if (Collection.class.isAssignableFrom(rawType)) {
+            if (ReflectionUtil.isCollection(typeArgument)) {
                 Object[] result = Arrays.stream(value).map(o -> COLLECTION_RESOLVER.resolve((Collection<?>) o, annotatedActualTypeArguments)).toArray();
                 return Arrays.copyOf(result, result.length, value.getClass());
-            } else if (Map.class.isAssignableFrom(rawType)) {
+            } else if (ReflectionUtil.isMap(typeArgument)) {
                 Object[] result = Arrays.stream(value).map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, annotatedActualTypeArguments)).toArray();
                 return Arrays.copyOf(result, result.length, value.getClass());
             } else {
@@ -51,14 +50,13 @@ public class ArrayResolver implements Resolver<Object[]> {
             return Arrays.copyOf(result, result.length, value.getClass());
         } else if (typeArgument instanceof AnnotatedTypeVariable) {
             for (AnnotatedType annotatedBound : ((AnnotatedTypeVariable) typeArgument).getAnnotatedBounds()) {
-                Class<?> rawType = (Class<?>) annotatedBound.getType();
-                if (Collection.class.isAssignableFrom(rawType)) {
+                if (ReflectionUtil.isCollection(annotatedBound)) {
                     if (annotatedBound instanceof AnnotatedParameterizedType) {
                         Object[] result = Arrays.stream(value).map(o -> COLLECTION_RESOLVER.resolve((Collection<?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments())).toArray();
                         return Arrays.copyOf(result, result.length, value.getClass());
                     }
                     return value;
-                } else if (Map.class.isAssignableFrom(rawType)) {
+                } else if (ReflectionUtil.isMap(annotatedBound)) {
                     if (annotatedBound instanceof AnnotatedParameterizedType) {
                         Object[] result = Arrays.stream(value).map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments())).toArray();
                         return Arrays.copyOf(result, result.length, value.getClass());
@@ -74,14 +72,13 @@ public class ArrayResolver implements Resolver<Object[]> {
             AnnotatedType[] annotatedUpperBounds = annotatedWildcardType.getAnnotatedUpperBounds();
             AnnotatedType[] annotatedBounds = annotatedUpperBounds.length == 0 ? annotatedWildcardType.getAnnotatedLowerBounds() : annotatedUpperBounds;
             for (AnnotatedType annotatedBound : annotatedBounds) {
-                Class<?> rawType = (Class<?>) annotatedBound.getType();
-                if (Collection.class.isAssignableFrom(rawType)) {
+                if (ReflectionUtil.isCollection(annotatedBound)) {
                     if (annotatedBound instanceof AnnotatedParameterizedType) {
                         Object[] result = Arrays.stream(value).map(o -> COLLECTION_RESOLVER.resolve((Collection<?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments())).toArray();
                         return Arrays.copyOf(result, result.length, value.getClass());
                     }
                     return value;
-                } else if (Map.class.isAssignableFrom(rawType)) {
+                } else if (ReflectionUtil.isMap(annotatedBound)) {
                     if (annotatedBound instanceof AnnotatedParameterizedType) {
                         Object[] result = Arrays.stream(value).map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, ((AnnotatedParameterizedType) annotatedBound).getAnnotatedActualTypeArguments())).toArray();
                         return Arrays.copyOf(result, result.length, value.getClass());
