@@ -37,7 +37,6 @@ public final class Resolvers implements Resolver<Object> {
     }
 
     private Resolvers() {
-        throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unchecked")

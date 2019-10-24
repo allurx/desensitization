@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 /**
  * @author zyc
  */
-public class Child {
+public class Child<T extends Collection> {
 
     @ChineseNameSensitive(placeholder = 'x')
     private String name = "李富贵";
@@ -67,9 +67,11 @@ public class Child {
 
     private @EraseSensitive Parent[] parents3 = {new Father(), new Mother()};
 
-    private  Map<List<@EmailSensitive String[]>, Map<@ChineseNameSensitive String, List<@EmailSensitive String>[]>> map = new HashMap<>();
+    private Map<List<@EmailSensitive String[]>, Map<@ChineseNameSensitive String, List<@EmailSensitive String>[]>> map = new HashMap<>();
 
-     {
+    private T t = (T) Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList());
+
+    {
         List<String[]> a = new ArrayList<>();
         a.add(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"});
 
@@ -102,6 +104,7 @@ public class Child {
                 ", passwords=" + Arrays.toString(passwords) +
                 ", parents3=" + Arrays.toString(parents3) +
                 ", map=" + map +
+                ", t=" + t +
                 '}';
     }
 
