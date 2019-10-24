@@ -20,16 +20,16 @@ import red.zyc.desensitization.SensitiveUtil;
 import red.zyc.desensitization.util.Optional;
 import red.zyc.desensitization.util.ReflectionUtil;
 
-import java.lang.reflect.*;
+import java.lang.reflect.AnnotatedParameterizedType;
+import java.lang.reflect.AnnotatedType;
 import java.util.Collection;
-import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
  * @author zyc
  */
-public class CollectionResolver implements Resolver<Collection<?>> {
+public class CollectionResolver extends BaseResolver implements Resolver<Collection<?>> {
 
     @Override
     public Collection<?> resolve(Collection<?> value, AnnotatedType annotatedType) {
@@ -38,69 +38,7 @@ public class CollectionResolver implements Resolver<Collection<?>> {
         }
         AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) annotatedType;
         AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
-        if (ReflectionUtil.isCollection(typeArgument)) {
-            return value.stream().map(o -> resolve((Collection<?>) o, typeArgument)).collect(collectCollection(value));
-        } else if (ReflectionUtil.isMap(typeArgument)) {
-            return value.stream().map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, typeArgument)).collect(collectMap(value));
-        } else if (typeArgument instanceof AnnotatedArrayType) {
-            System.out.println(value);
-            return value.stream().map(o -> ARRAY_RESOLVER.resolve((Object[]) o, typeArgument)).collect(collectArray(value));
-        } else if (typeArgument instanceof AnnotatedTypeVariable) {
-            for (AnnotatedType annotatedBound : ((AnnotatedTypeVariable) typeArgument).getAnnotatedBounds()) {
-                if (ReflectionUtil.isCollection(annotatedBound)) {
-                    value = value.stream().map(o -> resolve((Collection<?>) o, annotatedBound)).collect(collectCollection(value));
-                } else if (ReflectionUtil.isMap(annotatedBound)) {
-                    value = value.stream().map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, annotatedBound)).collect(collectMap(value));
-                }
-            }
-            return resolveValue(value, typeArgument);
-        } else if (typeArgument instanceof AnnotatedWildcardType) {
-            AnnotatedWildcardType annotatedWildcardType = (AnnotatedWildcardType) typeArgument;
-            AnnotatedType[] annotatedUpperBounds = annotatedWildcardType.getAnnotatedUpperBounds();
-            AnnotatedType[] annotatedBounds = annotatedUpperBounds.length == 0 ? annotatedWildcardType.getAnnotatedLowerBounds() : annotatedUpperBounds;
-            for (AnnotatedType annotatedBound : annotatedBounds) {
-                if (ReflectionUtil.isCollection(annotatedBound)) {
-                    value = value.stream().map(o -> resolve((Collection<?>) o, annotatedBound)).collect(collectCollection(value));
-                } else if (ReflectionUtil.isMap(annotatedBound)) {
-                    value = value.stream().map(o -> MAP_RESOLVER.resolve((Map<?, ?>) o, annotatedBound)).collect(collectMap(value));
-                }
-            }
-            return resolveValue(value, typeArgument);
-        } else {
-            return resolveValue(value, typeArgument);
-        }
-    }
-
-    @Override
-    public Collection<?> resolveValue(Collection<?> value, AnnotatedType typeArgument) {
-        // 泛型参数是没有标明泛型参数的Collection或Map
-        if (ReflectionUtil.isCollection(typeArgument) || ReflectionUtil.isMap(typeArgument)) {
-            return value;
-        }
-        return Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(typeArgument))
-                .map(sensitiveAnnotation -> value.stream().map(o -> SensitiveUtil.handling(o, sensitiveAnnotation)).collect(collectValue(value)))
-                .or(() -> Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(typeArgument))
-                        .map(eraseSensitiveAnnotation -> value.stream().map(SensitiveUtil::desensitize).collect(collectValue(value))))
-                .orElse((Collection<Object>) value);
-
-    }
-
-    private Collector<Collection<?>, ?, Collection<Collection<?>>> collectCollection(Collection<?> collections) {
-        @SuppressWarnings("unchecked")
-        Collection<Collection<?>> original = (Collection<Collection<?>>) collections;
-        return Collectors.toCollection(() -> ReflectionUtil.constructCollection(ReflectionUtil.getClass(original)));
-    }
-
-    private Collector<Map<?, ?>, ?, Collection<Map<?, ?>>> collectMap(Collection<?> maps) {
-        @SuppressWarnings("unchecked")
-        Collection<Map<?, ?>> original = (Collection<Map<?, ?>>) maps;
-        return Collectors.toCollection(() -> ReflectionUtil.constructCollection(ReflectionUtil.getClass(original)));
-    }
-
-    private Collector<Object[], ?, Collection<Object[]>> collectArray(Collection<?> arrays) {
-        @SuppressWarnings("unchecked")
-        Collection<Object[]> original = (Collection<Object[]>) arrays;
-        return Collectors.toCollection(() -> ReflectionUtil.constructCollection(ReflectionUtil.getClass(original)));
+        return value.stream().map(o -> resolve(o, typeArgument)).collect(collectValue(value));
     }
 
     private Collector<Object, ?, Collection<Object>> collectValue(Collection<?> values) {

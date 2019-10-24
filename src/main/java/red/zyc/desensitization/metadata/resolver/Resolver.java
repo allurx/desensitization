@@ -7,11 +7,6 @@ import java.lang.reflect.AnnotatedType;
  */
 public interface Resolver<T> {
 
-    CollectionResolver COLLECTION_RESOLVER = new CollectionResolver();
-
-    MapResolver MAP_RESOLVER = new MapResolver();
-
-    ArrayResolver ARRAY_RESOLVER = new ArrayResolver();
 
     /**
      * 解析对象
@@ -21,5 +16,4 @@ public interface Resolver<T> {
      */
     T resolve(T value, AnnotatedType annotatedType);
 
-    T resolveValue(T value, AnnotatedType typeArgument);
 }

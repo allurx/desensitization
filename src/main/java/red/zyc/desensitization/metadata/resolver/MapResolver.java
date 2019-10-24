@@ -20,34 +20,27 @@ import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.reflect.AnnotatedParameterizedType;
 import java.lang.reflect.AnnotatedType;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author zyc
  */
 public class MapResolver implements Resolver<Map<?, ?>> {
 
-
     @Override
     public Map<?, ?> resolve(Map<?, ?> value, AnnotatedType annotatedType) {
         AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) annotatedType;
         AnnotatedType[] annotatedActualTypeArguments = annotatedParameterizedType.getAnnotatedActualTypeArguments();
-        Collection<?> keys = COLLECTION_RESOLVER.resolve(new ArrayList<>(value.keySet()), annotatedActualTypeArguments[0]);
-        Collection<?> values = COLLECTION_RESOLVER.resolve(new ArrayList<>(value.values()), annotatedActualTypeArguments[1]);
+        List<Object> keys = value.keySet().stream().map(o -> Resolvers.resolve(o, annotatedActualTypeArguments[0])).collect(Collectors.toList());
+        List<Object> values = value.values().stream().map(o -> Resolvers.resolve(o, annotatedActualTypeArguments[1])).collect(Collectors.toList());
         Map<Object, Object> map = (Map<Object, Object>) ReflectionUtil.constructMap(ReflectionUtil.getClass(value));
-        Iterator<?> keyIterator = keys.iterator();
-        Iterator<?> valueIterator = values.iterator();
+        Iterator<Object> keyIterator = keys.iterator();
+        Iterator<Object> valueIterator = values.iterator();
         while (keyIterator.hasNext() && valueIterator.hasNext()) {
             map.put(keyIterator.next(), valueIterator.next());
         }
         return map;
     }
 
-    @Override
-    public Map<?, ?> resolveValue(Map<?, ?> value, AnnotatedType typeArgument) {
-        throw new UnsupportedOperationException();
-    }
 }
