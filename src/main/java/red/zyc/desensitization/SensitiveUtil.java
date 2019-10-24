@@ -22,11 +22,14 @@ import red.zyc.desensitization.handler.SensitiveHandler;
 import red.zyc.desensitization.metadata.MapSensitiveDescriptor;
 import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.metadata.resolver.Resolver;
+import red.zyc.desensitization.metadata.resolver.Resolvers;
 import red.zyc.desensitization.util.Optional;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,12 +41,17 @@ public class SensitiveUtil {
     /**
      * 保存被处理过的对象
      */
-    private static ThreadLocal<List<Object>> targets = ThreadLocal.withInitial(ArrayList::new);
+    private static final ThreadLocal<List<Object>> TARGETS = ThreadLocal.withInitial(ArrayList::new);
 
     /**
      * {@link Logger}
      */
-    private static Logger log = LoggerFactory.getLogger(SensitiveUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SensitiveUtil.class);
+
+    /**
+     * {@link Resolver}
+     */
+    private static final Resolver<Object> RESOLVER = Resolvers.instance();
 
 
     /**
@@ -55,7 +63,7 @@ public class SensitiveUtil {
         try {
             handle(target);
         } finally {
-            targets.remove();
+            TARGETS.remove();
         }
         return target;
     }
@@ -169,29 +177,11 @@ public class SensitiveUtil {
                 if (fieldValue == null) {
                     continue;
                 }
-                AnnotatedType annotatedType = field.getAnnotatedType();
-                if (fieldValue instanceof Collection) {
-                    if (annotatedType instanceof AnnotatedParameterizedType) {
-                        field.set(target, Resolver.COLLECTION_RESOLVER.resolve((Collection<?>) fieldValue, annotatedType));
-                    }
-                } else if (fieldValue instanceof Map) {
-                    if (annotatedType instanceof AnnotatedParameterizedType) {
-                        field.set(target, Resolver.MAP_RESOLVER.resolve((Map<?, ?>) fieldValue, annotatedType));
-                    }
-                } else if (fieldValue instanceof Object[]) {
-                    field.set(target, Resolver.ARRAY_RESOLVER.resolve((Object[]) fieldValue, annotatedType));
-                } else {
-                    field.set(target, Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
-                            .map(sensitiveAnnotation -> handling(fieldValue, sensitiveAnnotation))
-                            .or(() -> Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedType))
-                                    .map(eraseSensitiveAnnotation -> desensitize(fieldValue)))
-                            .orElse(fieldValue));
-                }
+                field.set(target, RESOLVER.resolve(fieldValue, field.getAnnotatedType()));
             }
         } catch (Throwable e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
-
     }
 
     /**
@@ -210,7 +200,7 @@ public class SensitiveUtil {
             Class<? extends SensitiveHandler<T, A>> handlerClass = (Class<? extends SensitiveHandler<T, A>>) method.invoke(annotation);
             return handlerClass.newInstance();
         } catch (Throwable t) {
-            log.error(t.getMessage(), t);
+            LOG.error(t.getMessage(), t);
         }
         throw new SensitiveHandlerNotFoundException("没有在" + annotation + "中找到敏感处理者");
     }
@@ -228,13 +218,13 @@ public class SensitiveUtil {
     }
 
     /**
-     * 目标对象可能被循环引用嵌套
+     * 目标对象可能被引用嵌套
      *
      * @param target 目标对象
      * @return 目标对象之前是否已经被处理过
      */
     private static boolean isReferenceNested(Object target) {
-        List<Object> list = targets.get();
+        List<Object> list = TARGETS.get();
         for (Object o : list) {
             // 没有使用contains方法，仅仅比较目标是否引用同一个对象
             if (o == target) {
@@ -243,19 +233,5 @@ public class SensitiveUtil {
         }
         list.add(target);
         return false;
-    }
-
-
-    /**
-     * 帮助方法用来将确定类型的对象转换为相应类型的对象
-     *
-     * @param value 对象值
-     * @param <T>   原对象类型
-     * @param <O>   确定的类型
-     * @return 转换后的对象值
-     */
-    @SuppressWarnings("unchecked")
-    private static <T, O> T cast(O value) {
-        return (T) value;
     }
 }

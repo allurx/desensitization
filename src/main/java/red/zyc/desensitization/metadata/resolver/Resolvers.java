@@ -16,6 +16,7 @@
 
 package red.zyc.desensitization.metadata.resolver;
 
+import java.lang.reflect.AnnotatedType;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,17 +24,24 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author zyc
  */
-public final class Resolvers {
+public final class Resolvers implements Resolver<Object> {
 
     private final static Map<Class<?>, Resolver<?>> RESOLVERS = new ConcurrentHashMap<>();
 
+    private static final Resolvers INSTANCE = new Resolvers();
+
     static {
-        RESOLVERS.put(Collection.class, new CollectionResolver());
-        RESOLVERS.put(Map.class, new MapResolver());
-        RESOLVERS.put(Object[].class, new ArrayResolver());
+        register(Collection.class, new CollectionResolver());
+        register(Map.class, new MapResolver());
+        register(Object[].class, new ArrayResolver());
     }
 
-    public static Resolver<Object> getResolver(Object value) {
+    private Resolvers() {
+        throw new UnsupportedOperationException();
+    }
+
+    @SuppressWarnings("unchecked")
+    static Resolver<Object> getResolver(Object value) {
         if (value instanceof Collection) {
             return (Resolver<Object>) RESOLVERS.get(Collection.class);
         }
@@ -46,4 +54,25 @@ public final class Resolvers {
         return (Resolver<Object>) RESOLVERS.get(value.getClass());
     }
 
+    /**
+     * @return {@link Resolvers}
+     */
+    public static Resolver<Object> instance() {
+        return INSTANCE;
+    }
+
+    /**
+     * 注册自己的类型解析器
+     *
+     * @param clazz    目标类型
+     * @param resolver 目标类型解析器
+     */
+    public static void register(Class<?> clazz, Resolver<?> resolver) {
+        RESOLVERS.put(clazz, resolver);
+    }
+
+    @Override
+    public Object resolve(Object value, AnnotatedType annotatedType) {
+        return resolving(value, annotatedType);
+    }
 }

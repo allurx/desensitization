@@ -27,10 +27,13 @@ public class ArrayResolver implements Resolver<Object[]> {
 
     @Override
     public Object[] resolve(Object[] value, AnnotatedType annotatedType) {
-        AnnotatedArrayType annotatedArrayType = (AnnotatedArrayType) annotatedType;
-        AnnotatedType typeArgument = annotatedArrayType.getAnnotatedGenericComponentType();
-        Object[] result = Arrays.stream(value).map(o -> Resolvers.resolve(o, typeArgument)).toArray();
-        return Arrays.copyOf(result, result.length, value.getClass());
+        if (annotatedType instanceof AnnotatedArrayType) {
+            AnnotatedArrayType annotatedArrayType = (AnnotatedArrayType) annotatedType;
+            AnnotatedType typeArgument = annotatedArrayType.getAnnotatedGenericComponentType();
+            Object[] result = Arrays.stream(value).map(o -> resolving(o, typeArgument)).toArray();
+            return Arrays.copyOf(result, result.length, value.getClass());
+        }
+        return value;
     }
 
 }

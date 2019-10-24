@@ -16,8 +16,6 @@
 
 package red.zyc.desensitization.metadata.resolver;
 
-import red.zyc.desensitization.SensitiveUtil;
-import red.zyc.desensitization.util.Optional;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.reflect.AnnotatedParameterizedType;
@@ -29,19 +27,19 @@ import java.util.stream.Collectors;
 /**
  * @author zyc
  */
-public class CollectionResolver extends BaseResolver implements Resolver<Collection<?>> {
+public class CollectionResolver implements Resolver<Collection<?>> {
 
     @Override
     public Collection<?> resolve(Collection<?> value, AnnotatedType annotatedType) {
-        if (!(annotatedType instanceof AnnotatedParameterizedType)) {
-            return value;
+        if (annotatedType instanceof AnnotatedParameterizedType) {
+            AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) annotatedType;
+            AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
+            return value.stream().map(o -> resolving(o, typeArgument)).collect(collect(value));
         }
-        AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) annotatedType;
-        AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
-        return value.stream().map(o -> resolve(o, typeArgument)).collect(collectValue(value));
+        return value;
     }
 
-    private Collector<Object, ?, Collection<Object>> collectValue(Collection<?> values) {
+    private Collector<Object, ?, Collection<Object>> collect(Collection<?> values) {
         @SuppressWarnings("unchecked")
         Collection<Object> original = (Collection<Object>) values;
         return Collectors.toCollection(() -> ReflectionUtil.constructCollection(ReflectionUtil.getClass(original)));

@@ -124,9 +124,9 @@ public class ReflectionUtil {
      * @return 一个和原Map类型一样的空Map
      * @see Map
      */
-    public static Map<?, ?> constructMap(Class<? extends Map<?, ?>> mapClass) {
+    public static <K, V> Map<K, V> constructMap(Class<? extends Map<K, V>> mapClass) {
         try {
-            Constructor<? extends Map<?, ?>> declaredConstructor = mapClass.getDeclaredConstructor(Map.class);
+            Constructor<? extends Map<K, V>> declaredConstructor = mapClass.getDeclaredConstructor(Map.class);
             return declaredConstructor.newInstance(new HashMap<>(16));
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             log.error(e.getMessage(), e);

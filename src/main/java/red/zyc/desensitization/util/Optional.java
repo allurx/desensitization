@@ -42,6 +42,17 @@ public final class Optional<T> {
     private final T value;
 
     /**
+     * Constructs an instance with the described value.
+     *
+     * @param value the value to describe; it's the caller's responsibility to
+     *              ensure the value is non-{@code null} unless creating the singleton
+     *              instance returned by {@code empty()}.
+     */
+    private Optional(T value) {
+        this.value = value;
+    }
+
+    /**
      * Returns an empty {@code Optional} instance.  No value is present for this
      * {@code Optional}.
      *
@@ -56,17 +67,6 @@ public final class Optional<T> {
         @SuppressWarnings("unchecked")
         Optional<T> t = (Optional<T>) EMPTY;
         return t;
-    }
-
-    /**
-     * Constructs an instance with the described value.
-     *
-     * @param value the value to describe; it's the caller's responsibility to
-     *              ensure the value is non-{@code null} unless creating the singleton
-     *              instance returned by {@code empty()}.
-     */
-    private Optional(T value) {
-        this.value = value;
     }
 
     /**
@@ -420,4 +420,6 @@ public final class Optional<T> {
                 ? String.format("Optional[%s]", value)
                 : "Optional.empty";
     }
+
+
 }
