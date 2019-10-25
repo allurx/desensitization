@@ -13,37 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package red.zyc.desensitization.metadata.resolver;
 
-import java.lang.reflect.AnnotatedArrayType;
 import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.Array;
-import java.util.Arrays;
+import java.lang.reflect.AnnotatedWildcardType;
 
 /**
- * {@link Array}类型值解析器
- *
  * @author zyc
  */
-public class ArrayResolver implements Resolver<Object[]> {
+public class WildcardTypeResolver implements Resolver<Object> {
 
     @Override
-    public Object[] resolve(Object[] value, AnnotatedType annotatedType) {
-        AnnotatedArrayType annotatedArrayType = (AnnotatedArrayType) annotatedType;
-        AnnotatedType typeArgument = annotatedArrayType.getAnnotatedGenericComponentType();
-        Object[] result = Arrays.stream(value).map(o -> Resolvers.resolving(o, typeArgument)).toArray();
-        return Arrays.copyOf(result, result.length, value.getClass());
+    public Object resolve(Object value, AnnotatedType annotatedType) {
+        AnnotatedWildcardType annotatedWildcardType = (AnnotatedWildcardType) annotatedType;
+        AnnotatedType[] annotatedUpperBounds = annotatedWildcardType.getAnnotatedUpperBounds();
+        AnnotatedType[] annotatedBounds = annotatedUpperBounds.length == 0 ? annotatedWildcardType.getAnnotatedLowerBounds() : annotatedUpperBounds;
+        for (AnnotatedType annotatedBound : annotatedBounds) {
+            value = Resolvers.resolving(value, annotatedBound);
+        }
+        return value;
     }
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return value instanceof Object[];
+        return annotatedType instanceof AnnotatedWildcardType;
     }
 
     @Override
     public int order() {
-        return 2;
+        return HIGHEST_PRIORITY;
     }
-
 }

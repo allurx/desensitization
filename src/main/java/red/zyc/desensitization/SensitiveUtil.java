@@ -21,7 +21,6 @@ import red.zyc.desensitization.exception.SensitiveHandlerNotFoundException;
 import red.zyc.desensitization.handler.SensitiveHandler;
 import red.zyc.desensitization.metadata.MapSensitiveDescriptor;
 import red.zyc.desensitization.metadata.SensitiveDescriptor;
-import red.zyc.desensitization.metadata.resolver.Resolver;
 import red.zyc.desensitization.metadata.resolver.Resolvers;
 import red.zyc.desensitization.util.Optional;
 import red.zyc.desensitization.util.ReflectionUtil;
@@ -47,12 +46,6 @@ public class SensitiveUtil {
      * {@link Logger}
      */
     private static final Logger LOG = LoggerFactory.getLogger(SensitiveUtil.class);
-
-    /**
-     * {@link Resolver}
-     */
-    private static final Resolver<Object> RESOLVER = Resolvers.instance();
-
 
     /**
      * 对象内部域值脱敏，注意该方法会改变原对象内部的域值。
@@ -177,7 +170,7 @@ public class SensitiveUtil {
                 if (fieldValue == null) {
                     continue;
                 }
-                field.set(target, RESOLVER.resolve(fieldValue, field.getAnnotatedType()));
+                field.set(target, Resolvers.resolving(fieldValue, field.getAnnotatedType()));
             }
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);

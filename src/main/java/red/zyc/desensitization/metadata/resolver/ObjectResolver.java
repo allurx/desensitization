@@ -16,34 +16,35 @@
 
 package red.zyc.desensitization.metadata.resolver;
 
-import java.lang.reflect.AnnotatedArrayType;
+import red.zyc.desensitization.SensitiveUtil;
+import red.zyc.desensitization.util.Optional;
+import red.zyc.desensitization.util.ReflectionUtil;
+
 import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 
 /**
- * {@link Array}类型值解析器
+ * 普通对象值解析器，例如对象上可能直接被标注了敏感注解。
  *
  * @author zyc
  */
-public class ArrayResolver implements Resolver<Object[]> {
+public class ObjectResolver implements Resolver<Object> {
 
     @Override
-    public Object[] resolve(Object[] value, AnnotatedType annotatedType) {
-        AnnotatedArrayType annotatedArrayType = (AnnotatedArrayType) annotatedType;
-        AnnotatedType typeArgument = annotatedArrayType.getAnnotatedGenericComponentType();
-        Object[] result = Arrays.stream(value).map(o -> Resolvers.resolving(o, typeArgument)).toArray();
-        return Arrays.copyOf(result, result.length, value.getClass());
+    public Object resolve(Object value, AnnotatedType annotatedType) {
+        return Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
+                .map(sensitiveAnnotation -> SensitiveUtil.handling(value, sensitiveAnnotation))
+                .or(() -> Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedType))
+                        .map(eraseSensitiveAnnotation -> SensitiveUtil.desensitize(value)))
+                .orElse(value);
     }
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return value instanceof Object[];
+        return true;
     }
 
     @Override
     public int order() {
-        return 2;
+        return LOWEST_PRIORITY;
     }
-
 }

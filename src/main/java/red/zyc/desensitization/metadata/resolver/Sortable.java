@@ -13,30 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package red.zyc.desensitization.util.caller;
+
+package red.zyc.desensitization.metadata.resolver;
 
 /**
+ * 标记对象是否能够进行排序
+ *
  * @author zyc
  */
-public interface Caller {
+public interface Sortable {
 
     /**
-     * 获取调用当前方法对象的{@code Class}
+     * 最高优先级（最先执行）
      *
-     * @return 调用当前方法对象的 {@code Class}
+     * @see java.lang.Integer#MIN_VALUE
      */
-    Class<?> getCaller();
+    int HIGHEST_PRIORITY = Integer.MIN_VALUE;
 
     /**
-     * 获取调用指定堆栈深度所在的对象的{@code Class}。例如当前堆栈深度为1，2则是调用当前方法所在的堆栈深度。
+     * 最低优先级（最晚执行）
      *
-     * @param depth 调用堆栈深度
-     * @return 调用指定堆栈深度所在的对象的 {@code Class}
+     * @see java.lang.Integer#MAX_VALUE
      */
-    Class<?> getCaller(int depth);
+    int LOWEST_PRIORITY = Integer.MAX_VALUE;
 
     /**
-     * 打印执行堆栈
+     * 对象的顺序值，较高的顺序值将被解析为较低的优先级。相同的顺序值的对象排序是随机的。
+     * 例如顺序值较高的{@link Resolver}将会比顺序值较低的{@link Resolver}晚执行。
+     *
+     * @return 对应的顺序
      */
-    void printStackTrace();
+    int order();
 }

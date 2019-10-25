@@ -1,8 +1,20 @@
-package red.zyc.desensitization.metadata.resolver;
+/*
+ * Copyright 2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import red.zyc.desensitization.SensitiveUtil;
-import red.zyc.desensitization.util.Optional;
-import red.zyc.desensitization.util.ReflectionUtil;
+package red.zyc.desensitization.metadata.resolver;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Array;
@@ -18,8 +30,11 @@ import java.util.Map;
  * @see CollectionResolver
  * @see MapResolver
  * @see ArrayResolver
+ * @see TypeVariableResolver
+ * @see WildcardTypeResolver
+ * @see ObjectResolver
  */
-public interface Resolver<T> {
+public interface Resolver<T> extends Sortable, Comparable<Resolver<?>> {
 
 
     /**
@@ -27,28 +42,28 @@ public interface Resolver<T> {
      *
      * @param value         将要解析的对象
      * @param annotatedType 将要解析的对象的{@link AnnotatedType}
-     * @return 解析的新对象
+     * @return 解析后的新对象
      */
     T resolve(T value, AnnotatedType annotatedType);
 
     /**
-     * 根据相应注册的{@link Resolver}解析对象
+     * 是否支持解析目标对象
      *
-     * @param value         对象值
+     * @param value         将要解析的对象
      * @param annotatedType 将要解析的对象的{@link AnnotatedType}
-     * @return 解析的新对象
+     * @return 是否支持解析目标对象
      */
-    default Object resolving(Object value, AnnotatedType annotatedType) {
-        // 能够根据类型解析器解析的值
-        Object resolved = Optional.ofNullable(Resolvers.getResolver(annotatedType))
-                .map(resolver -> resolver.resolve(value, annotatedType))
-                .orElse(value);
-        // 根据对象上的敏感注解擦除敏感信息
-        return Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
-                .map(sensitiveAnnotation -> SensitiveUtil.handling(resolved, sensitiveAnnotation))
-                .or(() -> Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedType))
-                        .map(eraseSensitiveAnnotation -> SensitiveUtil.desensitize(resolved)))
-                .orElse(resolved);
+    boolean support(Object value, AnnotatedType annotatedType);
+
+    /**
+     * 解析器执行顺序
+     *
+     * @param resolver 解析器
+     * @return 解析器执行顺序
+     */
+    @Override
+    default int compareTo(Resolver<?> resolver) {
+        return Integer.compare(order(), resolver.order());
     }
 
 }

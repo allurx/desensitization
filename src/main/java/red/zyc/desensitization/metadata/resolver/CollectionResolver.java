@@ -25,23 +25,32 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
+ * {@link Collection}类型值解析器
+ *
  * @author zyc
  */
 public class CollectionResolver implements Resolver<Collection<?>> {
 
     @Override
     public Collection<?> resolve(Collection<?> value, AnnotatedType annotatedType) {
-        if (annotatedType instanceof AnnotatedParameterizedType) {
-            AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) annotatedType;
-            AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
-            return value.stream().map(o -> resolving(o, typeArgument)).collect(collect(value));
-        }
-        return value;
+        AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) annotatedType;
+        AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
+        return value.stream().map(o -> Resolvers.resolving(o, typeArgument)).collect(collect(value));
+    }
+
+    @Override
+    public boolean support(Object value, AnnotatedType annotatedType) {
+        return value instanceof Collection && annotatedType instanceof AnnotatedParameterizedType;
     }
 
     private Collector<Object, ?, Collection<Object>> collect(Collection<?> values) {
         @SuppressWarnings("unchecked")
         Collection<Object> original = (Collection<Object>) values;
         return Collectors.toCollection(() -> ReflectionUtil.constructCollection(ReflectionUtil.getClass(original)));
+    }
+
+    @Override
+    public int order() {
+        return 0;
     }
 }

@@ -16,52 +16,37 @@
 
 package red.zyc.desensitization.metadata.resolver;
 
-import red.zyc.desensitization.util.ReflectionUtil;
-
 import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.AnnotatedTypeVariable;
-import java.lang.reflect.TypeVariable;
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
+ * 一个有用的解析器帮助类。用户可以通过这个类注册自己的类型解析器，移除或者覆盖默认的解析器。
+ *
  * @author zyc
  */
 public final class Resolvers implements Resolver<Object> {
 
-    private final static Map<Class<?>, Resolver<?>> RESOLVERS = new ConcurrentHashMap<>();
+    private final static List<Resolver<Object>> RESOLVERS = new CopyOnWriteArrayList<>();
 
-    private static final Resolvers INSTANCE = new Resolvers();
+    private final static Resolvers INSTANCE = new Resolvers();
 
     static {
-        register(Collection.class, new CollectionResolver());
-        register(Map.class, new MapResolver());
-        register(Object[].class, new ArrayResolver());
-        register(TypeVariable.class, new TypeVariableResolver());
+        register(new TypeVariableResolver());
+        register(new WildcardTypeResolver());
+        register(new CollectionResolver());
+        register(new MapResolver());
+        register(new ArrayResolver());
+        register(new ObjectResolver());
     }
 
     private Resolvers() {
     }
 
-    @SuppressWarnings("unchecked")
-    static Resolver<Object> getResolver(AnnotatedType annotatedType) {
-        if (ReflectionUtil.isCollection(annotatedType)) {
-            return (Resolver<Object>) RESOLVERS.get(Collection.class);
-        }
-        if (ReflectionUtil.isMap(annotatedType)) {
-            return (Resolver<Object>) RESOLVERS.get(Map.class);
-        }
-        if (ReflectionUtil.isArray(annotatedType)) {
-            return (Resolver<Object>) RESOLVERS.get(Object[].class);
-        }
-        if (annotatedType instanceof AnnotatedTypeVariable) {
-            return (Resolver<Object>) RESOLVERS.get(TypeVariable.class);
-        }
-        return (Resolver<Object>) RESOLVERS.get(value.getClass());
-    }
-
     /**
+     * 获取{@link Resolvers}实例
+     *
      * @return {@link Resolvers}
      */
     public static Resolver<Object> instance() {
@@ -69,17 +54,55 @@ public final class Resolvers implements Resolver<Object> {
     }
 
     /**
-     * 注册自己的类型解析器
+     * 注册自己的类型解析器。<br><br>
+     * 注意对于任何需要解析的对象o，都可以通过类型参数或者通配符来代替它，同时o本身可能也需要擦除敏感信息（o本身被标记了敏感注解）
+     * 因此在注册自己的解析器时，强烈推荐遵守以下两个约定：
+     * <ol>
+     *     <li>
+     *         自定义的解析器的执行顺序都应该晚于{@link TypeVariableResolver}和{@link WildcardTypeResolver}这两个解析器。
+     *     </li>
+     *     <li>
+     *         自定义的解析器的执行顺序都应该早于{@link ObjectResolver}这个解析器。
+     *     </li>
+     * </ol>
+     * 否则解析的结果可能会和预期不一样。
      *
-     * @param clazz    目标类型
      * @param resolver 目标类型解析器
      */
-    public static void register(Class<?> clazz, Resolver<?> resolver) {
-        RESOLVERS.put(clazz, resolver);
+    @SuppressWarnings("unchecked")
+    public static void register(Resolver<?> resolver) {
+        RESOLVERS.add((Resolver<Object>) resolver);
+        Collections.sort(RESOLVERS);
+    }
+
+    /**
+     * 解析对象
+     *
+     * @param value         将要解析的对象
+     * @param annotatedType 将要解析的对象的{@link AnnotatedType}
+     * @return 解析后的新对象
+     */
+    public static Object resolving(Object value, AnnotatedType annotatedType) {
+        return INSTANCE.resolve(value, annotatedType);
     }
 
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
-        return resolving(value, annotatedType);
+        for (Resolver<Object> resolver : RESOLVERS) {
+            if (resolver.support(value, annotatedType)) {
+                value = resolver.resolve(value, annotatedType);
+            }
+        }
+        return value;
+    }
+
+    @Override
+    public final boolean support(Object value, AnnotatedType annotatedType) {
+        return false;
+    }
+
+    @Override
+    public int order() {
+        return 0;
     }
 }

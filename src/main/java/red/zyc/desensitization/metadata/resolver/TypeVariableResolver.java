@@ -26,9 +26,20 @@ public class TypeVariableResolver implements Resolver<Object> {
 
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
-        for (AnnotatedType annotatedBound : ((AnnotatedTypeVariable) annotatedType).getAnnotatedBounds()) {
-            value = resolving(value, annotatedBound);
+        AnnotatedType[] annotatedBounds = ((AnnotatedTypeVariable) annotatedType).getAnnotatedBounds();
+        for (AnnotatedType annotatedBound : annotatedBounds) {
+            value = Resolvers.resolving(value, annotatedBound);
         }
         return value;
+    }
+
+    @Override
+    public boolean support(Object value, AnnotatedType annotatedType) {
+        return annotatedType instanceof AnnotatedTypeVariable;
+    }
+
+    @Override
+    public int order() {
+        return HIGHEST_PRIORITY;
     }
 }
