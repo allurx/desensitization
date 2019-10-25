@@ -16,7 +16,11 @@
 
 package red.zyc.desensitization.metadata.resolver;
 
+import red.zyc.desensitization.util.ReflectionUtil;
+
 import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.AnnotatedTypeVariable;
+import java.lang.reflect.TypeVariable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,21 +38,25 @@ public final class Resolvers implements Resolver<Object> {
         register(Collection.class, new CollectionResolver());
         register(Map.class, new MapResolver());
         register(Object[].class, new ArrayResolver());
+        register(TypeVariable.class, new TypeVariableResolver());
     }
 
     private Resolvers() {
     }
 
     @SuppressWarnings("unchecked")
-    static Resolver<Object> getResolver(Object value) {
-        if (value instanceof Collection) {
+    static Resolver<Object> getResolver(AnnotatedType annotatedType) {
+        if (ReflectionUtil.isCollection(annotatedType)) {
             return (Resolver<Object>) RESOLVERS.get(Collection.class);
         }
-        if (value instanceof Map) {
+        if (ReflectionUtil.isMap(annotatedType)) {
             return (Resolver<Object>) RESOLVERS.get(Map.class);
         }
-        if (value instanceof Object[]) {
+        if (ReflectionUtil.isArray(annotatedType)) {
             return (Resolver<Object>) RESOLVERS.get(Object[].class);
+        }
+        if (annotatedType instanceof AnnotatedTypeVariable) {
+            return (Resolver<Object>) RESOLVERS.get(TypeVariable.class);
         }
         return (Resolver<Object>) RESOLVERS.get(value.getClass());
     }

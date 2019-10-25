@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 /**
  * @author zyc
  */
-public class Child<T extends Collection> {
+public class Child<T extends Collection<@EmailSensitive  String>> {
 
     @ChineseNameSensitive(placeholder = 'x')
     private String name = "李富贵";

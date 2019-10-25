@@ -40,7 +40,7 @@ public interface Resolver<T> {
      */
     default Object resolving(Object value, AnnotatedType annotatedType) {
         // 能够根据类型解析器解析的值
-        Object resolved = Optional.ofNullable(Resolvers.getResolver(value))
+        Object resolved = Optional.ofNullable(Resolvers.getResolver(annotatedType))
                 .map(resolver -> resolver.resolve(value, annotatedType))
                 .orElse(value);
         // 根据对象上的敏感注解擦除敏感信息
