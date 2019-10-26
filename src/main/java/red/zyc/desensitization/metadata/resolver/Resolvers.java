@@ -17,8 +17,10 @@
 package red.zyc.desensitization.metadata.resolver;
 
 import java.lang.reflect.AnnotatedType;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -26,9 +28,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author zyc
  */
-public final class Resolvers implements Resolver<Object> {
+public final class Resolvers implements Resolver<Object, AnnotatedType> {
 
-    private final static List<Resolver<Object>> RESOLVERS = new CopyOnWriteArrayList<>();
+    private final static List<Resolver<Object, AnnotatedType>> RESOLVERS = new CopyOnWriteArrayList<>();
 
     private final static Resolvers INSTANCE = new Resolvers();
 
@@ -49,7 +51,7 @@ public final class Resolvers implements Resolver<Object> {
      *
      * @return {@link Resolvers}
      */
-    public static Resolver<Object> instance() {
+    public static Resolver<Object, AnnotatedType> instance() {
         return INSTANCE;
     }
 
@@ -70,8 +72,8 @@ public final class Resolvers implements Resolver<Object> {
      * @param resolver 目标类型解析器
      */
     @SuppressWarnings("unchecked")
-    public static void register(Resolver<?> resolver) {
-        RESOLVERS.add((Resolver<Object>) resolver);
+    public static void register(Resolver<?, ? extends AnnotatedType> resolver) {
+        RESOLVERS.add((Resolver<Object, AnnotatedType>) resolver);
         Collections.sort(RESOLVERS);
     }
 
@@ -82,13 +84,24 @@ public final class Resolvers implements Resolver<Object> {
      * @param annotatedType 将要解析的对象的{@link AnnotatedType}
      * @return 解析后的新对象
      */
-    public static Object resolving(Object value, AnnotatedType annotatedType) {
-        return INSTANCE.resolve(value, annotatedType);
+    @SuppressWarnings("unchecked")
+    public static <T> T resolving(T value, AnnotatedType annotatedType) {
+        return (T) INSTANCE.resolve(value, annotatedType);
     }
 
+
+    /**
+     * 对于任何需要解析的对象o，它可能继承了一些特殊的数据类型，例如{@link Collection}、{@link Map}等等，
+     * 因此我们在解析对象时需要遍历所有已注册的解析器，只要解析器支持解析对象o，都应该使用该解析器解析对象。
+     * 换句话说就是对于一个需要解析的对象，其本身是可能存在多个解析器的。
+     *
+     * @param value         将要解析的对象
+     * @param annotatedType 将要解析的对象的{@link AnnotatedType}
+     * @return 解析后的值
+     */
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
-        for (Resolver<Object> resolver : RESOLVERS) {
+        for (Resolver<Object, AnnotatedType> resolver : RESOLVERS) {
             if (resolver.support(value, annotatedType)) {
                 value = resolver.resolve(value, annotatedType);
             }

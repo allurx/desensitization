@@ -22,11 +22,11 @@ import java.lang.reflect.AnnotatedTypeVariable;
 /**
  * @author zyc
  */
-public class TypeVariableResolver implements Resolver<Object> {
+public class TypeVariableResolver implements Resolver<Object, AnnotatedTypeVariable> {
 
     @Override
-    public Object resolve(Object value, AnnotatedType annotatedType) {
-        AnnotatedType[] annotatedBounds = ((AnnotatedTypeVariable) annotatedType).getAnnotatedBounds();
+    public Object resolve(Object value, AnnotatedTypeVariable annotatedTypeVariable) {
+        AnnotatedType[] annotatedBounds = annotatedTypeVariable.getAnnotatedBounds();
         for (AnnotatedType annotatedBound : annotatedBounds) {
             value = Resolvers.resolving(value, annotatedBound);
         }

@@ -15,19 +15,26 @@
  */
 package red.zyc.desensitization.metadata;
 
-import red.zyc.desensitization.annotation.Sensitive;
+import red.zyc.desensitization.exception.SensitiveDescriptionNotFoundException;
+import red.zyc.desensitization.util.ReflectionUtil;
+import sun.invoke.util.BytecodeDescriptor;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
+import java.io.Serializable;
+import java.lang.invoke.SerializedLambda;
+import java.lang.reflect.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- * 单个敏感信息描述者，用来承载敏感信息注解
+ * 敏感信息描述者，用来承载敏感信息注解。
+ * 该接口实现{@link Serializable}的目的是为了在运行时如果{@code this}对象是以Lambda表达式的形式存在的话，
+ * 则获取相应的{@link SerializedLambda}对象
  *
  * @param <T>敏感信息的类型
  * @author zyc
  */
 @FunctionalInterface
-public interface SensitiveDescriptor<T> extends Descriptor {
+public interface SensitiveDescriptor<T> extends Serializable {
 
     /**
      * 用来承载敏感注解以处理敏感信息
@@ -37,20 +44,45 @@ public interface SensitiveDescriptor<T> extends Descriptor {
     void describe(T value);
 
     /**
-     * 获取{@link SensitiveDescriptor#describe(T)}参数上的第一个敏感注解
+     * 获取描述敏感信息的描述方法
+     * <ol>
+     *     <li>
+     *         如果{@code this}是Lambda表达式，则返回Lambda表达式生成的静态方法
+     *     </li>
+     *     <li>
+     *         如果{@code this}是匿名类，则返回该类重写的方法
+     *     </li>
+     * </ol>
      *
-     * @return {@link SensitiveDescriptor#describe(T)}参数上的第一个敏感注解
+     * @return 描述敏感信息的描述方法
      */
-    default Annotation getSensitiveAnnotation() {
-        Method description = getSensitiveDescription();
-        Annotation[] annotations = description.getParameters()[0].getAnnotations();
-        for (Annotation annotation : annotations) {
-            if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
-                return annotation;
+    default AnnotatedType getAnnotatedType() {
+        try {
+            Class<?> clazz = getClass();
+            // Lambda
+            if (clazz.isSynthetic()) {
+                Method writeReplace = clazz.getDeclaredMethod("writeReplace");
+                writeReplace.setAccessible(true);
+                SerializedLambda serializedLambda = (SerializedLambda) writeReplace.invoke(this);
+                List<Class<?>> classes = BytecodeDescriptor.parseMethod(serializedLambda.getImplMethodSignature(), Thread.currentThread().getContextClassLoader());
+                Field capturingClassField = serializedLambda.getClass().getDeclaredField("capturingClass");
+                capturingClassField.setAccessible(true);
+                Class<?> capturingClass = (Class<?>) capturingClassField.get(serializedLambda);
+                Method lambdaStaticMethod = capturingClass.getDeclaredMethod(serializedLambda.getImplMethodName(), Arrays.copyOfRange(classes.toArray(new Class<?>[0]), 0, classes.size() - 1));
+                lambdaStaticMethod.setAccessible(true);
+                return lambdaStaticMethod.getAnnotatedParameterTypes()[0];
+                // AnonymousClass
+            } else if (clazz.isAnonymousClass()) {
+                AnnotatedType annotatedInterface = clazz.getAnnotatedInterfaces()[0];
+                AnnotatedParameterizedType annotatedParameterizedType= (AnnotatedParameterizedType) annotatedInterface;
+                System.out.println(Arrays.toString(((AnnotatedParameterizedType) (annotatedParameterizedType.getAnnotatedActualTypeArguments()[0])).getAnnotatedActualTypeArguments()[0].getDeclaredAnnotations()));
+                Type actualTypeArgument = ((ParameterizedType) clazz.getGenericInterfaces()[0]).getActualTypeArguments()[0];
+                return clazz.getDeclaredMethod("describe", ReflectionUtil.getRawClass(actualTypeArgument)).getAnnotatedParameterTypes()[0];
             }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
-        getLogger().warn("没有在{}上找到敏感注解", getClass());
-        return null;
+        throw new SensitiveDescriptionNotFoundException("没有在" + getClass() + "中找到敏感描述方法");
     }
 
 

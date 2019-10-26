@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 /**
  * @author zyc
  */
-public class Child<T extends Collection<@EmailSensitive  String>> {
+public class Child<T extends Collection<@EmailSensitive String>> {
 
     @ChineseNameSensitive(placeholder = 'x')
     private String name = "李富贵";
@@ -67,23 +67,24 @@ public class Child<T extends Collection<@EmailSensitive  String>> {
 
     private @EraseSensitive Parent[] parents3 = {new Father(), new Mother()};
 
-    private Map<List<@EmailSensitive String[]>, Map<@ChineseNameSensitive String, List<@EmailSensitive String>[]>> map = new HashMap<>();
+    private Map<List<@EmailSensitive String[]>, Map<@EraseSensitive Parent, List<@EmailSensitive String>[]>> map1 = new HashMap<>();
 
+    @SuppressWarnings("unchecked")
     private T t = (T) Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList());
 
+    private List<@EraseSensitive ? extends Parent> parents = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
+
+    @SuppressWarnings("unchecked")
+    private List<? extends T> list = (List<? extends T>) Stream.of(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList())).collect(Collectors.toList());
+
+    // 复杂字段赋值
     {
-        List<String[]> a = new ArrayList<>();
-        a.add(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"});
-
-        Map<String, List<String>[]> b = new HashMap<>();
-        List<String> c = new ArrayList<>();
-        c.add("123456@qq.com");
-        c.add("1234567@qq.com");
-
-        List<?>[] d = {c};
-        b.put("张三", (List<String>[]) d);
-        map.put(a, b);
+        // map1
+        List<String[]> list = Stream.of(new String[]{"123456@qq.com"}, new String[]{"1234567@qq.com"}, new String[]{"1234567@qq.com", "12345678@qq.com"}).collect(Collectors.toList());
+        Map<Parent, List<String>[]> map = Stream.of(new Father(), new Mother()).collect(Collectors.toMap(p -> p, p -> (List<String>[]) new List<?>[]{Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList())}));
+        map1.put(list, map);
     }
+
 
     @Override
     public String toString() {
@@ -103,8 +104,10 @@ public class Child<T extends Collection<@EmailSensitive  String>> {
                 ", parents2=" + parents2 +
                 ", passwords=" + Arrays.toString(passwords) +
                 ", parents3=" + Arrays.toString(parents3) +
-                ", map=" + map +
+                ", map1=" + map1 +
                 ", t=" + t +
+                ", parents=" + parents +
+                ", list=" + list +
                 '}';
     }
 

@@ -29,11 +29,10 @@ import java.util.stream.Collectors;
  *
  * @author zyc
  */
-public class CollectionResolver implements Resolver<Collection<?>> {
+public class CollectionResolver implements Resolver<Collection<?>, AnnotatedParameterizedType> {
 
     @Override
-    public Collection<?> resolve(Collection<?> value, AnnotatedType annotatedType) {
-        AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) annotatedType;
+    public Collection<?> resolve(Collection<?> value, AnnotatedParameterizedType annotatedParameterizedType) {
         AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
         return value.stream().map(o -> Resolvers.resolving(o, typeArgument)).collect(collect(value));
     }

@@ -27,7 +27,7 @@ import java.lang.reflect.AnnotatedType;
  *
  * @author zyc
  */
-public class ObjectResolver implements Resolver<Object> {
+public class ObjectResolver implements Resolver<Object, AnnotatedType> {
 
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {

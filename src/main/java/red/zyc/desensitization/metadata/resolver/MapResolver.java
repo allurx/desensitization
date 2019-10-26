@@ -30,11 +30,10 @@ import java.util.stream.Collectors;
  *
  * @author zyc
  */
-public class MapResolver implements Resolver<Map<?, ?>> {
+public class MapResolver implements Resolver<Map<?, ?>, AnnotatedParameterizedType> {
 
     @Override
-    public Map<?, ?> resolve(Map<?, ?> value, AnnotatedType annotatedType) {
-        AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) annotatedType;
+    public Map<?, ?> resolve(Map<?, ?> value, AnnotatedParameterizedType annotatedParameterizedType) {
         AnnotatedType[] annotatedActualTypeArguments = annotatedParameterizedType.getAnnotatedActualTypeArguments();
         List<Object> keys = value.keySet().stream().map(o -> Resolvers.resolving(o, annotatedActualTypeArguments[0])).collect(Collectors.toList());
         List<Object> values = value.values().stream().map(o -> Resolvers.resolving(o, annotatedActualTypeArguments[1])).collect(Collectors.toList());

@@ -64,22 +64,6 @@ public class ReflectionUtil {
     }
 
     /**
-     * 设置指定对象中某个{@link Field}的值，注意该方法可能会导致{@link IllegalAccessException}，
-     * 请确保在调用该方法请提前调用{@link AccessibleObject#setAccessible(boolean)}方法设置允许访问域对象。
-     *
-     * @param target 指定对象
-     * @param field  指定对象的{@link Field}
-     * @param value  将要设置的值
-     */
-    public static void setFieldValue(Object target, Field field, Object value) {
-        try {
-            field.set(target, value);
-        } catch (IllegalAccessException e) {
-            log.error(e.getMessage(), e);
-        }
-    }
-
-    /**
      * 获取目标对象以及所有父类定义的 {@link Field}
      *
      * @param targetClass 目标对象的{@code Class}
@@ -173,67 +157,29 @@ public class ReflectionUtil {
      *     </li>
      * </ol>
      *
-     * @param type {@link AnnotatedType}
-     * @return {@link AnnotatedType}类型的原始{@link Class}
-     * @see AnnotatedParameterizedType
-     * @see AnnotatedArrayType
-     * @see AnnotatedTypeVariable
-     * @see AnnotatedWildcardType
+     * @param type {@link Type}
+     * @return {@link Type}类型的原始{@link Class}
+     * @see ParameterizedType
+     * @see GenericArrayType
+     * @see TypeVariable
+     * @see WildcardType
      */
-    public static Class<?>[] getRawClass(AnnotatedType type) {
-        if (type instanceof AnnotatedParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) type.getType();
-            return new Class<?>[]{(Class<?>) parameterizedType.getRawType()};
+    public static Class<?> getRawClass(Type type) {
+        if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            return (Class<?>) parameterizedType.getRawType();
         }
-        if (type instanceof AnnotatedArrayType) {
-            return new Class<?>[]{(Class<?>) type.getType()};
+        if (type instanceof GenericArrayType) {
+            Class<?> componentType = getRawClass(((GenericArrayType) type).getGenericComponentType());
+            return Array.newInstance(componentType, 0).getClass();
         }
-        if (type instanceof AnnotatedTypeVariable) {
-            AnnotatedTypeVariable annotatedTypeVariable = (AnnotatedTypeVariable) type;
-            AnnotatedType[] annotatedBounds = annotatedTypeVariable.getAnnotatedBounds();
-            return Arrays.stream(annotatedBounds)
-                    .map(ReflectionUtil::getRawClass)
-                    .reduce((classes1, classes2) -> mergeArray(classes1, classes2)).orElse(new Class<?>[0]);
+        if (type instanceof TypeVariable) {
+            return Object.class;
         }
-        if (type instanceof AnnotatedWildcardType) {
-            AnnotatedWildcardType annotatedWildcardType = (AnnotatedWildcardType) type;
-            AnnotatedType[] annotatedUpperBounds = annotatedWildcardType.getAnnotatedUpperBounds();
-            AnnotatedType[] annotatedBounds = annotatedUpperBounds.length == 0 ? annotatedWildcardType.getAnnotatedLowerBounds() : annotatedUpperBounds;
-            return Arrays.stream(annotatedBounds)
-                    .map(ReflectionUtil::getRawClass)
-                    .reduce((classes1, classes2) -> mergeArray(classes1, classes2)).orElse(new Class<?>[0]);
+        if (type instanceof WildcardType) {
+            return Object.class;
         }
-        return new Class<?>[]{(Class<?>) type.getType()};
-    }
-
-    /**
-     * 判断{@link AnnotatedType}代表的原始{@link Class}是否是{@link Collection}
-     *
-     * @param type {@link AnnotatedType}
-     * @return {@link AnnotatedType}代表的原始{@link Class}是否是{@link Collection}
-     */
-    public static boolean isCollection(AnnotatedType type) {
-        return Arrays.stream(getRawClass(type)).anyMatch(Collection.class::isAssignableFrom);
-    }
-
-    /**
-     * 判断{@link AnnotatedType}代表的原始{@link Class}是否是{@link Map}
-     *
-     * @param type {@link AnnotatedType}
-     * @return {@link AnnotatedType}代表的原始{@link Class}是否是{@link Map}
-     */
-    public static boolean isMap(AnnotatedType type) {
-        return Arrays.stream(getRawClass(type)).anyMatch(Map.class::isAssignableFrom);
-    }
-
-    /**
-     * 判断{@link AnnotatedType}代表的原始{@link Class}是否是{@link Array}
-     *
-     * @param type {@link AnnotatedType}
-     * @return {@link AnnotatedType}代表的原始{@link Class}是否是{@link Array}
-     */
-    public static boolean isArray(AnnotatedType type) {
-        return Arrays.stream(getRawClass(type)).anyMatch(Object[].class::isAssignableFrom);
+        return (Class<?>) type;
     }
 
     /**

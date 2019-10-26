@@ -21,11 +21,10 @@ import java.lang.reflect.AnnotatedWildcardType;
 /**
  * @author zyc
  */
-public class WildcardTypeResolver implements Resolver<Object> {
+public class WildcardTypeResolver implements Resolver<Object, AnnotatedWildcardType> {
 
     @Override
-    public Object resolve(Object value, AnnotatedType annotatedType) {
-        AnnotatedWildcardType annotatedWildcardType = (AnnotatedWildcardType) annotatedType;
+    public Object resolve(Object value, AnnotatedWildcardType annotatedWildcardType) {
         AnnotatedType[] annotatedUpperBounds = annotatedWildcardType.getAnnotatedUpperBounds();
         AnnotatedType[] annotatedBounds = annotatedUpperBounds.length == 0 ? annotatedWildcardType.getAnnotatedLowerBounds() : annotatedUpperBounds;
         for (AnnotatedType annotatedBound : annotatedBounds) {

@@ -34,7 +34,7 @@ import java.util.Map;
  * @see WildcardTypeResolver
  * @see ObjectResolver
  */
-public interface Resolver<T> extends Sortable, Comparable<Resolver<?>> {
+public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Comparable<Resolver<?, AT>> {
 
 
     /**
@@ -44,7 +44,7 @@ public interface Resolver<T> extends Sortable, Comparable<Resolver<?>> {
      * @param annotatedType 将要解析的对象的{@link AnnotatedType}
      * @return 解析后的新对象
      */
-    T resolve(T value, AnnotatedType annotatedType);
+    T resolve(T value, AT annotatedType);
 
     /**
      * 是否支持解析目标对象
@@ -62,7 +62,7 @@ public interface Resolver<T> extends Sortable, Comparable<Resolver<?>> {
      * @return 解析器执行顺序
      */
     @Override
-    default int compareTo(Resolver<?> resolver) {
+    default int compareTo(Resolver<?, AT> resolver) {
         return Integer.compare(order(), resolver.order());
     }
 

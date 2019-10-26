@@ -26,11 +26,10 @@ import java.util.Arrays;
  *
  * @author zyc
  */
-public class ArrayResolver implements Resolver<Object[]> {
+public class ArrayResolver implements Resolver<Object[], AnnotatedArrayType> {
 
     @Override
-    public Object[] resolve(Object[] value, AnnotatedType annotatedType) {
-        AnnotatedArrayType annotatedArrayType = (AnnotatedArrayType) annotatedType;
+    public Object[] resolve(Object[] value, AnnotatedArrayType annotatedArrayType) {
         AnnotatedType typeArgument = annotatedArrayType.getAnnotatedGenericComponentType();
         Object[] result = Arrays.stream(value).map(o -> Resolvers.resolving(o, typeArgument)).toArray();
         return Arrays.copyOf(result, result.length, value.getClass());

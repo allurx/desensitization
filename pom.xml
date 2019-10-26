@@ -13,7 +13,6 @@
     <properties>
         <junit.version>4.12</junit.version>
         <logback.version>1.2.3</logback.version>
-        <javapoet.version>1.11.1</javapoet.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -55,6 +54,18 @@
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun</groupId>
+            <artifactId>tools</artifactId>
+            <scope>system</scope>
+            <systemPath>${java.home}/../lib/tools.jar</systemPath>
+            <version>${java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+            <version>7.2</version>
         </dependency>
     </dependencies>
 
@@ -140,7 +151,7 @@
                             <target>1.8</target>
                             <encoding>UTF-8</encoding>
                             <compilerArguments>
-                                <bootclasspath>${env.JAVA_HOME}/jre/lib/rt.jar</bootclasspath>
+                                <bootclasspath>${java.home}/jre/lib/rt.jar</bootclasspath>
                             </compilerArguments>
                         </configuration>
                     </plugin>
