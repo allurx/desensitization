@@ -37,7 +37,7 @@ public class ArrayResolver implements Resolver<Object[], AnnotatedArrayType> {
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return value instanceof Object[];
+        return value instanceof Object[] && annotatedType instanceof AnnotatedArrayType;
     }
 
     @Override

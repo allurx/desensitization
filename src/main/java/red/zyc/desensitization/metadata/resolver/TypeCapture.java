@@ -1,17 +1,34 @@
 package red.zyc.desensitization.metadata.resolver;
 
 import java.lang.reflect.AnnotatedParameterizedType;
-import java.util.Arrays;
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
+ * 捕获{@link T}的明确类型
+ *
+ * @param <T>
  * @author zyc
  */
-public abstract class TypeCapture<T> {
+abstract class TypeCapture<T> {
 
-    public TypeCapture(){
-        System.out.println(this.getClass().getGenericSuperclass());
-        AnnotatedParameterizedType annotatedParameterizedType = (AnnotatedParameterizedType) this.getClass().getAnnotatedSuperclass();
-        AnnotatedParameterizedType annotatedActualTypeArgument = (AnnotatedParameterizedType) annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
-        System.out.println(Arrays.toString(annotatedActualTypeArgument.getAnnotatedActualTypeArguments()[0].getAnnotations()));
+    /**
+     * {@link T}运行时的{@link Type}
+     */
+    protected final Type type;
+
+    /**
+     * {@link T}运行时的{@link AnnotatedType}
+     */
+    protected final AnnotatedType annotatedType;
+
+    TypeCapture() {
+        Type superclass = getClass().getGenericSuperclass();
+        if (!(superclass instanceof ParameterizedType)) {
+            throw new IllegalArgumentException(getClass() + "必须是参数化类型");
+        }
+        type = ((ParameterizedType) superclass).getActualTypeArguments()[0];
+        annotatedType = ((AnnotatedParameterizedType) getClass().getAnnotatedSuperclass()).getAnnotatedActualTypeArguments()[0];
     }
 }

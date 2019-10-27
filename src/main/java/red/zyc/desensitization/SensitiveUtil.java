@@ -19,8 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.exception.SensitiveHandlerNotFoundException;
 import red.zyc.desensitization.handler.SensitiveHandler;
-import red.zyc.desensitization.metadata.SensitiveDescriptor;
 import red.zyc.desensitization.metadata.resolver.Resolvers;
+import red.zyc.desensitization.metadata.resolver.TypeToken;
 import red.zyc.desensitization.util.Optional;
 import red.zyc.desensitization.util.ReflectionUtil;
 
@@ -52,7 +52,6 @@ public class SensitiveUtil {
      * @param target 目标对象
      */
     public static <T> T desensitize(T target) {
-        System.out.println(SensitiveUtil.class.getEnclosingMethod());
         try {
             handle(target);
         } finally {
@@ -62,86 +61,20 @@ public class SensitiveUtil {
     }
 
     /**
-     * 单个值脱敏，如果在脱敏期间发生任何异常或者没有找到敏感注解则不作任何处理，直接返回原值。
-     * 注意该方法是否改变原对象值取决于相应的敏感注解所对应的敏感处理器的处理逻辑
+     * 单个值脱敏
      *
-     * @param target              目标对象
-     * @param sensitiveDescriptor 敏感信息描述者{@link SensitiveDescriptor}
-     * @param <T>                 目标对象类型
+     * @param target    目标对象
+     * @param typeToken {@link TypeToken}
+     * @param <T>       目标对象类型
      * @return 敏感信息被擦除后的值
      */
-    public static <T> T desensitize(T target, SensitiveDescriptor<T> sensitiveDescriptor) {
+    public static <T> T desensitize(T target, TypeToken<T> typeToken) {
         return Optional.ofNullable(target)
-                .map(t -> sensitiveDescriptor)
-                .map(SensitiveDescriptor::getAnnotatedType)
+                .map(t -> typeToken)
+                .map(TypeToken::getAnnotatedType)
                 .map(annotatedType -> Resolvers.resolving(target, annotatedType))
                 .orElse(target);
     }
-
-
-//    /**
-//     * 擦除{@link Map}内部的敏感值。
-//     * 注意该方法是否改变原对象值取决于相应的敏感注解所对应的敏感处理器的处理逻辑
-//     *
-//     * @param target     Map对象
-//     * @param descriptor 敏感值描述者，用来描述Map内部的敏感信息
-//     * @param <K>        Map的键类型
-//     * @param <V>        Map的值类型
-//     * @return 一个新的 {@link HashMap}，其中包含了原先Map中键值对被擦除敏感信息后的值
-//     */
-//    public static <K, V> Map<K, V> desensitizeMap(Map<K, V> target, MapSensitiveDescriptor<K, V> descriptor) {
-//        return Optional.ofNullable(target)
-//                .map(t -> descriptor)
-//                .map(sensitiveDescriptor -> target.entrySet()
-//                        .stream()
-//                        .collect(Collectors.toMap(
-//                                entry -> desensitize(entry.getKey(), sensitiveDescriptor.keySensitiveDescriptor()),
-//                                entry -> desensitize(entry.getValue(), sensitiveDescriptor.valueSensitiveDescriptor())
-//                        )))
-//                .orElse(target);
-//
-//
-//    }
-//
-//    /**
-//     * 擦除数组内部单一类型的敏感值。
-//     * 注意该方法是否改变原对象值取决于相应的敏感注解所对应的敏感处理器的处理逻辑
-//     *
-//     * @param target     数组对象
-//     * @param descriptor 敏感值描述者，用来描述数组内部的敏感信息
-//     * @param <E>        数组中元素的类型
-//     * @return 一个新的和原数组大小类型相同数组，其中包含了原先数组中每一个被擦除敏感信息的元素
-//     */
-//    public static <E> E[] desensitizeArray(E[] target, SensitiveDescriptor<E> descriptor) {
-//        return Optional.ofNullable(target)
-//                .map(t -> descriptor)
-//                .map(SensitiveDescriptor::getSensitiveAnnotation)
-//                // 返回的是Object[]对象，内部存放的是E类型的值，直接返回会抛出ClassCastException，所以这里需要将其转换成原有的数组类型
-//                .map(sensitiveAnnotation -> Arrays.stream(target).map(o -> handling(o, sensitiveAnnotation)).toArray())
-//                .map(result -> Arrays.copyOf(result, result.length, ReflectionUtil.getClass(target)))
-//                .orElse(target);
-//
-//
-//    }
-//
-//
-//    /**
-//     * 擦除集合内部单一类型的敏感值。
-//     * 注意该方法是否改变原对象值取决于相应的敏感注解所对应的敏感处理器的处理逻辑
-//     *
-//     * @param target     集合对象
-//     * @param descriptor 敏感值描述者，用来描述集合内部的敏感信息
-//     * @param <E>        集合中元素类型
-//     * @return 一个新的 {@link ArrayList}，其中包含了原先集合中元素被擦除敏感信息后的值
-//     */
-//    public static <E> Collection<E> desensitizeCollection(Collection<E> target, SensitiveDescriptor<E> descriptor) {
-//        return Optional.ofNullable(target)
-//                .map(t -> descriptor)
-//                .map(SensitiveDescriptor::getSensitiveAnnotation)
-//                .map(sensitiveAnnotation -> target.stream().map(e -> handling(e, sensitiveAnnotation)).collect(Collectors.toList()))
-//                .orElse((List<E>) target);
-//    }
-
 
     /**
      * 处理复杂的对象
