@@ -81,6 +81,7 @@ public class Child<T extends Collection<@EmailSensitive String>> {
     {
         // map1
         List<String[]> list = Stream.of(new String[]{"123456@qq.com"}, new String[]{"1234567@qq.com"}, new String[]{"1234567@qq.com", "12345678@qq.com"}).collect(Collectors.toList());
+        @SuppressWarnings("unchecked")
         Map<Parent, List<String>[]> map = Stream.of(new Father(), new Mother()).collect(Collectors.toMap(p -> p, p -> (List<String>[]) new List<?>[]{Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList())}));
         map1.put(list, map);
     }

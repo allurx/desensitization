@@ -22,7 +22,6 @@ import red.zyc.desensitization.annotation.ChineseNameSensitive;
 import red.zyc.desensitization.annotation.EmailSensitive;
 import red.zyc.desensitization.metadata.resolver.TypeToken;
 import red.zyc.desensitization.model.Child;
-import red.zyc.desensitization.util.CallerUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,8 +36,10 @@ public class Example {
 
     private Logger log = LoggerFactory.getLogger(Example.class);
 
-    public static void main(String[] args) {
 
+    public static void main(String[] args) {
+        Example e = new Example();
+        e.t();
         // 单个值
         System.out.println(SensitiveUtil.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
         }));
@@ -59,6 +60,11 @@ public class Example {
                 }));
     }
 
+    void t() {
+        System.out.println(SensitiveUtil.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
+        }));
+    }
+
 
     /**
      * 对象内部域值脱敏
@@ -69,11 +75,5 @@ public class Example {
         log.info("before擦除复杂对象内部敏感信息:{}", child.toString());
         Child<?> c = SensitiveUtil.desensitize(child);
         log.info("after擦除复杂对象内部敏感信息:{}", c);
-    }
-
-    @Test
-    public void printStackTrace() {
-        log.info(CallerUtil.getCaller().toString());
-        CallerUtil.printStackTrace();
     }
 }

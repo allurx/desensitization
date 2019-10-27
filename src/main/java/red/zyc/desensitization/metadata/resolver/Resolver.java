@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  * 类型解析器，用来解析一些特殊的数据类型。例如{@link Collection}，{@link Map}，{@link Array}等类型。
- * 用户可以实现该接口定义特定类型的解析器，然后调用{@link Resolvers#register}方法来注册自己的解析器。
+ * 用户可以实现该接口定义特定类型的解析器，然后调用{@link Resolvers#register}方法来注册自己的类型解析器。
  *
  * @param <T> 类型解析器支持的处理类型
  * @author zyc
