@@ -138,9 +138,6 @@
                             <source>1.8</source>
                             <target>1.8</target>
                             <encoding>UTF-8</encoding>
-<!--                            <compilerArguments>-->
-<!--                                <bootclasspath>${java.home}/jre/lib/rt.jar</bootclasspath>-->
-<!--                            </compilerArguments>-->
                         </configuration>
                     </plugin>
                 </plugins>
