@@ -50,6 +50,7 @@ public final class Sensitive {
     /**
      * 对象内部域值脱敏，注意该方法会改变原对象内部的域值。
      *
+     * @param <T>    目标对象类型
      * @param target 目标对象
      */
     public static <T> T desensitize(T target) {

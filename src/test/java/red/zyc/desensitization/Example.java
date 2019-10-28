@@ -36,7 +36,6 @@ public class Example {
 
     private Logger log = LoggerFactory.getLogger(Example.class);
 
-
     public static void main(String[] args) {
         // 单个值
         System.out.println(Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
@@ -57,12 +56,6 @@ public class Example {
                 new TypeToken<Map<@ChineseNameSensitive String, @EmailSensitive String>>() {
                 }));
     }
-
-    void t() {
-        System.out.println(Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
-        }));
-    }
-
 
     /**
      * 对象内部域值脱敏

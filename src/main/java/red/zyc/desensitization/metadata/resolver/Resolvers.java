@@ -80,6 +80,7 @@ public final class Resolvers implements Resolver<Object, AnnotatedType> {
     /**
      * 帮助方法用来类型转换
      *
+     * @param <T>           将要解析的对象类型
      * @param value         将要解析的对象
      * @param annotatedType 将要解析的对象的{@link AnnotatedType}
      * @return 解析后的新对象
