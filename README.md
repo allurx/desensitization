@@ -1,5 +1,5 @@
 # desensitization
-敏感信息擦除框架，用来擦除包含敏感信息的对象或者敏感者。
+基于java反射，在运行时动态擦除对象中的敏感信息。
 
 # 用法
 ## jdk版本
@@ -9,39 +9,80 @@
 <dependency>
   <groupId>red.zyc</groupId>
   <artifactId>desensitization</artifactId>
-  <version>2.0.0</version>
+  <version>2.1.0</version>
 </dependency>
 ```
 ## 例子
 ### 擦除对象内部的敏感信息
-下面是一个Person类，其中包含了一些敏感字段以及一些嵌套的需要擦除敏感信息的域
+下面是一个Child类，其中包含了一些敏感字段以及一些嵌套的需要擦除敏感信息的域
 ```java
-public class Person {
+public class Child {
     
     @ChineseNameSensitive
-    String name = "张婷婷";
-
-    @PhoneNumberSensitive
-    String phoneNumber = "12345678912";
+    private String name = "李富贵";
 
     @IdCardNumberSensitive
-    String idCardNumber = "321181199301096002";
-    
+    private String idCardNumber = "321181199301096000";
+
+    @UsccSensitive
+    private String unifiedSocialCreditCode = "91310106575855456U";
+
+    @CharSequenceSensitive
+    private String string = "123456";
+
+    @EmailSensitive
+    private String email = "123456@qq.com";
+
+    @PasswordSensitive
+    private String password = "123456";
+
     @EraseSensitive
-    Boy boy = new Boy();
-    
+    private Mother mother = new Mother();
+
     @EraseSensitive
-    List<Girl> girls = new ArrayList<>(Arrays.asList(new Girl(), new Girl()));
+    private Father father = new Father();
+
+    private List<@EraseSensitive Parent> parents1 = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
+
+    private List<@EmailSensitive String> emails1 = Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList());
+    
+    private Map<@ChineseNameSensitive String, @EmailSensitive String> emails2 = Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com"));
+
 }
 ```
 在数据入库或者前端返回时可能需要对相应的敏感字段进行脱敏处理，只需要调用以下方法即可擦除对象中的敏感信息。
 ```java
-Person person = SensitiveUtil.desensitize(new Person());
+Child child = Sensitive.desensitize(child);
 ```
-### 单个值脱敏
-可能你的敏感信息是一个字符串类型的值，只需要调用另一个重载的方法即可擦除**单个值类型的敏感信息**。
+### 值脱敏
+可能你的敏感信息是一个字符串类型的值或者是一个`Collection`、`Array`、`Map`之类的值，同样擦除它们的敏感信息也很简单：
 ```java
-String email = SensitiveUtil.desensitize("123456@qq.com", (@EmailSensitive String value) -> false);
+static void desensitizeValue(){
+    // 单个值
+    log.info("值脱敏：{}", Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
+    }));
+
+    // Collection
+    log.info("集合值脱敏：{}", Sensitive.desensitize(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList()),
+            new TypeToken<List<@EmailSensitive String>>() {
+            }));
+
+    // Array
+    log.info("数组值脱敏：{}", Arrays.toString(Sensitive.desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
+            new TypeToken<@EmailSensitive String[]>() {
+            })));
+
+    // Map
+    log.info("Map值脱敏：{}", Sensitive.desensitize(Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com")),
+            new TypeToken<Map<@ChineseNameSensitive String, @EmailSensitive String>>() {
+            }));
+}
 ```
-当然了这里的**单个值**既可以是集合也可以是数组。更详细的例子可以参考：
+在上面的例子中通过`TypeToken`指定需要脱敏对象的类型以便我们能够准确的捕获被脱敏对象的实际类型和相应的敏感注解。
+这里有一个很重要的地方我们需要格外的关注：**由于jdk在解析注解时的bug导致无法正确的获取嵌套类上的注解，因此对于值脱敏时，我们需要将脱敏代码放到一个静态方法或者是静态块中，这样运行时才能正确的获取脱敏对象上的注解。**
+有关这个bug的详细详细可以参考这个链接[why-annotation-on-generic-type-argument-is-not-visible-for-nested-type](http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type)
+# 测试用例
+更详细的例子可以参考：
 [测试用例](https://github.com/Allurx/desensitization/blob/master/src/test/java/red/zyc/desensitization/Example.java)
+# License
+[Apache License 2.0](https://github.com/Allurx/desensitization/blob/master/LICENSE.txt)
