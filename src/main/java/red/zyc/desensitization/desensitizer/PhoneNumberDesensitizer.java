@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package red.zyc.desensitization.handler;
+package red.zyc.desensitization.desensitizer;
 
 
-import red.zyc.desensitization.annotation.IdCardNumberSensitive;
+import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
- * 身份证号码敏感信息处理者
- * 注意该类在擦除敏感信息时不会校验目标对象的合法性，请确保目标对象是合法的身份证号码，
- * 否则会抛出任何有可能的 {@link RuntimeException}
+ * 手机号码脱敏器。
+ * 注意该类在擦除敏感信息时不会校验目标对象的合法性，请确保目标对象是合法的手机号码，
+ * 否则会抛出任何有可能的 {@link RuntimeException}。
  *
  * @author zyc
  */
-public class IdCardNumberSensitiveHandler extends AbstractCharSequenceSensitiveHandler<CharSequence, IdCardNumberSensitive> implements SensitiveHandler<CharSequence, IdCardNumberSensitive> {
+public class PhoneNumberDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, PhoneNumberSensitive> implements Desensitizer<CharSequence, PhoneNumberSensitive> {
 
     @Override
-    public CharSequence handle(CharSequence target, IdCardNumberSensitive annotation) {
-        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, IdCardNumberSensitive>builder()
+    public CharSequence desensitize(CharSequence target, PhoneNumberSensitive annotation) {
+        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, PhoneNumberSensitive>builder()
                 .target(target)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())
@@ -39,5 +39,4 @@ public class IdCardNumberSensitiveHandler extends AbstractCharSequenceSensitiveH
                 .placeholder(annotation.placeholder())
                 .build());
     }
-
 }

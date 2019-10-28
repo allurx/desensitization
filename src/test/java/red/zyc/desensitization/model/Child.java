@@ -16,22 +16,22 @@
 package red.zyc.desensitization.model;
 
 import red.zyc.desensitization.annotation.*;
-import red.zyc.desensitization.handler.AbstractSensitiveHandler;
-import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
-import red.zyc.desensitization.handler.SensitiveHandler;
+import red.zyc.desensitization.desensitizer.Desensitizer;
+import red.zyc.desensitization.desensitizer.PhoneNumberDesensitizer;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author zyc
  */
-public class Child {
+public class Child<T extends Collection<@EmailSensitive String>> {
 
     @ChineseNameSensitive(placeholder = 'x')
     private String name = "李富贵";
 
-    @PhoneNumberSensitive(handler = CustomizedPhoneNumberSensitiveHandler.class)
+    @PhoneNumberSensitive(desensitizer = CustomizedPhoneNumberDesensitizer.class)
     private Long phoneNumber = 12345678910L;
 
     @IdCardNumberSensitive
@@ -50,7 +50,42 @@ public class Child {
     private String password = "123456";
 
     @EraseSensitive
-    private List<Parent> parents = new ArrayList<>();
+    private Mother mother = new Mother();
+
+    @EraseSensitive
+    private Father father = new Father();
+
+    private List<@EraseSensitive Parent> parents1 = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
+
+    private List<@EmailSensitive String> emails1 = Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList());
+
+    private Map<@ChineseNameSensitive String, @EmailSensitive String> emails2 = Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com"));
+
+    private Map<@EraseSensitive Parent, @EmailSensitive String> parents2 = Stream.of(new Father(), new Mother()).collect(Collectors.toMap(p -> p, p -> "123456@qq.com"));
+
+    private @PasswordSensitive String[] passwords = {"123456", "1234567", "12345678"};
+
+    private @EraseSensitive Parent[] parents3 = {new Father(), new Mother()};
+
+    private Map<List<@EmailSensitive String[]>, Map<@EraseSensitive Parent, List<@EmailSensitive String>[]>> map1 = new HashMap<>();
+
+    @SuppressWarnings("unchecked")
+    private T t = (T) Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList());
+
+    private List<@EraseSensitive ? extends Parent> parents = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
+
+    @SuppressWarnings("unchecked")
+    private List<? extends T> list = (List<? extends T>) Stream.of(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList())).collect(Collectors.toList());
+
+    // 复杂字段赋值
+    {
+        // map1
+        List<String[]> list = Stream.of(new String[]{"123456@qq.com"}, new String[]{"1234567@qq.com"}, new String[]{"1234567@qq.com", "12345678@qq.com"}).collect(Collectors.toList());
+        @SuppressWarnings("unchecked")
+        Map<Parent, List<String>[]> map = Stream.of(new Father(), new Mother()).collect(Collectors.toMap(p -> p, p -> (List<String>[]) new List<?>[]{Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList())}));
+        map1.put(list, map);
+    }
+
 
     @Override
     public String toString() {
@@ -62,84 +97,31 @@ public class Child {
                 ", string='" + string + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", mother=" + mother +
+                ", father=" + father +
+                ", parents1=" + parents1 +
+                ", emails1=" + emails1 +
+                ", emails2=" + emails2 +
+                ", parents2=" + parents2 +
+                ", passwords=" + Arrays.toString(passwords) +
+                ", parents3=" + Arrays.toString(parents3) +
+                ", map1=" + map1 +
+                ", t=" + t +
                 ", parents=" + parents +
+                ", list=" + list +
                 '}';
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(Long phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getIdCardNumber() {
-        return idCardNumber;
-    }
-
-    public void setIdCardNumber(String idCardNumber) {
-        this.idCardNumber = idCardNumber;
-    }
-
-    public String getUnifiedSocialCreditCode() {
-        return unifiedSocialCreditCode;
-    }
-
-    public void setUnifiedSocialCreditCode(String unifiedSocialCreditCode) {
-        this.unifiedSocialCreditCode = unifiedSocialCreditCode;
-    }
-
-    public String getString() {
-        return string;
-    }
-
-    public void setString(String string) {
-        this.string = string;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public List<Parent> getParents() {
-        return parents;
-    }
-
-    public void setParents(List<Parent> parents) {
-        this.parents = parents;
-    }
-
     /**
-     * 自定义处理器处理数字类型的手机号码，默认的处理器只支持处理{@link CharSequence}类型的手机号码。
+     * 自定义脱敏器处理数字类型的手机号码，默认的脱敏器只支持处理{@link CharSequence}类型的手机号码。
      * 注意内部类必须定义成public的，否则反射初始化时会失败。
      *
-     * @see PhoneNumberSensitiveHandler
+     * @see PhoneNumberDesensitizer
      */
-    public static class CustomizedPhoneNumberSensitiveHandler extends AbstractSensitiveHandler<Long, PhoneNumberSensitive> implements SensitiveHandler<Long, PhoneNumberSensitive> {
+    public static class CustomizedPhoneNumberDesensitizer implements Desensitizer<Long, PhoneNumberSensitive> {
 
         @Override
-        public Long handle(Long target, PhoneNumberSensitive annotation) {
+        public Long desensitize(Long target, PhoneNumberSensitive annotation) {
             return Long.parseLong(target.toString().replaceAll("4567", "0000"));
         }
     }

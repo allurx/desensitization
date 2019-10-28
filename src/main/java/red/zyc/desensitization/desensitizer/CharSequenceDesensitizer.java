@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package red.zyc.desensitization.handler;
+package red.zyc.desensitization.desensitizer;
 
-import red.zyc.desensitization.annotation.UsccSensitive;
+import red.zyc.desensitization.annotation.CharSequenceSensitive;
 import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
- * 统一社会信用代码敏感信息处理者。
- * 注意该类在擦除敏感信息时不会校验目标对象的合法性，请确保目标对象是合法的统一社会信用代码，
- * 否则会抛出任何有可能的 {@link RuntimeException}。
+ * 通用的{@link CharSequence}类型脱敏器
  *
  * @author zyc
  */
-public class UsccSensitiveHandler extends AbstractCharSequenceSensitiveHandler<CharSequence, UsccSensitive> implements SensitiveHandler<CharSequence, UsccSensitive> {
+public class CharSequenceDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, CharSequenceSensitive> implements Desensitizer<CharSequence, CharSequenceSensitive> {
 
     @Override
-    public CharSequence handle(CharSequence target, UsccSensitive annotation) {
-        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, UsccSensitive>builder()
+    public CharSequence desensitize(CharSequence target, CharSequenceSensitive annotation) {
+        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, CharSequenceSensitive>builder()
                 .target(target)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())

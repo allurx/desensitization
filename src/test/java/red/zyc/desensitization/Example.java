@@ -18,62 +18,71 @@ package red.zyc.desensitization;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import red.zyc.desensitization.annotation.ChineseNameSensitive;
 import red.zyc.desensitization.annotation.EmailSensitive;
-import red.zyc.desensitization.metadata.SensitiveDescriptor;
+import red.zyc.desensitization.metadata.resolver.TypeToken;
 import red.zyc.desensitization.model.Child;
-import red.zyc.desensitization.model.Father;
-import red.zyc.desensitization.model.Mother;
-import red.zyc.desensitization.util.CallerUtil;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author zyc
  */
 public class Example {
 
-    private Logger log = LoggerFactory.getLogger(Example.class);
+    private static Logger log = LoggerFactory.getLogger(Example.class);
+
+    /**
+     * 对于单个值类型的脱敏，脱敏处理必须放在静态代码块中执行，不能放在对象的实例方法中执行，
+     * 这是由于jdk解析注解的一个bug导致的。
+     *
+     * @param args 参数
+     * @see <a href="http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type"></a>
+     */
+    public static void main(String[] args) {
+        // 单个值
+        log.info("值脱敏：{}", Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
+        }));
+
+        // Collection
+        log.info("集合值脱敏：{}", Sensitive.desensitize(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList()),
+                new TypeToken<List<@EmailSensitive String>>() {
+                }));
+
+        // Array
+        log.info("数组值脱敏：{}", Arrays.toString(Sensitive.desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
+                new TypeToken<@EmailSensitive String[]>() {
+                })));
+
+        // Map
+        log.info("Map值脱敏：{}", Sensitive.desensitize(Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com")),
+                new TypeToken<Map<@ChineseNameSensitive String, @EmailSensitive String>>() {
+                }));
+    }
+
+    /**
+     * 这是一个错误的示例，对于单个值脱敏，放在实例方法中是不生效的，必须将脱敏代码放在静态方法中执行。这是由于jdk解析注解的一个bug导致的。
+     *
+     * @see Example#main(java.lang.String[])
+     */
+    @Test
+    public void wrongDesensitizeValue() {
+        log.info("不要在实例方法中脱敏单个值：{}", Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
+        }));
+    }
 
     /**
      * 对象内部域值脱敏
      */
     @Test
     public void desensitizeObject() {
-        Child child = new Child();
-        child.getParents().add(new Father());
-        child.getParents().add(new Mother());
-        log.info("before:" + child.toString());
-        SensitiveUtil.desensitize(child);
-        log.info("after:" + child.toString());
-    }
-
-    /**
-     * 单个值脱敏
-     */
-    @Test
-    public void desensitizeValue() {
-        String email = "123456@qq.com";
-        log.info("before:" + email);
-
-        // 使用Lambda表达式
-        email = SensitiveUtil.
-                desensitize("123456@qq.com", (@EmailSensitive String s) -> {
-                });
-        log.info("after使用Lambda表达式指定敏感信息描述者：" + email);
-
-
-        // 使用匿名内部类
-        email = SensitiveUtil.
-                desensitize("123456@qq.com", new @EmailSensitive SensitiveDescriptor<String, EmailSensitive>() {
-                    @Override
-                    public void describe(String value) {
-
-                    }
-                });
-        log.info("after使用匿名内部类指定敏感信息描述者：" + email);
-    }
-
-    @Test
-    public void printStackTrace() {
-        log.info(CallerUtil.getCaller().toString());
-        CallerUtil.printStackTrace();
+        Child<?> child = new Child<>();
+        log.info("before擦除复杂对象内部敏感信息:{}", child.toString());
+        Child<?> c = Sensitive.desensitize(child);
+        log.info("after擦除复杂对象内部敏感信息:{}", c);
     }
 }

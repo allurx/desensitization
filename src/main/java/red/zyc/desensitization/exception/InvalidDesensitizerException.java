@@ -18,9 +18,9 @@ package red.zyc.desensitization.exception;
 /**
  * @author zyc
  */
-public abstract class AbstractSensitiveException extends RuntimeException {
+public class InvalidDesensitizerException extends AbstractSensitiveException {
 
-    public AbstractSensitiveException(String message) {
+    public InvalidDesensitizerException(String message) {
         super(message);
     }
 }

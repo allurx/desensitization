@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package red.zyc.desensitization.handler;
+package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.ChineseNameSensitive;
 import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
- * 中文名敏感信息处理者
+ * 中文名脱敏器
  *
  * @author zyc
  */
-public class ChineseNameSensitiveHandler extends AbstractCharSequenceSensitiveHandler<CharSequence, ChineseNameSensitive> implements SensitiveHandler<CharSequence, ChineseNameSensitive> {
+public class ChineseNameDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, ChineseNameSensitive> implements Desensitizer<CharSequence, ChineseNameSensitive> {
 
     @Override
-    public CharSequence handle(CharSequence target, ChineseNameSensitive annotation) {
-        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, ChineseNameSensitive>builder()
+    public CharSequence desensitize(CharSequence target, ChineseNameSensitive annotation) {
+        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, ChineseNameSensitive>builder()
                 .target(target)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())

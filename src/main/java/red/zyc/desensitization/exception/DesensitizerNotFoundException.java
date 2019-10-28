@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package red.zyc.desensitization.exception;
 
 /**
  * @author zyc
  */
-public abstract class AbstractSensitiveException extends RuntimeException {
+public class DesensitizerNotFoundException extends AbstractSensitiveException {
 
-    public AbstractSensitiveException(String message) {
+    public DesensitizerNotFoundException(String message) {
         super(message);
     }
 }

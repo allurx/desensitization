@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package red.zyc.desensitization.exception;
 
 /**
  * @author zyc
  */
-public abstract class AbstractSensitiveException extends RuntimeException {
+public class UnsupportedMapException extends AbstractSensitiveException {
 
-    public AbstractSensitiveException(String message) {
+    public UnsupportedMapException(String message) {
         super(message);
     }
 }

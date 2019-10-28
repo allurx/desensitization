@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>red.zyc</groupId>
     <artifactId>desensitization</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <name>desensitization</name>
     <url>https://github.com/Allurx/desensitization</url>
     <description>Sensitive information erasure framework</description>
@@ -128,19 +128,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-                    <!--指定启动类路径-->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <configuration>
-                            <source>1.8</source>
-                            <target>1.8</target>
-                            <encoding>UTF-8</encoding>
-                            <compilerArguments>
-                                <bootclasspath>${env.JAVA_HOME}/jre/lib/rt.jar</bootclasspath>
-                            </compilerArguments>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>

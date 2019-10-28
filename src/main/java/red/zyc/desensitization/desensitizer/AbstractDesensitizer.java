@@ -13,38 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package red.zyc.desensitization.handler;
+package red.zyc.desensitization.desensitizer;
 
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 
-
 /**
+ * 脱敏器基类，为子类提供了一些快捷有用的方法处理敏感信息。
+ *
  * @param <A> 实现类要处理的注解类型
  * @param <T> 实现类支持的处理类型
  * @author zyc
  */
-@FunctionalInterface
-public interface SensitiveHandler<T, A extends Annotation> extends Serializable {
+public abstract class AbstractDesensitizer<T, A extends Annotation> implements Desensitizer<T, A> {
 
     /**
-     * 由子类实现敏感信息处理逻辑
-     *
-     * @param target     需要处理的目标
-     * @param annotation 处理目标上的敏感注解
-     * @return 处理后的结果
+     * 敏感信息处理注解支持的目标{@code Class}
      */
-    T handle(T target, A annotation);
-
+    protected Class<T> supportedClass;
     /**
-     * 这个方法的作用仅仅是用来类型转换
-     *
-     * @param target     {@link T}
-     * @param annotation {@link A}
-     * @return {@link T}
+     * 敏感信息处理注解的{@code Class}
      */
+    protected Class<A> annotationClass;
+
     @SuppressWarnings("unchecked")
-    default T handling(Object target, Annotation annotation) {
-        return handle((T) target, (A) annotation);
+    public AbstractDesensitizer() {
+        Class<?>[] actualTypeArgumentsOfSensitiveHandler = getActualTypeArgumentsOfDesensitizer();
+        supportedClass = (Class<T>) actualTypeArgumentsOfSensitiveHandler[0];
+        annotationClass = (Class<A>) actualTypeArgumentsOfSensitiveHandler[1];
     }
 }
