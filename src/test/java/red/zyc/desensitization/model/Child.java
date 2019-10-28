@@ -16,8 +16,8 @@
 package red.zyc.desensitization.model;
 
 import red.zyc.desensitization.annotation.*;
-import red.zyc.desensitization.handler.PhoneNumberSensitiveHandler;
-import red.zyc.desensitization.handler.SensitiveHandler;
+import red.zyc.desensitization.desensitizer.Desensitizer;
+import red.zyc.desensitization.desensitizer.PhoneNumberDesensitizer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,7 +31,7 @@ public class Child<T extends Collection<@EmailSensitive String>> {
     @ChineseNameSensitive(placeholder = 'x')
     private String name = "李富贵";
 
-    @PhoneNumberSensitive(handler = CustomizedPhoneNumberSensitiveHandler.class)
+    @PhoneNumberSensitive(desensitizer = CustomizedPhoneNumberDesensitizer.class)
     private Long phoneNumber = 12345678910L;
 
     @IdCardNumberSensitive
@@ -113,15 +113,15 @@ public class Child<T extends Collection<@EmailSensitive String>> {
     }
 
     /**
-     * 自定义处理器处理数字类型的手机号码，默认的处理器只支持处理{@link CharSequence}类型的手机号码。
+     * 自定义脱敏器处理数字类型的手机号码，默认的脱敏器只支持处理{@link CharSequence}类型的手机号码。
      * 注意内部类必须定义成public的，否则反射初始化时会失败。
      *
-     * @see PhoneNumberSensitiveHandler
+     * @see PhoneNumberDesensitizer
      */
-    public static class CustomizedPhoneNumberSensitiveHandler implements SensitiveHandler<Long, PhoneNumberSensitive> {
+    public static class CustomizedPhoneNumberDesensitizer implements Desensitizer<Long, PhoneNumberSensitive> {
 
         @Override
-        public Long handle(Long target, PhoneNumberSensitive annotation) {
+        public Long desensitize(Long target, PhoneNumberSensitive annotation) {
             return Long.parseLong(target.toString().replaceAll("4567", "0000"));
         }
     }

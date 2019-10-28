@@ -19,9 +19,9 @@ package red.zyc.desensitization.exception;
 /**
  * @author zyc
  */
-public class SensitiveDescriptionNotFoundException extends AbstractSensitiveException  {
+public class DesensitizerNotFoundException extends AbstractSensitiveException {
 
-    public SensitiveDescriptionNotFoundException(String message) {
+    public DesensitizerNotFoundException(String message) {
         super(message);
     }
 }

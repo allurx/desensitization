@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package red.zyc.desensitization.handler;
+package red.zyc.desensitization.desensitizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import red.zyc.desensitization.exception.InvalidSensitiveHandlerException;
+import red.zyc.desensitization.exception.InvalidDesensitizerException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
@@ -30,56 +30,55 @@ import java.util.Arrays;
  * @param <T> 实现类支持的处理类型
  * @author zyc
  */
-public interface SensitiveHandler<T, A extends Annotation> {
+public interface Desensitizer<T, A extends Annotation> {
 
 
     /**
-     * 由子类实现敏感信息处理逻辑
+     * 由子类实现敏感信息脱敏逻辑
      *
-     * @param target     需要处理的目标
-     * @param annotation 处理目标上的敏感注解
-     * @return 处理后的结果
+     * @param target     需要脱敏的目标
+     * @param annotation 目标对象上的敏感注解
+     * @return 脱敏后的结果
      */
-    T handle(T target, A annotation);
+    T desensitize(T target, A annotation);
 
     /**
-     * 判断处理者是否支持将要处理的目标类型
+     * 判断脱敏器是否支持目标类型脱敏
      *
      * @param targetClass 需要擦除敏感信息的目标对象的 {@code Class}
-     * @return 处理者是否支持目标类型
+     * @return 脱敏器是否支持目标类型脱敏
      */
     default boolean support(Class<?> targetClass) {
-        Type[] actualTypeArgumentsOfSensitiveHandler = getActualTypeArgumentsOfSensitiveHandler();
-        @SuppressWarnings("unchecked")
-        Class<T> supportedClass = (Class<T>) actualTypeArgumentsOfSensitiveHandler[0];
+        Class<?>[] actualTypeArgumentsOfDesensitizer = getActualTypeArgumentsOfDesensitizer();
+        // 类型参数T的class
+        Class<?> supportedClass = actualTypeArgumentsOfDesensitizer[0];
         return supportedClass.isAssignableFrom(targetClass);
     }
 
     /**
-     * 这个方法的作用仅仅是用来类型转换
+     * 脱敏前的前置判断
      *
      * @param target     {@link T}
      * @param annotation {@link A}
      * @return {@link T}
      */
-    @SuppressWarnings("unchecked")
-    default T handling(Object target, Annotation annotation) {
+    default T desensitizing(T target, A annotation) {
         Class<?> targetClass = target.getClass();
-        Class<?> handlerClass = getClass();
+        Class<?> desensitizerClass = getClass();
         if (support(targetClass)) {
-            return handle((T) target, (A) annotation);
+            return desensitize(target, annotation);
         }
-        getLogger().warn("{}不支持擦除{}类型的敏感信息", handlerClass, targetClass);
-        return (T) target;
+        getLogger().warn("{}不支持擦除{}类型的敏感信息", desensitizerClass, targetClass);
+        return target;
     }
 
     /**
-     * 获取当前敏感处理器直接实现或者由其某个父类实现的具有明确泛型参数的 {@link SensitiveHandler}接口的类型参数
+     * 获取当前脱敏器直接实现或者由其某个父类实现的具有明确泛型参数的 {@link Desensitizer}接口的类型参数
      *
-     * @return 当前敏感处理器直接实现或者由其某个父类实现的具有明确泛型参数的 {@link SensitiveHandler}接口的类型参数
+     * @return 当前脱敏器直接实现或者由其某个父类实现的具有明确泛型参数的 {@link Desensitizer}接口的类型参数
      */
-    default Type[] getActualTypeArgumentsOfSensitiveHandler() {
-        if (SensitiveHandler.class.isAssignableFrom(getClass())) {
+    default Class<?>[] getActualTypeArgumentsOfDesensitizer() {
+        if (Desensitizer.class.isAssignableFrom(getClass())) {
             Class<?> current = getClass();
             while (current != null && current != Object.class) {
                 // 递归获取当前类或者父类实现的所有泛型接口
@@ -88,11 +87,11 @@ public interface SensitiveHandler<T, A extends Annotation> {
                     if (type instanceof ParameterizedType) {
                         ParameterizedType parameterizedType = (ParameterizedType) type;
                         Class<?> rawType = (Class<?>) parameterizedType.getRawType();
-                        // 当泛型接口是SensitiveHandler时返回其明确的类型参数，注意此时的参数可能为T，A之类的类型变量（TypeVariable）
-                        if (rawType == SensitiveHandler.class) {
+                        // 当泛型接口是Desensitizer时返回其明确的类型参数，注意此时的泛型参数可能为T，A之类的类型变量（TypeVariable）
+                        if (rawType == Desensitizer.class) {
                             Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
                             if (Arrays.stream(actualTypeArguments).allMatch(actualType -> actualType instanceof Class)) {
-                                return parameterizedType.getActualTypeArguments();
+                                return Arrays.copyOf(actualTypeArguments, actualTypeArguments.length, Class[].class);
                             }
                         }
                     }
@@ -100,7 +99,7 @@ public interface SensitiveHandler<T, A extends Annotation> {
                 current = current.getSuperclass();
             }
         }
-        throw new InvalidSensitiveHandlerException(getClass() + "必须直接或间接实现具有明确泛型参数的" + SensitiveHandler.class.getName() + "接口");
+        throw new InvalidDesensitizerException(getClass() + "必须直接实现或由其父类直接实现具有明确泛型参数的" + Desensitizer.class.getName() + "接口");
     }
 
     /**

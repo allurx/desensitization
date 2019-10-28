@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package red.zyc.desensitization.handler;
+package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
@@ -23,22 +23,22 @@ import java.util.regex.Pattern;
 
 
 /**
- * 字符序列对象敏感信息处理者基类，为子类提供了一些快捷有用的方法处理{@link CharSequence}类型的敏感信息。
+ * 字符序列对象脱敏器基类，为子类提供了一些快捷有用的方法处理{@link CharSequence}类型的敏感信息。
  *
- * @param <A> 敏感处理注解类型
+ * @param <A> 敏感注解类型
  * @param <T> 目标对象类型
  * @author zyc
  */
-public abstract class AbstractCharSequenceSensitiveHandler<T extends CharSequence, A extends Annotation> extends AbstractSensitiveHandler<T, A> {
+public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A extends Annotation> extends AbstractDesensitizer<T, A> {
 
     /**
-     * * 如果处理器支持的目标对象是 {@link CharSequence}类型，
+     * * 如果脱敏器支持的目标对象是 {@link CharSequence}类型，
      * * 可以调用这个快捷方法擦除原字符序列中的敏感信息。
      *
      * @param descriptor {@link CharSequenceSensitiveDescriptor}
      * @return 敏感信息被擦除后的字符序列
      */
-    public CharSequence handleCharSequence(CharSequenceSensitiveDescriptor<T, A> descriptor) {
+    public CharSequence desensitizeCharSequence(CharSequenceSensitiveDescriptor<T, A> descriptor) {
         if (descriptor.getTarget() == null || descriptor.getTarget().length() == 0) {
             return descriptor.getTarget();
         }

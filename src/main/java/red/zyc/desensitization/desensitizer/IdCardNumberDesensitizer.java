@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package red.zyc.desensitization.desensitizer;
 
-package red.zyc.desensitization.handler;
 
-import red.zyc.desensitization.annotation.CharSequenceSensitive;
+import red.zyc.desensitization.annotation.IdCardNumberSensitive;
 import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
- * 通用的{@link CharSequence}类型敏感信息处理者
+ * 身份证号码脱敏器
+ * 注意该类在擦除敏感信息时不会校验目标对象的合法性，请确保目标对象是合法的身份证号码，
+ * 否则会抛出任何有可能的 {@link RuntimeException}
  *
  * @author zyc
  */
-public class CharSequenceSensitiveHandler extends AbstractCharSequenceSensitiveHandler<CharSequence, CharSequenceSensitive> implements SensitiveHandler<CharSequence, CharSequenceSensitive> {
+public class IdCardNumberDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, IdCardNumberSensitive> implements Desensitizer<CharSequence, IdCardNumberSensitive> {
 
     @Override
-    public CharSequence handle(CharSequence target, CharSequenceSensitive annotation) {
-        return handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, CharSequenceSensitive>builder()
+    public CharSequence desensitize(CharSequence target, IdCardNumberSensitive annotation) {
+        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, IdCardNumberSensitive>builder()
                 .target(target)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())
@@ -37,4 +39,5 @@ public class CharSequenceSensitiveHandler extends AbstractCharSequenceSensitiveH
                 .placeholder(annotation.placeholder())
                 .build());
     }
+
 }

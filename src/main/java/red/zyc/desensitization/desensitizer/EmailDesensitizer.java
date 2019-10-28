@@ -1,18 +1,18 @@
-package red.zyc.desensitization.handler;
+package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.EmailSensitive;
 import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
- * 邮箱敏感信息处理者
+ * 邮箱脱敏器
  *
  * @author zyc
  */
-public class EmailSensitiveHandler extends AbstractCharSequenceSensitiveHandler<CharSequence, EmailSensitive> implements SensitiveHandler<CharSequence, EmailSensitive> {
+public class EmailDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, EmailSensitive> implements Desensitizer<CharSequence, EmailSensitive> {
 
     @Override
-    public CharSequence handle(CharSequence target, EmailSensitive annotation) {
-        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, EmailSensitive>builder()
+    public CharSequence desensitize(CharSequence target, EmailSensitive annotation) {
+        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, EmailSensitive>builder()
                 .target(target)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())

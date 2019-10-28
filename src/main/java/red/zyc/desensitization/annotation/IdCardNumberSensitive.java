@@ -16,8 +16,8 @@
 package red.zyc.desensitization.annotation;
 
 
-import red.zyc.desensitization.handler.IdCardNumberSensitiveHandler;
-import red.zyc.desensitization.handler.SensitiveHandler;
+import red.zyc.desensitization.desensitizer.IdCardNumberDesensitizer;
+import red.zyc.desensitization.desensitizer.Desensitizer;
 
 import java.lang.annotation.*;
 
@@ -33,9 +33,9 @@ import java.lang.annotation.*;
 public @interface IdCardNumberSensitive {
 
     /**
-     * @return 处理被 {@link IdCardNumberSensitive}注解的字段处理器，可以自定义子类重写默认的处理逻辑。
+     * @return 处理被 {@link IdCardNumberSensitive}注解的字段脱敏器，可以自定义子类重写默认的处理逻辑。
      */
-    Class<? extends SensitiveHandler<CharSequence, IdCardNumberSensitive>> handler() default IdCardNumberSensitiveHandler.class;
+    Class<? extends Desensitizer<CharSequence, IdCardNumberSensitive>> desensitizer() default IdCardNumberDesensitizer.class;
 
     /**
      * @return 敏感信息在原字符序列中的起始偏移

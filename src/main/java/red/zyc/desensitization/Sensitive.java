@@ -17,8 +17,8 @@ package red.zyc.desensitization;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import red.zyc.desensitization.exception.SensitiveHandlerNotFoundException;
-import red.zyc.desensitization.handler.SensitiveHandler;
+import red.zyc.desensitization.desensitizer.Desensitizer;
+import red.zyc.desensitization.exception.DesensitizerNotFoundException;
 import red.zyc.desensitization.metadata.resolver.Resolvers;
 import red.zyc.desensitization.metadata.resolver.TypeToken;
 import red.zyc.desensitization.util.Optional;
@@ -34,19 +34,18 @@ import java.util.List;
 /**
  * @author zyc
  */
-public class SensitiveUtil {
-
+public final class Sensitive {
 
 
     /**
-     * 保存被处理过的对象
+     * 保存被脱敏过的对象
      */
     private static final ThreadLocal<List<Object>> TARGETS = ThreadLocal.withInitial(ArrayList::new);
 
     /**
      * {@link Logger}
      */
-    private static final Logger LOG = LoggerFactory.getLogger(SensitiveUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Sensitive.class);
 
     /**
      * 对象内部域值脱敏，注意该方法会改变原对象内部的域值。
@@ -79,7 +78,7 @@ public class SensitiveUtil {
     }
 
     /**
-     * 处理复杂的对象
+     * 脱敏复杂的对象
      *
      * @param target 目标对象
      */
@@ -113,24 +112,24 @@ public class SensitiveUtil {
     }
 
     /**
-     * 通过反射实例化敏感注解对应的{@link SensitiveHandler}
+     * 通过反射实例化敏感注解对应的{@link Desensitizer}
      *
      * @param annotation 敏感注解
      * @param <T>        目标对象的类型
      * @param <A>        敏感注解类型
-     * @return 敏感注解对应的 {@link SensitiveHandler}
+     * @return 敏感注解对应的 {@link Desensitizer}
      */
-    private static <T, A extends Annotation> SensitiveHandler<T, A> getSensitiveHandler(A annotation) {
+    private static <T, A extends Annotation> Desensitizer<T, A> getDesensitizer(A annotation) {
         try {
             Class<? extends Annotation> annotationClass = annotation.annotationType();
-            Method method = annotationClass.getDeclaredMethod("handler");
+            Method method = annotationClass.getDeclaredMethod("desensitizer");
             @SuppressWarnings("unchecked")
-            Class<? extends SensitiveHandler<T, A>> handlerClass = (Class<? extends SensitiveHandler<T, A>>) method.invoke(annotation);
+            Class<? extends Desensitizer<T, A>> handlerClass = (Class<? extends red.zyc.desensitization.desensitizer.Desensitizer<T, A>>) method.invoke(annotation);
             return handlerClass.newInstance();
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
         }
-        throw new SensitiveHandlerNotFoundException("没有在" + annotation + "中找到敏感处理者");
+        throw new DesensitizerNotFoundException("没有在" + annotation + "中找到脱敏器");
     }
 
     /**
@@ -139,17 +138,17 @@ public class SensitiveUtil {
      * @param value               敏感值
      * @param sensitiveAnnotation 敏感注解
      * @param <T>                 敏感值类型
-     * @return 敏感处理者处理后的值
+     * @return 脱敏后的值
      */
     public static <T> T handling(T value, Annotation sensitiveAnnotation) {
-        return SensitiveUtil.<T, Annotation>getSensitiveHandler(sensitiveAnnotation).handling(value, sensitiveAnnotation);
+        return Sensitive.<T, Annotation>getDesensitizer(sensitiveAnnotation).desensitizing(value, sensitiveAnnotation);
     }
 
     /**
      * 目标对象可能被引用嵌套
      *
      * @param target 目标对象
-     * @return 目标对象之前是否已经被处理过
+     * @return 目标对象之前是否已经被脱敏过
      */
     private static boolean isReferenceNested(Object target) {
         List<Object> list = TARGETS.get();

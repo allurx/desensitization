@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package red.zyc.desensitization.handler;
 
+package red.zyc.desensitization.desensitizer;
 
-import red.zyc.desensitization.annotation.PhoneNumberSensitive;
+import red.zyc.desensitization.annotation.UsccSensitive;
 import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
- * 手机号码敏感信息处理者。
- * 注意该类在擦除敏感信息时不会校验目标对象的合法性，请确保目标对象是合法的手机号码，
+ * 统一社会信用代码脱敏器。
+ * 注意该类在擦除敏感信息时不会校验目标对象的合法性，请确保目标对象是合法的统一社会信用代码，
  * 否则会抛出任何有可能的 {@link RuntimeException}。
  *
  * @author zyc
  */
-public class PhoneNumberSensitiveHandler extends AbstractCharSequenceSensitiveHandler<CharSequence, PhoneNumberSensitive> implements SensitiveHandler<CharSequence, PhoneNumberSensitive> {
+public class UsccDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, UsccSensitive> implements Desensitizer<CharSequence, UsccSensitive> {
 
     @Override
-    public CharSequence handle(CharSequence target, PhoneNumberSensitive annotation) {
-        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, PhoneNumberSensitive>builder()
+    public CharSequence desensitize(CharSequence target, UsccSensitive annotation) {
+        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, UsccSensitive>builder()
                 .target(target)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())

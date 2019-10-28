@@ -21,7 +21,7 @@ import red.zyc.desensitization.util.ReflectionUtil;
 import java.lang.reflect.AnnotatedParameterizedType;
 import java.lang.reflect.AnnotatedType;
 import java.util.Collection;
-import java.util.stream.Collector;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -34,18 +34,15 @@ public class CollectionResolver implements Resolver<Collection<?>, AnnotatedPara
     @Override
     public Collection<?> resolve(Collection<?> value, AnnotatedParameterizedType annotatedParameterizedType) {
         AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
-        return value.stream().map(o -> Resolvers.resolving(o, typeArgument)).collect(collect(value));
+        List<Object> erased = value.stream().map(o -> Resolvers.resolving(o, typeArgument)).collect(Collectors.toList());
+        @SuppressWarnings("unchecked")
+        Collection<Object> original = (Collection<Object>) value;
+        return ReflectionUtil.constructCollection(ReflectionUtil.getClass(original), erased);
     }
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
         return value instanceof Collection && annotatedType instanceof AnnotatedParameterizedType;
-    }
-
-    private Collector<Object, ?, Collection<Object>> collect(Collection<?> values) {
-        @SuppressWarnings("unchecked")
-        Collection<Object> original = (Collection<Object>) values;
-        return Collectors.toCollection(() -> ReflectionUtil.constructCollection(ReflectionUtil.getClass(original)));
     }
 
     @Override

@@ -80,19 +80,20 @@ public class ReflectionUtil {
     }
 
     /**
-     * 构造一个和原集合类型一样的空集合。
+     * 构造一个和原集合类型一样的包含脱敏结果的集合。
      * 注意集合对象必须遵守{@link Collection}中的约定，定义一个无参构造函数和
      * 带有一个{@link Collection}类型参数的构造函数。
      *
-     * @param collectionClass 原集合对象的{@link Class}
-     * @param <T>             原集合内部元素类型
-     * @return 一个和原集合类型一样的空集合
+     * @param original 原集合对象的{@link Class}
+     * @param erased   脱敏后的结果
+     * @param <T>      原集合内部元素类型
+     * @return 一个和原集合类型一样的包含脱敏结果的集合
      * @see Collection
      */
-    public static <T> Collection<T> constructCollection(Class<? extends Collection<T>> collectionClass) {
+    public static <T> Collection<T> constructCollection(Class<Collection<T>> original, Collection<T> erased) {
         try {
-            Constructor<? extends Collection<T>> declaredConstructor = collectionClass.getDeclaredConstructor(Collection.class);
-            return declaredConstructor.newInstance(new ArrayList<>());
+            Constructor<Collection<T>> declaredConstructor = original.getDeclaredConstructor(Collection.class);
+            return declaredConstructor.newInstance(erased);
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             log.error(e.getMessage(), e);
         }
@@ -100,18 +101,19 @@ public class ReflectionUtil {
     }
 
     /**
-     * 构造一个和原Map类型一样的空Map。
+     * 构造一个和原Map类型一样的包含脱敏结果Map。
      * 注意Map对象必须遵守{@link Map}中的约定，定义一个无参构造函数和
      * 带有一个{@link Map}类型参数的构造函数。
      *
-     * @param mapClass 原Map对象的{@link Class}
-     * @return 一个和原Map类型一样的空Map
+     * @param original 原Map对象的{@link Class}
+     * @param erased   脱敏后的结果
+     * @return 一个和原Map类型一样的包含脱敏结果的Map
      * @see Map
      */
-    public static <K, V> Map<K, V> constructMap(Class<? extends Map<K, V>> mapClass) {
+    public static <K, V> Map<K, V> constructMap(Class<Map<K, V>> original, Map<K, V> erased) {
         try {
-            Constructor<? extends Map<K, V>> declaredConstructor = mapClass.getDeclaredConstructor(Map.class);
-            return declaredConstructor.newInstance(new HashMap<>(16));
+            Constructor<Map<K, V>> declaredConstructor = original.getDeclaredConstructor(Map.class);
+            return declaredConstructor.newInstance(erased);
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             log.error(e.getMessage(), e);
         }
@@ -164,7 +166,7 @@ public class ReflectionUtil {
      * @see TypeVariable
      * @see WildcardType
      */
-    public static Class<?> getRawClass(Type type) {
+    private static Class<?> getRawClass(Type type) {
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             return (Class<?>) parameterizedType.getRawType();

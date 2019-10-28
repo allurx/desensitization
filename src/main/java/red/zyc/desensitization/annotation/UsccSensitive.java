@@ -16,8 +16,8 @@
 
 package red.zyc.desensitization.annotation;
 
-import red.zyc.desensitization.handler.SensitiveHandler;
-import red.zyc.desensitization.handler.UsccSensitiveHandler;
+import red.zyc.desensitization.desensitizer.Desensitizer;
+import red.zyc.desensitization.desensitizer.UsccDesensitizer;
 
 import java.lang.annotation.*;
 
@@ -33,9 +33,9 @@ import java.lang.annotation.*;
 public @interface UsccSensitive {
 
     /**
-     * @return 处理被 {@link UsccSensitive}注解的字段处理器，可以自定义子类重写默认的处理逻辑
+     * @return 处理被 {@link UsccSensitive}注解的字段脱敏器，可以自定义子类重写默认的处理逻辑
      */
-    Class<? extends SensitiveHandler<CharSequence, UsccSensitive>> handler() default UsccSensitiveHandler.class;
+    Class<? extends Desensitizer<CharSequence, UsccSensitive>> desensitizer() default UsccDesensitizer.class;
 
     /**
      * @return 敏感信息在原字符序列中的起始偏移

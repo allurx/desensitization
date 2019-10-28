@@ -38,30 +38,28 @@ public class Example {
 
 
     public static void main(String[] args) {
-        Example e = new Example();
-        e.t();
         // 单个值
-        System.out.println(SensitiveUtil.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
+        System.out.println(Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
         }));
 
         // Collection
-        System.out.println(SensitiveUtil.desensitize(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList()),
+        System.out.println(Sensitive.desensitize(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList()),
                 new TypeToken<List<@EmailSensitive String>>() {
                 }));
 
         // Array
-        System.out.println(Arrays.toString(SensitiveUtil.desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
+        System.out.println(Arrays.toString(Sensitive.desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
                 new TypeToken<@EmailSensitive String[]>() {
                 })));
 
         // Map
-        System.out.println(SensitiveUtil.desensitize(Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com")),
+        System.out.println(Sensitive.desensitize(Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com")),
                 new TypeToken<Map<@ChineseNameSensitive String, @EmailSensitive String>>() {
                 }));
     }
 
     void t() {
-        System.out.println(SensitiveUtil.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
+        System.out.println(Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
         }));
     }
 
@@ -73,7 +71,7 @@ public class Example {
     public void desensitizeObject() {
         Child<?> child = new Child<>();
         log.info("before擦除复杂对象内部敏感信息:{}", child.toString());
-        Child<?> c = SensitiveUtil.desensitize(child);
+        Child<?> c = Sensitive.desensitize(child);
         log.info("after擦除复杂对象内部敏感信息:{}", c);
     }
 }

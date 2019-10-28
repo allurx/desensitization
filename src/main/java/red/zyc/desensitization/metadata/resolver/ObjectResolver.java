@@ -16,7 +16,7 @@
 
 package red.zyc.desensitization.metadata.resolver;
 
-import red.zyc.desensitization.SensitiveUtil;
+import red.zyc.desensitization.Sensitive;
 import red.zyc.desensitization.util.Optional;
 import red.zyc.desensitization.util.ReflectionUtil;
 
@@ -32,9 +32,9 @@ public class ObjectResolver implements Resolver<Object, AnnotatedType> {
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
         return Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
-                .map(sensitiveAnnotation -> SensitiveUtil.handling(value, sensitiveAnnotation))
+                .map(sensitiveAnnotation -> Sensitive.handling(value, sensitiveAnnotation))
                 .or(() -> Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedType))
-                        .map(eraseSensitiveAnnotation -> SensitiveUtil.desensitize(value)))
+                        .map(eraseSensitiveAnnotation -> Sensitive.desensitize(value)))
                 .orElse(value);
     }
 
@@ -47,4 +47,5 @@ public class ObjectResolver implements Resolver<Object, AnnotatedType> {
     public int order() {
         return LOWEST_PRIORITY;
     }
+
 }

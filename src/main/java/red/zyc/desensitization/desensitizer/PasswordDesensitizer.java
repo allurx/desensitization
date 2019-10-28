@@ -1,18 +1,18 @@
-package red.zyc.desensitization.handler;
+package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.PasswordSensitive;
 import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
- * 密码敏感信息处理者
+ * 密码脱敏器
  *
  * @author zyc
  */
-public class PasswordSensitiveHandler extends AbstractCharSequenceSensitiveHandler<CharSequence, PasswordSensitive> implements SensitiveHandler<CharSequence, PasswordSensitive> {
+public class PasswordDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, PasswordSensitive> implements Desensitizer<CharSequence, PasswordSensitive> {
 
     @Override
-    public CharSequence handle(CharSequence target, PasswordSensitive annotation) {
-        return super.handleCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, PasswordSensitive>builder()
+    public CharSequence desensitize(CharSequence target, PasswordSensitive annotation) {
+        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, PasswordSensitive>builder()
                 .target(target)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())

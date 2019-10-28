@@ -31,8 +31,8 @@ public class ArrayResolver implements Resolver<Object[], AnnotatedArrayType> {
     @Override
     public Object[] resolve(Object[] value, AnnotatedArrayType annotatedArrayType) {
         AnnotatedType typeArgument = annotatedArrayType.getAnnotatedGenericComponentType();
-        Object[] result = Arrays.stream(value).map(o -> Resolvers.resolving(o, typeArgument)).toArray();
-        return Arrays.copyOf(result, result.length, value.getClass());
+        Object[] erased = Arrays.stream(value).map(o -> Resolvers.resolving(o, typeArgument)).toArray();
+        return Arrays.copyOf(erased, erased.length, value.getClass());
     }
 
     @Override

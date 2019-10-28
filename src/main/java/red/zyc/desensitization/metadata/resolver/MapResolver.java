@@ -20,8 +20,6 @@ import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.reflect.AnnotatedParameterizedType;
 import java.lang.reflect.AnnotatedType;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -35,17 +33,15 @@ public class MapResolver implements Resolver<Map<?, ?>, AnnotatedParameterizedTy
     @Override
     public Map<?, ?> resolve(Map<?, ?> value, AnnotatedParameterizedType annotatedParameterizedType) {
         AnnotatedType[] annotatedActualTypeArguments = annotatedParameterizedType.getAnnotatedActualTypeArguments();
-        List<Object> keys = value.keySet().stream().map(o -> Resolvers.resolving(o, annotatedActualTypeArguments[0])).collect(Collectors.toList());
-        List<Object> values = value.values().stream().map(o -> Resolvers.resolving(o, annotatedActualTypeArguments[1])).collect(Collectors.toList());
+        Map<Object, Object> erased = value.entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        entry -> Resolvers.resolving(entry.getKey(), annotatedActualTypeArguments[0]),
+                        entry -> Resolvers.resolving(entry.getValue(), annotatedActualTypeArguments[1])
+                ));
         @SuppressWarnings("unchecked")
         Map<Object, Object> original = (Map<Object, Object>) value;
-        Map<Object, Object> result = ReflectionUtil.constructMap(ReflectionUtil.getClass(original));
-        Iterator<Object> keyIterator = keys.iterator();
-        Iterator<Object> valueIterator = values.iterator();
-        while (keyIterator.hasNext() && valueIterator.hasNext()) {
-            result.put(keyIterator.next(), valueIterator.next());
-        }
-        return result;
+        return ReflectionUtil.constructMap(ReflectionUtil.getClass(original), erased);
     }
 
     @Override

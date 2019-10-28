@@ -15,8 +15,8 @@
  */
 package red.zyc.desensitization.annotation;
 
-import red.zyc.desensitization.handler.ChineseNameSensitiveHandler;
-import red.zyc.desensitization.handler.SensitiveHandler;
+import red.zyc.desensitization.desensitizer.ChineseNameDesensitizer;
+import red.zyc.desensitization.desensitizer.Desensitizer;
 
 import java.lang.annotation.*;
 
@@ -32,9 +32,9 @@ import java.lang.annotation.*;
 public @interface ChineseNameSensitive {
 
     /**
-     * @return 处理被 {@link ChineseNameSensitive}注解的字段处理器，可以自定义子类重写默认的处理逻辑。
+     * @return 处理被 {@link ChineseNameSensitive}注解的字段脱敏器，可以自定义子类重写默认的处理逻辑。
      */
-    Class<? extends SensitiveHandler<CharSequence, ChineseNameSensitive>> handler() default ChineseNameSensitiveHandler.class;
+    Class<? extends Desensitizer<CharSequence, ChineseNameSensitive>> desensitizer() default ChineseNameDesensitizer.class;
 
     /**
      * @return 敏感信息在原字符序列中的起始偏移
