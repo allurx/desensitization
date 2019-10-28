@@ -26,7 +26,7 @@ import java.lang.annotation.*;
  *
  * @author zyc
  */
-@Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.PARAMETER})
+@Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Sensitive

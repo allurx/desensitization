@@ -21,7 +21,6 @@ import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.exception.DesensitizerNotFoundException;
 import red.zyc.desensitization.metadata.resolver.Resolvers;
 import red.zyc.desensitization.metadata.resolver.TypeToken;
-import red.zyc.desensitization.util.Optional;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.annotation.Annotation;
@@ -30,6 +29,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author zyc
@@ -52,6 +52,7 @@ public final class Sensitive {
      *
      * @param <T>    目标对象类型
      * @param target 目标对象
+     * @return 脱敏后的值
      */
     public static <T> T desensitize(T target) {
         try {

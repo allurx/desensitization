@@ -32,14 +32,13 @@ import java.lang.annotation.*;
  * </ul>
  * 下面是一个敏感信息注解的定义例子：
  * <pre>
- *
- * {@code @Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.TYPE, ElementType.PARAMETER})
- * @Retention(RetentionPolicy.RUNTIME)
- * @Documented
- * @Sensitive
+ * &#64;Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.TYPE, ElementType.PARAMETER})
+ * &#64;Retention(RetentionPolicy.RUNTIME)
+ * &#64;Documented
+ * &#64;Sensitive
  * public @interface CharSequenceSensitive {
  *
- *   Class <? extends Sensitive<?,CharSequenceSensitive>>; desensitizer() default CharSequenceDesensitizer.class;
+ *   Class &lt;? extends Sensitive&lt;?,CharSequenceSensitive&gt;&gt;; desensitizer() default CharSequenceDesensitizer.class;
  *
  *   int startOffset() default 0;
  *
@@ -49,7 +48,6 @@ import java.lang.annotation.*;
  *
  *   char placeholder() default '*';
  *
- * }
  * }
  * </pre>
  *

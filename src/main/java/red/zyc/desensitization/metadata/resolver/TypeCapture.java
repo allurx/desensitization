@@ -24,7 +24,7 @@ import java.lang.reflect.Type;
 /**
  * 捕获{@link T}运行时的明确类型
  *
- * @param <T>
+ * @param <T> 需要捕获的类型
  * @author zyc
  */
 abstract class TypeCapture<T> {

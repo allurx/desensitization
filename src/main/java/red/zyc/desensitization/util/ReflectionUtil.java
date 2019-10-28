@@ -86,7 +86,7 @@ public class ReflectionUtil {
      *
      * @param original 原集合对象的{@link Class}
      * @param erased   脱敏后的结果
-     * @param <T>      原集合内部元素类型
+     * @param <T>      集合内部元素类型
      * @return 一个和原集合类型一样的包含脱敏结果的集合
      * @see Collection
      */
@@ -107,6 +107,8 @@ public class ReflectionUtil {
      *
      * @param original 原Map对象的{@link Class}
      * @param erased   脱敏后的结果
+     * @param <K>      Map的键类型
+     * @param <V>      Map的值类型
      * @return 一个和原Map类型一样的包含脱敏结果的Map
      * @see Map
      */

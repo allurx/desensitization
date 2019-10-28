@@ -16,8 +16,8 @@
 package red.zyc.desensitization.annotation;
 
 
-import red.zyc.desensitization.desensitizer.IdCardNumberDesensitizer;
 import red.zyc.desensitization.desensitizer.Desensitizer;
+import red.zyc.desensitization.desensitizer.IdCardNumberDesensitizer;
 
 import java.lang.annotation.*;
 
@@ -26,7 +26,7 @@ import java.lang.annotation.*;
  *
  * @author zyc
  */
-@Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.PARAMETER})
+@Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Sensitive
