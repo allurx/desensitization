@@ -52,7 +52,7 @@ public class Child {
 ```
 在数据入库或者前端返回时可能需要对相应的敏感字段进行脱敏处理，只需要调用以下方法即可擦除对象中的敏感信息。
 ```java
-Child child = Sensitive.desensitize(child);
+Child child = Sensitive.desensitize(new Child());
 ```
 ### 值脱敏
 可能你的敏感信息是一个字符串类型的值或者是一个`Collection`、`Array`、`Map`之类的值，同样擦除它们的敏感信息也很简单：
