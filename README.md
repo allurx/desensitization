@@ -13,8 +13,8 @@
 </dependency>
 ```
 ## 例子
-### 擦除对象内部的敏感信息
-下面是一个Child类，其中包含了一些敏感字段以及一些嵌套的需要擦除敏感信息的域
+### 对象域值脱敏
+下面是一个Child类，其中包含了一些敏感域以及一些嵌套的敏感域
 ```java
 public class Child {
     
@@ -79,8 +79,8 @@ static void desensitizeValue(){
 }
 ```
 在上面的例子中通过`TypeToken`指定需要脱敏对象的类型以便我们能够准确的捕获被脱敏对象的实际类型和相应的敏感注解。
-这里有一个很重要的地方我们需要格外的关注：**由于jdk在解析注解时的bug导致无法正确的获取嵌套类上的注解，因此对于值脱敏时，我们需要将脱敏代码放到一个静态方法或者是静态块中，这样运行时才能正确的获取脱敏对象上的注解。**
-有关这个bug的详细详细可以参考这个链接[why-annotation-on-generic-type-argument-is-not-visible-for-nested-type](http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type)
+这里有一个很重要的地方需要我们格外的关注：**由于jdk在解析注解时的bug导致无法正确的获取嵌套类上的注解，因此对于值脱敏时，我们需要将脱敏代码放到一个静态方法或者是静态块中，这样运行时才能正确的获取脱敏对象上的注解。**
+有关这个bug的详情可以参考这个链接[why-annotation-on-generic-type-argument-is-not-visible-for-nested-type](http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type)
 # 测试用例
 更详细的例子可以参考：
 [测试用例](https://github.com/Allurx/desensitization/blob/master/src/test/java/red/zyc/desensitization/Example.java)
