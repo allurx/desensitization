@@ -96,11 +96,10 @@ public final class Resolvers<T, AT extends AnnotatedType> implements Resolver<T,
     @Override
     public T resolve(T value, AT annotatedType) {
         for (Resolver<?, ? extends AnnotatedType> resolver : RESOLVERS) {
-            if (resolver.support(value, annotatedType) && !resolver.isResolved(value)) {
+            if (resolver.support(value, annotatedType)) {
                 @SuppressWarnings("unchecked")
                 Resolver<T, AT> supportedResolver = (Resolver<T, AT>) resolver;
                 value = supportedResolver.resolve(value, annotatedType);
-                TARGETS.get().add(value);
             }
         }
         return value;

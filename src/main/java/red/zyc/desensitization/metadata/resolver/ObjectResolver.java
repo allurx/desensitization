@@ -61,6 +61,9 @@ public class ObjectResolver implements Resolver<Object, AnnotatedType> {
             if (target == null) {
                 return null;
             }
+            if (isResolved(target)) {
+                return target;
+            }
             List<Field> allFields = ReflectionUtil.listAllFields(target.getClass());
             for (Field field : allFields) {
                 if (Modifier.isFinal(field.getModifiers())) {
