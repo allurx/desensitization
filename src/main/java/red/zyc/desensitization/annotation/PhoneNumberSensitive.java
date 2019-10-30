@@ -22,7 +22,7 @@ import red.zyc.desensitization.desensitizer.PhoneNumberDesensitizer;
 import java.lang.annotation.*;
 
 /**
- * 手机号敏感标记注解
+ * 手机号敏感标记注解。默认的脱敏规则：擦除目标对象中除了前三位和后四位以外的所有字符。
  *
  * @author zyc
  */

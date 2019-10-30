@@ -24,10 +24,13 @@ import red.zyc.desensitization.annotation.PhoneNumberSensitive;
  * @author zyc
  */
 public class Father extends Parent {
+
     @ChineseNameSensitive
     private String name = "李强";
+
     @PhoneNumberSensitive
     private String phoneNumber = "12345678911";
+
     @IdCardNumberSensitive
     private String idCardNumber = "321181199301096001";
 
@@ -38,35 +41,5 @@ public class Father extends Parent {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", idCardNumber='" + idCardNumber + '\'' +
                 '}';
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    @Override
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    @Override
-    public String getIdCardNumber() {
-        return idCardNumber;
-    }
-
-    @Override
-    public void setIdCardNumber(String idCardNumber) {
-        this.idCardNumber = idCardNumber;
     }
 }

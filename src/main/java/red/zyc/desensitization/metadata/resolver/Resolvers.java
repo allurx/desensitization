@@ -28,11 +28,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author zyc
  */
-public final class Resolvers implements Resolver<Object, AnnotatedType> {
+public final class Resolvers<T, AT extends AnnotatedType> implements Resolver<T, AT> {
 
-    private final static List<Resolver<Object, AnnotatedType>> RESOLVERS = new CopyOnWriteArrayList<>();
+    /**
+     * 所有注册的{@link Resolver}
+     */
+    private final static List<Resolver<?, ? extends AnnotatedType>> RESOLVERS = new CopyOnWriteArrayList<>();
 
-    private final static Resolvers INSTANCE = new Resolvers();
+    /**
+     * {@link Resolvers}单例
+     */
+    private final static Resolvers<Object, AnnotatedType> INSTANCE = new Resolvers<>();
 
     static {
         register(new TypeVariableResolver());
@@ -51,8 +57,9 @@ public final class Resolvers implements Resolver<Object, AnnotatedType> {
      *
      * @return {@link Resolvers}
      */
-    public static Resolver<Object, AnnotatedType> instance() {
-        return INSTANCE;
+    @SuppressWarnings("unchecked")
+    public static <T, AT extends AnnotatedType> Resolver<T, AT> instance() {
+        return (Resolver<T, AT>) INSTANCE;
     }
 
     /**
@@ -71,23 +78,9 @@ public final class Resolvers implements Resolver<Object, AnnotatedType> {
      *
      * @param resolver 目标类型解析器
      */
-    @SuppressWarnings("unchecked")
     public static void register(Resolver<?, ? extends AnnotatedType> resolver) {
-        RESOLVERS.add((Resolver<Object, AnnotatedType>) resolver);
+        RESOLVERS.add(resolver);
         Collections.sort(RESOLVERS);
-    }
-
-    /**
-     * 帮助方法用来类型转换
-     *
-     * @param <T>           将要解析的对象类型
-     * @param value         将要解析的对象
-     * @param annotatedType 将要解析的对象的{@link AnnotatedType}
-     * @return 解析后的新对象
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T resolving(T value, AnnotatedType annotatedType) {
-        return (T) INSTANCE.resolve(value, annotatedType);
     }
 
 
@@ -101,17 +94,20 @@ public final class Resolvers implements Resolver<Object, AnnotatedType> {
      * @return 解析后的值
      */
     @Override
-    public Object resolve(Object value, AnnotatedType annotatedType) {
-        for (Resolver<Object, AnnotatedType> resolver : RESOLVERS) {
-            if (resolver.support(value, annotatedType)) {
-                value = resolver.resolve(value, annotatedType);
+    public T resolve(T value, AT annotatedType) {
+        for (Resolver<?, ? extends AnnotatedType> resolver : RESOLVERS) {
+            if (resolver.support(value, annotatedType) && !resolver.isResolved(value)) {
+                @SuppressWarnings("unchecked")
+                Resolver<T, AT> supportedResolver = (Resolver<T, AT>) resolver;
+                value = supportedResolver.resolve(value, annotatedType);
+                TARGETS.get().add(value);
             }
         }
         return value;
     }
 
     @Override
-    public final boolean support(Object value, AnnotatedType annotatedType) {
+    public boolean support(Object value, AnnotatedType annotatedType) {
         return false;
     }
 

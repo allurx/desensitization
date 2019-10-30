@@ -22,7 +22,7 @@ import red.zyc.desensitization.desensitizer.Desensitizer;
 import java.lang.annotation.*;
 
 /**
- * {@link CharSequence}敏感标记注解
+ * {@link CharSequence}敏感标记注解。默认的脱敏规则：不作任何处理。
  *
  * @author zyc
  */

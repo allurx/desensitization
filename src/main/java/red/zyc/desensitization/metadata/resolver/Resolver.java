@@ -16,9 +16,14 @@
 
 package red.zyc.desensitization.metadata.resolver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,8 +39,12 @@ import java.util.Map;
  * @see WildcardTypeResolver
  * @see ObjectResolver
  */
-public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Comparable<Resolver<Object, AnnotatedType>> {
+public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Comparable<Resolver<?, ? extends AnnotatedType>> {
 
+    /**
+     * 脱敏过的对象
+     */
+    ThreadLocal<List<Object>> TARGETS = ThreadLocal.withInitial(ArrayList::new);
 
     /**
      * 解析对象
@@ -62,8 +71,35 @@ public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Compara
      * @return 解析器执行顺序
      */
     @Override
-    default int compareTo(Resolver<Object, AnnotatedType> resolver) {
+    default int compareTo(Resolver<?, ? extends AnnotatedType> resolver) {
         return Integer.compare(order(), resolver.order());
+    }
+
+    /**
+     * 判断目标对象之前是否已经脱敏过（目标对象可能被引用嵌套）
+     *
+     * @param target 目标对象
+     * @return 目标对象之前是否已经脱敏过
+     */
+    default boolean isResolved(Object target) {
+        List<Object> list = TARGETS.get();
+        for (Object o : list) {
+            // 没有使用contains方法，仅仅比较目标是否引用同一个对象。
+            // 子类可以重写该方法实现是否已经脱敏过的判断逻辑
+            if (o == target) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 获取{@link Logger}
+     *
+     * @return {@link Logger}
+     */
+    default Logger getLogger() {
+        return LoggerFactory.getLogger(getClass());
     }
 
 }

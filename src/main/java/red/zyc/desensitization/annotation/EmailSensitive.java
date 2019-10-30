@@ -22,7 +22,7 @@ import red.zyc.desensitization.desensitizer.EmailDesensitizer;
 import java.lang.annotation.*;
 
 /**
- * 邮箱敏感标记注解
+ * 邮箱敏感标记注解。默认的脱敏规则：擦除目标对象中第二个字符与@符号间的所有字符，例如123456@qq.com脱敏后的值为1*****@qq.com
  *
  * @author zyc
  */

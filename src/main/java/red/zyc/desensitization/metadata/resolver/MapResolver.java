@@ -36,8 +36,8 @@ public class MapResolver implements Resolver<Map<?, ?>, AnnotatedParameterizedTy
         Map<Object, Object> erased = value.entrySet()
                 .stream()
                 .collect(Collectors.toMap(
-                        entry -> Resolvers.resolving(entry.getKey(), annotatedActualTypeArguments[0]),
-                        entry -> Resolvers.resolving(entry.getValue(), annotatedActualTypeArguments[1])
+                        entry -> Resolvers.instance().resolve(entry.getKey(), annotatedActualTypeArguments[0]),
+                        entry -> Resolvers.instance().resolve(entry.getValue(), annotatedActualTypeArguments[1])
                 ));
         @SuppressWarnings("unchecked")
         Map<Object, Object> original = (Map<Object, Object>) value;

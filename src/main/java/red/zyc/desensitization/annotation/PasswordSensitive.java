@@ -6,7 +6,7 @@ import red.zyc.desensitization.desensitizer.PasswordDesensitizer;
 import java.lang.annotation.*;
 
 /**
- * 密码敏感标记注解
+ * 密码敏感标记注解。默认的脱敏规则：擦除目标对象中所有的字符。
  *
  * @author zyc
  */

@@ -27,8 +27,10 @@ abstract class Parent {
 
     @ChineseNameSensitive
     private String name = "Parent";
+
     @PhoneNumberSensitive
     private String phoneNumber = "12345678913";
+
     @IdCardNumberSensitive
     private String idCardNumber = "321181199301096003";
 
@@ -39,29 +41,5 @@ abstract class Parent {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", idCardNumber='" + idCardNumber + '\'' +
                 '}';
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getIdCardNumber() {
-        return idCardNumber;
-    }
-
-    public void setIdCardNumber(String idCardNumber) {
-        this.idCardNumber = idCardNumber;
     }
 }
