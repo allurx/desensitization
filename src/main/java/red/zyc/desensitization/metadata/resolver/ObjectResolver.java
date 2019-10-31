@@ -20,9 +20,6 @@ import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,18 +29,20 @@ import java.util.Optional;
  */
 public class ObjectResolver implements Resolver<Object, AnnotatedType> {
 
+    private Annotation sensitiveAnnotation;
+
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
-        return Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
-                .map(sensitiveAnnotation -> erase(value, sensitiveAnnotation))
-                .orElse(Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedType))
-                        .map(eraseSensitiveAnnotation -> cascadeErase(value))
-                        .orElse(value));
+        return ReflectionUtil.getDesensitizer(sensitiveAnnotation).desensitizing(value, sensitiveAnnotation);
     }
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return true;
+        return Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
+                .map(annotation -> {
+                    sensitiveAnnotation = annotation;
+                    return true;
+                }).orElse(false);
     }
 
     @Override
@@ -52,47 +51,14 @@ public class ObjectResolver implements Resolver<Object, AnnotatedType> {
     }
 
     /**
-     * 级联擦除敏感对象
+     * 对于直接被标注敏感注解的对象，无论如何都要重新去解析一遍。
      *
      * @param target 目标对象
+     * @return 目标对象是否已经被解决
      */
-    private <T> T cascadeErase(T target) {
-        try {
-            if (target == null) {
-                return null;
-            }
-            if (isResolved(target)) {
-                return target;
-            }
-            List<Field> allFields = ReflectionUtil.listAllFields(target.getClass());
-            for (Field field : allFields) {
-                if (Modifier.isFinal(field.getModifiers())) {
-                    continue;
-                }
-                field.setAccessible(true);
-                Object fieldValue = field.get(target);
-                if (fieldValue == null) {
-                    continue;
-                }
-                field.set(target, Resolvers.instance().resolve(fieldValue, field.getAnnotatedType()));
-            }
-        } catch (Throwable e) {
-            getLogger().error(e.getMessage(), e);
-        }
-        return target;
-    }
-
-
-    /**
-     * 擦除单个敏感值
-     *
-     * @param value               敏感值
-     * @param sensitiveAnnotation 敏感注解
-     * @param <T>                 敏感值类型
-     * @return 脱敏后的值
-     */
-    private <T> T erase(T value, Annotation sensitiveAnnotation) {
-        return ReflectionUtil.<T, Annotation>getDesensitizer(sensitiveAnnotation).desensitizing(value, sensitiveAnnotation);
+    @Override
+    public boolean isResolved(Object target) {
+        return false;
     }
 
 }

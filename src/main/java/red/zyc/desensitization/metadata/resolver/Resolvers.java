@@ -17,10 +17,7 @@
 package red.zyc.desensitization.metadata.resolver;
 
 import java.lang.reflect.AnnotatedType;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -96,10 +93,11 @@ public final class Resolvers<T, AT extends AnnotatedType> implements Resolver<T,
     @Override
     public T resolve(T value, AT annotatedType) {
         for (Resolver<?, ? extends AnnotatedType> resolver : RESOLVERS) {
-            if (resolver.support(value, annotatedType)) {
+            if (resolver.support(value, annotatedType) && !resolver.isResolved(value)) {
                 @SuppressWarnings("unchecked")
                 Resolver<T, AT> supportedResolver = (Resolver<T, AT>) resolver;
                 value = supportedResolver.resolve(value, annotatedType);
+                TARGETS.get().get(resolver).add(value);
             }
         }
         return value;

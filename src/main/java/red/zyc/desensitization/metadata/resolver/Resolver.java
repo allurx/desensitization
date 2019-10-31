@@ -21,10 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 类型解析器，用来解析一些特殊的数据类型。例如{@link Collection}，{@link Map}，{@link Array}等类型。
@@ -44,7 +42,7 @@ public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Compara
     /**
      * 脱敏过的对象
      */
-    ThreadLocal<List<Object>> TARGETS = ThreadLocal.withInitial(ArrayList::new);
+    ThreadLocal<Map<Class<? extends Resolver<?, ? extends AnnotatedType>>, Map<Class<? extends AnnotatedType>, ?>>> TARGETS = ThreadLocal.withInitial(ConcurrentHashMap::new);
 
     /**
      * 解析对象
@@ -82,15 +80,9 @@ public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Compara
      * @return 目标对象之前是否已经脱敏过
      */
     default boolean isResolved(Object target) {
-        List<Object> list = TARGETS.get();
-        for (Object o : list) {
-            // 没有使用contains方法，仅仅比较目标是否引用同一个对象。
-            // 子类可以重写该方法实现是否已经脱敏过的判断逻辑
-            if (o == target) {
-                return true;
-            }
-        }
-        return false;
+        // 仅仅比较目标是否引用同一个对象，
+        // 子类可以重写该方法实现是否已经脱敏过的判断逻辑。
+        return TARGETS.get().computeIfAbsent(this, resolver -> new ArrayList<>()).stream().anyMatch(o -> o == target);
     }
 
     /**
