@@ -40,6 +40,6 @@ public class WildcardTypeResolver implements Resolver<Object, AnnotatedWildcardT
 
     @Override
     public int order() {
-        return HIGHEST_PRIORITY;
+        return HIGHEST_PRIORITY + 1;
     }
 }

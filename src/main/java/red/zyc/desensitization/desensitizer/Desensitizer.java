@@ -26,6 +26,8 @@ import java.util.Arrays;
 
 
 /**
+ * 脱敏器
+ *
  * @param <A> 实现类要处理的注解类型
  * @param <T> 实现类支持的处理类型
  * @author zyc

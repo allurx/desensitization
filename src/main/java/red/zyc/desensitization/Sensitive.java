@@ -55,7 +55,7 @@ public final class Sensitive {
                     .map(annotatedType -> Resolvers.<T, AnnotatedType>instance().resolve(target, annotatedType))
                     .orElse(target);
         } finally {
-            Resolvers.TARGETS.remove();
+            Resolvers.RESOLVED.remove();
         }
     }
 }

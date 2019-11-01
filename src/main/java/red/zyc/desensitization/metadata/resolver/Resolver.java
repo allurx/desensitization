@@ -21,8 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Array;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 类型解析器，用来解析一些特殊的数据类型。例如{@link Collection}，{@link Map}，{@link Array}等类型。
@@ -36,16 +38,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see TypeVariableResolver
  * @see WildcardTypeResolver
  * @see ObjectResolver
+ * @see CascadeResolver
  */
 public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Comparable<Resolver<?, ? extends AnnotatedType>> {
 
     /**
      * 脱敏过的对象
      */
-    ThreadLocal<Map<Class<? extends Resolver<?, ? extends AnnotatedType>>, Map<Class<? extends AnnotatedType>, ?>>> TARGETS = ThreadLocal.withInitial(ConcurrentHashMap::new);
+    ThreadLocal<List<Object>> RESOLVED = ThreadLocal.withInitial(ArrayList::new);
 
     /**
-     * 解析对象
+     * 解析对象F
      *
      * @param value         将要解析的对象
      * @param annotatedType 将要解析的对象的{@link AnnotatedType}
@@ -71,18 +74,6 @@ public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Compara
     @Override
     default int compareTo(Resolver<?, ? extends AnnotatedType> resolver) {
         return Integer.compare(order(), resolver.order());
-    }
-
-    /**
-     * 判断目标对象之前是否已经脱敏过（目标对象可能被引用嵌套）
-     *
-     * @param target 目标对象
-     * @return 目标对象之前是否已经脱敏过
-     */
-    default boolean isResolved(Object target) {
-        // 仅仅比较目标是否引用同一个对象，
-        // 子类可以重写该方法实现是否已经脱敏过的判断逻辑。
-        return TARGETS.get().computeIfAbsent(this, resolver -> new ArrayList<>()).stream().anyMatch(o -> o == target);
     }
 
     /**

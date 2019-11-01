@@ -18,7 +18,6 @@ package red.zyc.desensitization.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.annotation.Sensitive;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.exception.DesensitizerNotFoundException;
@@ -59,16 +58,6 @@ public class ReflectionUtil {
             }
         }
         return null;
-    }
-
-    /**
-     * 获取{@link AnnotatedType}上的{@link EraseSensitive}注解
-     *
-     * @param annotatedType {@link AnnotatedType}对象
-     * @return {@link AnnotatedType}上的{@link EraseSensitive}注解
-     */
-    public static Annotation getEraseSensitiveAnnotationOnAnnotatedType(AnnotatedType annotatedType) {
-        return annotatedType.getDeclaredAnnotation(EraseSensitive.class);
     }
 
     /**

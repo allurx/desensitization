@@ -37,6 +37,10 @@ public class CascadeResolver implements Resolver<Object, AnnotatedType> {
             if (value == null) {
                 return null;
             }
+            if (isReferenceNested(value)) {
+                return value;
+            }
+            RESOLVED.get().add(value);
             List<Field> allFields = ReflectionUtil.listAllFields(value.getClass());
             for (Field field : allFields) {
                 if (Modifier.isFinal(field.getModifiers())) {
@@ -63,5 +67,16 @@ public class CascadeResolver implements Resolver<Object, AnnotatedType> {
     @Override
     public int order() {
         return LOWEST_PRIORITY;
+    }
+
+    /**
+     * 判断目标对象之前是否已经脱敏过（目标对象可能被引用嵌套）
+     *
+     * @param target 目标对象
+     * @return 目标对象之前是否已经脱敏过
+     */
+    public boolean isReferenceNested(Object target) {
+        // 没有使用contains方法，仅仅比较目标是否引用同一个对象。
+        return RESOLVED.get().stream().anyMatch(o -> o == target);
     }
 }
