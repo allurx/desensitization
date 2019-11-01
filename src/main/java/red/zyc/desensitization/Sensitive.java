@@ -16,10 +16,10 @@
 package red.zyc.desensitization;
 
 import red.zyc.desensitization.annotation.EraseSensitive;
+import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.metadata.resolver.Resolvers;
 import red.zyc.desensitization.metadata.resolver.TypeToken;
 
-import java.lang.reflect.AnnotatedType;
 import java.util.Optional;
 
 /**
@@ -28,7 +28,7 @@ import java.util.Optional;
 public final class Sensitive {
 
     /**
-     * 对象内部域值脱敏，注意该方法会改变原对象内部的域值。
+     * 对象内部域值脱敏，注意该方法会改变对象内部的域值。
      *
      * @param <T>    目标对象类型
      * @param target 目标对象
@@ -40,7 +40,7 @@ public final class Sensitive {
     }
 
     /**
-     * 单个值脱敏
+     * 单个值脱敏，是否改变对象值取决于对应的{@link Desensitizer}的脱敏逻辑。
      *
      * @param target    目标对象
      * @param typeToken {@link TypeToken}
@@ -52,10 +52,10 @@ public final class Sensitive {
             return Optional.ofNullable(target)
                     .map(t -> typeToken)
                     .map(TypeToken::getAnnotatedType)
-                    .map(annotatedType -> Resolvers.<T, AnnotatedType>instance().resolve(target, annotatedType))
+                    .map(annotatedType -> Resolvers.resolve(target, annotatedType))
                     .orElse(target);
         } finally {
-            Resolvers.RESOLVED.remove();
+            Resolvers.clean();
         }
     }
 }

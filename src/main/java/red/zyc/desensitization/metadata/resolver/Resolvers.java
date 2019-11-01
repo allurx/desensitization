@@ -25,21 +25,16 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * 一个有用的解析器帮助类。用户可以通过这个类注册自己的类型解析器，移除或者覆盖默认的解析器。
+ * 一个有用的解析器帮助类。用户可以通过这个类注册自己的类型解析器。
  *
  * @author zyc
  */
-public final class Resolvers<T, AT extends AnnotatedType> implements Resolver<T, AT> {
+public final class Resolvers {
 
     /**
      * 所有注册的{@link Resolver}
      */
     private final static Set<Resolver<?, ? extends AnnotatedType>> RESOLVERS = new TreeSet<>();
-
-    /**
-     * {@link Resolvers}单例
-     */
-    private final static Resolvers<Object, AnnotatedType> INSTANCE = new Resolvers<>();
 
     static {
         register(new TypeVariableResolver());
@@ -55,31 +50,22 @@ public final class Resolvers<T, AT extends AnnotatedType> implements Resolver<T,
     }
 
     /**
-     * 获取{@link Resolvers}实例
-     *
-     * @return {@link Resolvers}
-     */
-    @SuppressWarnings("unchecked")
-    public static <T, AT extends AnnotatedType> Resolver<T, AT> instance() {
-        return (Resolver<T, AT>) INSTANCE;
-    }
-
-    /**
      * 注册自己的类型解析器。<br><br>
      * 对于任何需要解析的对象o，本质上都可以通过类型参数或者通配符来代替它，同时o本身可能也需要擦除敏感信息（o本身被标记了敏感注解）
-     * 或者需要擦除o内部域中的敏感信息（o本身被标记了{@link EraseSensitive }注解），因此在注册自己的解析器时，强烈推荐遵守以下两个约定：
+     * 或者需要擦除o内部域中的敏感信息（o本身被标记了{@link EraseSensitive }注解），因此在注册解析器时，需要遵守以下两个约定：
      *
      * <ol>
      *     <li>
-     *         自定义的解析器的执行顺序都应该晚于{@link TypeVariableResolver}和{@link WildcardTypeResolver}这两个解析器。
+     *         注册的解析器执行顺序都应该晚于{@link TypeVariableResolver}和{@link WildcardTypeResolver}这两个解析器。
      *     </li>
      *     <li>
-     *         自定义的解析器的执行顺序都应该早于{@link ObjectResolver}和{@link CascadeResolver}这两个解析器。
+     *         注册的解析器执行顺序都应该早于{@link ObjectResolver}和{@link CascadeResolver}这两个解析器。
      *     </li>
      * </ol>
      * 否则解析的结果可能会和预期不一样。注意如果注册的解析器的{@link Sortable#order()}方法返回值已经有其它解析器占用了，那么该解析器将会被忽略。
      *
      * @param resolver 目标类型解析器
+     * @see TreeSet
      */
     public static void register(Resolver<?, ? extends AnnotatedType> resolver) {
         RESOLVERS.add(resolver);
@@ -95,8 +81,7 @@ public final class Resolvers<T, AT extends AnnotatedType> implements Resolver<T,
      * @param annotatedType 将要解析的对象的{@link AnnotatedType}
      * @return 解析后的值
      */
-    @Override
-    public T resolve(T value, AT annotatedType) {
+    public static <T, AT extends AnnotatedType> T resolve(T value, AT annotatedType) {
         for (Resolver<?, ? extends AnnotatedType> resolver : RESOLVERS) {
             if (resolver.support(value, annotatedType)) {
                 @SuppressWarnings("unchecked")
@@ -107,13 +92,10 @@ public final class Resolvers<T, AT extends AnnotatedType> implements Resolver<T,
         return value;
     }
 
-    @Override
-    public boolean support(Object value, AnnotatedType annotatedType) {
-        return false;
-    }
-
-    @Override
-    public int order() {
-        return 0;
+    /**
+     * 收尾工作，主要用来清除{@link CascadeResolver#resolve}方法解析过程中可能产生的引用嵌套对象。
+     */
+    public static void clean() {
+        CascadeResolver.RESOLVED.remove();
     }
 }

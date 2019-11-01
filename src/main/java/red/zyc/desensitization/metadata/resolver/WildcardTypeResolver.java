@@ -28,7 +28,7 @@ public class WildcardTypeResolver implements Resolver<Object, AnnotatedWildcardT
         AnnotatedType[] annotatedUpperBounds = annotatedWildcardType.getAnnotatedUpperBounds();
         AnnotatedType[] annotatedBounds = annotatedUpperBounds.length == 0 ? annotatedWildcardType.getAnnotatedLowerBounds() : annotatedUpperBounds;
         for (AnnotatedType annotatedBound : annotatedBounds) {
-            value = Resolvers.instance().resolve(value, annotatedBound);
+            value = Resolvers.resolve(value, annotatedBound);
         }
         return value;
     }

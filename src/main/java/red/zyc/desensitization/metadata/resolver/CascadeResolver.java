@@ -22,6 +22,7 @@ import red.zyc.desensitization.util.ReflectionUtil;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +31,11 @@ import java.util.List;
  * @author zyc
  */
 public class CascadeResolver implements Resolver<Object, AnnotatedType> {
+
+    /**
+     * 脱敏过的对象
+     */
+    static final ThreadLocal<List<Object>> RESOLVED = ThreadLocal.withInitial(ArrayList::new);
 
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
@@ -51,7 +57,7 @@ public class CascadeResolver implements Resolver<Object, AnnotatedType> {
                 if (fieldValue == null) {
                     continue;
                 }
-                field.set(value, Resolvers.instance().resolve(fieldValue, field.getAnnotatedType()));
+                field.set(value, Resolvers.resolve(fieldValue, field.getAnnotatedType()));
             }
         } catch (Throwable e) {
             getLogger().error(e.getMessage(), e);

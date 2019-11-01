@@ -21,9 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,11 +39,6 @@ import java.util.Map;
  * @see CascadeResolver
  */
 public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Comparable<Resolver<?, ? extends AnnotatedType>> {
-
-    /**
-     * 脱敏过的对象
-     */
-    ThreadLocal<List<Object>> RESOLVED = ThreadLocal.withInitial(ArrayList::new);
 
     /**
      * 解析对象F
