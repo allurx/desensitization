@@ -75,7 +75,7 @@ public final class Resolvers {
     /**
      * 对于任何需要解析的对象o，它可能继承了一些特殊的数据类型，例如{@link Collection}、{@link Map}等等，
      * 因此我们在解析对象时需要遍历所有已注册的解析器，只要解析器支持解析对象o，都应该使用该解析器解析对象。
-     * 换句话说就是对于一个需要解析的对象，其本身是可能存在多个解析器的。
+     * 换句话说就是对于一个需要解析的对象，其本身是可能存在多个解析器能够解析它的。
      *
      * @param value         将要解析的对象
      * @param annotatedType 将要解析的对象的{@link AnnotatedType}

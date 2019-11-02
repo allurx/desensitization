@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>red.zyc</groupId>
     <artifactId>desensitization</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
     <name>desensitization</name>
     <url>https://github.com/Allurx/desensitization</url>
     <description>Sensitive information erasure framework</description>
