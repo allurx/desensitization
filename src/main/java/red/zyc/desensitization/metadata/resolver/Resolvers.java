@@ -79,6 +79,8 @@ public final class Resolvers {
      *
      * @param value         将要解析的对象
      * @param annotatedType 将要解析的对象的{@link AnnotatedType}
+     * @param <T>           将要解析的对象的类型
+     * @param <AT>          将要解析的对象的{@link AnnotatedType}的类型
      * @return 解析后的值
      */
     public static <T, AT extends AnnotatedType> T resolve(T value, AT annotatedType) {
