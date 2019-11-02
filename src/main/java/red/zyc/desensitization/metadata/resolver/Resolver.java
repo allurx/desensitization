@@ -16,6 +16,9 @@
 
 package red.zyc.desensitization.metadata.resolver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -33,12 +36,12 @@ import java.util.Map;
  * @see TypeVariableResolver
  * @see WildcardTypeResolver
  * @see ObjectResolver
+ * @see CascadeResolver
  */
-public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Comparable<Resolver<Object, AnnotatedType>> {
-
+public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Comparable<Resolver<?, ? extends AnnotatedType>> {
 
     /**
-     * 解析对象
+     * 解析对象F
      *
      * @param value         将要解析的对象
      * @param annotatedType 将要解析的对象的{@link AnnotatedType}
@@ -62,8 +65,17 @@ public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Compara
      * @return 解析器执行顺序
      */
     @Override
-    default int compareTo(Resolver<Object, AnnotatedType> resolver) {
+    default int compareTo(Resolver<?, ? extends AnnotatedType> resolver) {
         return Integer.compare(order(), resolver.order());
+    }
+
+    /**
+     * 获取{@link Logger}
+     *
+     * @return {@link Logger}
+     */
+    default Logger getLogger() {
+        return LoggerFactory.getLogger(getClass());
     }
 
 }

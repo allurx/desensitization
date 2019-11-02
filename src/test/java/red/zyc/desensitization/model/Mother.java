@@ -35,41 +35,11 @@ public class Mother extends Parent {
     private String idCardNumber = "321181199301096002";
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
     public String toString() {
         return "Mother{" +
                 "name='" + name + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", idCardNumber='" + idCardNumber + '\'' +
                 '}';
-    }
-
-    @Override
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    @Override
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    @Override
-    public String getIdCardNumber() {
-        return idCardNumber;
-    }
-
-    @Override
-    public void setIdCardNumber(String idCardNumber) {
-        this.idCardNumber = idCardNumber;
     }
 }

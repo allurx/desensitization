@@ -28,7 +28,7 @@ public class TypeVariableResolver implements Resolver<Object, AnnotatedTypeVaria
     public Object resolve(Object value, AnnotatedTypeVariable annotatedTypeVariable) {
         AnnotatedType[] annotatedBounds = annotatedTypeVariable.getAnnotatedBounds();
         for (AnnotatedType annotatedBound : annotatedBounds) {
-            value = Resolvers.resolving(value, annotatedBound);
+            value = Resolvers.resolve(value, annotatedBound);
         }
         return value;
     }

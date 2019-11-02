@@ -22,7 +22,7 @@ import red.zyc.desensitization.desensitizer.IdCardNumberDesensitizer;
 import java.lang.annotation.*;
 
 /**
- * 身份证敏感标记注解
+ * 身份证敏感标记注解。默认的脱敏规则：擦除目标对象中除了前六位和后四位以外的所有字符。
  *
  * @author zyc
  */

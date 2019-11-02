@@ -89,7 +89,7 @@ public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A
         if (startOffset < 0 ||
                 endOffset < 0 ||
                 startOffset + endOffset >= target.length()) {
-            throw new IllegalArgumentException("startOffset:" + startOffset + "," + "endOffset:" + endOffset);
+            throw new IllegalArgumentException("startOffset：" + startOffset + "，" + "endOffset：" + endOffset + "，" + "target：" + target);
         }
     }
 

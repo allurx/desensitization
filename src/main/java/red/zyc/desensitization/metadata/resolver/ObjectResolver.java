@@ -16,14 +16,13 @@
 
 package red.zyc.desensitization.metadata.resolver;
 
-import red.zyc.desensitization.Sensitive;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.reflect.AnnotatedType;
 import java.util.Optional;
 
 /**
- * 普通对象值解析器，例如对象上可能直接被标注了敏感注解。
+ * 对象解析器，解析被直接标注敏感注解的对象。
  *
  * @author zyc
  */
@@ -32,10 +31,8 @@ public class ObjectResolver implements Resolver<Object, AnnotatedType> {
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
         return Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
-                .map(sensitiveAnnotation -> Sensitive.handling(value, sensitiveAnnotation))
-                .orElse(Optional.ofNullable(ReflectionUtil.getEraseSensitiveAnnotationOnAnnotatedType(annotatedType))
-                        .map(eraseSensitiveAnnotation -> Sensitive.desensitize(value))
-                        .orElse(value));
+                .map(annotation -> ReflectionUtil.getDesensitizer(annotation).desensitizing(value, annotation))
+                .orElse(value);
     }
 
     @Override
@@ -45,7 +42,7 @@ public class ObjectResolver implements Resolver<Object, AnnotatedType> {
 
     @Override
     public int order() {
-        return LOWEST_PRIORITY;
+        return LOWEST_PRIORITY - 1;
     }
 
 }

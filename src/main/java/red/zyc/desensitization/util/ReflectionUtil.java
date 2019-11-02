@@ -18,14 +18,16 @@ package red.zyc.desensitization.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.annotation.Sensitive;
+import red.zyc.desensitization.desensitizer.Desensitizer;
+import red.zyc.desensitization.exception.DesensitizerNotFoundException;
 import red.zyc.desensitization.exception.UnsupportedCollectionException;
 import red.zyc.desensitization.exception.UnsupportedMapException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author zyc
@@ -35,7 +37,12 @@ public class ReflectionUtil {
     /**
      * {@link Logger}
      */
-    private static Logger log = LoggerFactory.getLogger(ReflectionUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReflectionUtil.class);
+
+    /**
+     * 域缓存
+     */
+    private static final Map<Class<?>, List<Field>> FIELD_CACHE = new ConcurrentHashMap<>();
 
     /**
      * 获取{@link AnnotatedType}上的第一个敏感注解
@@ -54,29 +61,21 @@ public class ReflectionUtil {
     }
 
     /**
-     * 获取{@link AnnotatedType}上的{@link EraseSensitive}注解
-     *
-     * @param annotatedType {@link AnnotatedType}对象
-     * @return {@link AnnotatedType}上的{@link EraseSensitive}注解
-     */
-    public static Annotation getEraseSensitiveAnnotationOnAnnotatedType(AnnotatedType annotatedType) {
-        return annotatedType.getDeclaredAnnotation(EraseSensitive.class);
-    }
-
-    /**
      * 获取目标对象以及所有父类定义的 {@link Field}
      *
      * @param targetClass 目标对象的{@code Class}
      * @return 目标对象以及所有父类定义的 {@link Field}
      */
-    public static Field[] listAllFields(Class<?> targetClass) {
-        List<Field> fields = new ArrayList<>(Arrays.asList(targetClass.getDeclaredFields()));
-        Class<?> superclass = targetClass.getSuperclass();
-        while (superclass != null && superclass != Object.class) {
-            fields.addAll(Arrays.asList(superclass.getDeclaredFields()));
-            superclass = superclass.getSuperclass();
-        }
-        return fields.toArray(new Field[0]);
+    public static List<Field> listAllFields(Class<?> targetClass) {
+        return FIELD_CACHE.computeIfAbsent(targetClass, clazz -> {
+            List<Field> fields = new ArrayList<>(Arrays.asList(targetClass.getDeclaredFields()));
+            Class<?> superclass = targetClass.getSuperclass();
+            while (superclass != null && superclass != Object.class) {
+                fields.addAll(Arrays.asList(superclass.getDeclaredFields()));
+                superclass = superclass.getSuperclass();
+            }
+            return fields;
+        });
     }
 
     /**
@@ -95,7 +94,7 @@ public class ReflectionUtil {
             Constructor<Collection<T>> declaredConstructor = original.getDeclaredConstructor(Collection.class);
             return declaredConstructor.newInstance(erased);
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
         throw new UnsupportedCollectionException("Collection对象必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。");
     }
@@ -117,7 +116,7 @@ public class ReflectionUtil {
             Constructor<Map<K, V>> declaredConstructor = original.getDeclaredConstructor(Map.class);
             return declaredConstructor.newInstance(erased);
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
         throw new UnsupportedMapException("Map对象必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。");
     }
@@ -136,28 +135,45 @@ public class ReflectionUtil {
     }
 
     /**
-     * 获取{@link AnnotatedType}类型的原始{@link Class}
+     * 通过反射实例化敏感注解对应的{@link Desensitizer}
+     *
+     * @param annotation 敏感注解
+     * @param <T>        目标对象的类型
+     * @param <A>        敏感注解类型
+     * @return 敏感注解对应的 {@link Desensitizer}
+     */
+    public static <T, A extends Annotation> Desensitizer<T, A> getDesensitizer(A annotation) {
+        try {
+            Class<? extends Annotation> annotationClass = annotation.annotationType();
+            Method method = annotationClass.getDeclaredMethod("desensitizer");
+            @SuppressWarnings("unchecked")
+            Class<? extends Desensitizer<T, A>> handlerClass = (Class<? extends red.zyc.desensitization.desensitizer.Desensitizer<T, A>>) method.invoke(annotation);
+            return handlerClass.newInstance();
+        } catch (Throwable t) {
+            LOG.error(t.getMessage(), t);
+        }
+        throw new DesensitizerNotFoundException("没有在" + annotation + "中找到脱敏器");
+    }
+
+    /**
+     * 获取{@link Type}类型的原始{@link Class}
      * <ol>
      *     <li>
-     *         对于{@link AnnotatedParameterizedType}类型，返回的是其本身（不是类型参数）的{@link Class}对象。
+     *         对于{@link ParameterizedType}类型，返回的是其本身（不是类型参数）的{@link Class}对象。
      *         例如{@code List<String>}，返回的就是{@code List.class}。
      *     </li>
      *     <li>
-     *         对于{@link AnnotatedArrayType}类型，返回的是数组的{@link Class}对象。
+     *         对于{@link GenericArrayType}类型，返回的是数组的{@link Class}对象。
      *         例如{@code String[]}，返回的就是{@code String[].class}。
      *     </li>
      *     <li>
-     *         对于{@link AnnotatedTypeVariable}类型，返回的就是其边界的所有{@link Class}对象。
-     *         例如{@code <O extends Number & Cloneable, T extends O> }，其中对于T和O返回的是
-     *         {@code Number.class}和{@code Cloneable.class}这两个{@link Class}对象。
+     *         对于{@link TypeVariable}类型，返回的就是{@code Object.class}。
      *     </li>
      *     <li>
-     *         对于{@link AnnotatedWildcardType}类型，返回的就是其上边界或者下边界的所有{@link Class}对象。
-     *         例如{@code ? extend Number & Cloneable}，返回的是{@code Number.class}和{@code Cloneable.class}这两个{@link Class}对象。
+     *         对于{@link WildcardType}类型，返回的就是{@code Object.class}。
      *     </li>
      *     <li>
-     *         对于{@code AnnotatedTypeFactory.AnnotatedTypeBaseImpl}类型，（以上四种类型之外的普通类型），其本身的{@link Type}
-     *         就是{@link Class}对象，所以直接返回就行了。
+     *         以上四种类型之外的类型，其本身就是{@link Class}对象，所以直接返回就行了。
      *     </li>
      * </ol>
      *
@@ -187,6 +203,8 @@ public class ReflectionUtil {
     }
 
     /**
+     * 合并数组
+     *
      * @param arrays 需要合并的二维数组
      * @param <T>    数组类型
      * @return 合并后的一维数组

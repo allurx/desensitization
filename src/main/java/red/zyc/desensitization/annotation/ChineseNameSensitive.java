@@ -21,7 +21,7 @@ import red.zyc.desensitization.desensitizer.Desensitizer;
 import java.lang.annotation.*;
 
 /**
- * 中文名敏感标记注解
+ * 中文名敏感标记注解，默认的脱敏规则：擦除目标对象中的除了第一位字符以外的所有字符。
  *
  * @author zyc
  */

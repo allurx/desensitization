@@ -22,7 +22,7 @@ import red.zyc.desensitization.desensitizer.UsccDesensitizer;
 import java.lang.annotation.*;
 
 /**
- * 统一社会信用代码敏感标记注解
+ * 统一社会信用代码敏感标记注解。默认的脱敏规则：擦除目标对象中除了前两位和后两位以外的所有字符。
  *
  * @author zyc
  */
