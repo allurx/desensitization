@@ -48,6 +48,8 @@ public class Child {
 
     @EraseSensitive
     private Father father = new Father();
+    
+    private @PasswordSensitive String[] passwords = {"123456", "1234567", "12345678"};
 
     private List<@EraseSensitive Parent> parents1 = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
 
