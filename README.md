@@ -4,6 +4,7 @@
 * **手机号码**
 * **中文名称**
 * **身份证号码**
+* **银行卡号码**
 * **密码**
 * **统一社会信用代码**
 * **任意`CharSequence`类型的值**
@@ -16,7 +17,7 @@
 <dependency>
   <groupId>red.zyc</groupId>
   <artifactId>desensitization</artifactId>
-  <version>2.2.0</version>
+  <version>2.2.1</version>
 </dependency>
 ```
 ## 例子
