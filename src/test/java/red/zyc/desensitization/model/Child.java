@@ -49,6 +49,9 @@ public class Child<T extends Collection<@EmailSensitive String>> {
     @PasswordSensitive
     private String password = "123456";
 
+    @BankCardNumberSensitive
+    private String bankCardNumber = "6222600260001072444";
+
     @EraseSensitive
     private Mother mother = new Mother();
 
@@ -86,7 +89,6 @@ public class Child<T extends Collection<@EmailSensitive String>> {
         map1.put(list, map);
     }
 
-
     @Override
     public String toString() {
         return "Child{" +
@@ -97,6 +99,7 @@ public class Child<T extends Collection<@EmailSensitive String>> {
                 ", string='" + string + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", bankCardNumber='" + bankCardNumber + '\'' +
                 ", mother=" + mother +
                 ", father=" + father +
                 ", parents1=" + parents1 +
