@@ -49,7 +49,7 @@ public class UnsafeAllocator {
     /**
      * 实例化指定{@link Class}的对象
      *
-     * @param clazz 对象的{@link Class
+     * @param clazz 对象的{@link Class}
      * @param <T>   对象的类型
      * @return 指定{@link Class}的对象
      */
