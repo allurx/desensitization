@@ -143,6 +143,8 @@ public class ReflectionUtil {
      * 实例化敏感注解对应的{@link Desensitizer}
      *
      * @param annotation 敏感注解
+     * @param <T>        脱敏器支持的目标类型
+     * @param <A>        脱敏器支持的注解类型
      * @return 敏感注解对应的 {@link Desensitizer}
      */
     @SuppressWarnings("unchecked")
