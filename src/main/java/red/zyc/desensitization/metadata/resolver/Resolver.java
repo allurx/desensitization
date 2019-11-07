@@ -41,7 +41,7 @@ import java.util.Map;
 public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Comparable<Resolver<?, ? extends AnnotatedType>> {
 
     /**
-     * 解析对象F
+     * 解析对象，注意实现该方法的子类如果能够解析目标对象，那么最终应当返回一个新的{@link T}实例
      *
      * @param value         将要解析的对象
      * @param annotatedType 将要解析的对象的{@link AnnotatedType}

@@ -20,10 +20,10 @@ import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 级联擦除对象内部敏感信息
@@ -39,30 +39,20 @@ public class CascadeResolver implements Resolver<Object, AnnotatedType> {
 
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
-        try {
-            if (value == null) {
-                return null;
-            }
-            if (isReferenceNested(value)) {
-                return value;
-            }
-            RESOLVED.get().add(value);
-            List<Field> allFields = ReflectionUtil.listAllFields(value.getClass());
-            for (Field field : allFields) {
-                if (Modifier.isFinal(field.getModifiers())) {
-                    continue;
-                }
-                field.setAccessible(true);
-                Object fieldValue = field.get(value);
-                if (fieldValue == null) {
-                    continue;
-                }
-                field.set(value, Resolvers.resolve(fieldValue, field.getAnnotatedType()));
-            }
-        } catch (Throwable e) {
-            getLogger().error(e.getMessage(), e);
-        }
-        return value;
+        return Optional.ofNullable(value)
+                .filter(this::notReferenceNested)
+                .map(o -> {
+                    RESOLVED.get().add(value);
+                    Class<?> clazz = value.getClass();
+                    Object newObject = UnsafeAllocator.newInstance(clazz);
+                    ReflectionUtil.listAllFields(clazz).forEach(field -> {
+                        Object fieldValue;
+                        if (!Modifier.isFinal(field.getModifiers()) && (fieldValue = ReflectionUtil.getFieldValue(value, field)) != null) {
+                            ReflectionUtil.setFieldValue(newObject, field, Resolvers.resolve(fieldValue, field.getAnnotatedType()));
+                        }
+                    });
+                    return newObject;
+                }).orElse(value);
     }
 
     @Override
@@ -81,8 +71,8 @@ public class CascadeResolver implements Resolver<Object, AnnotatedType> {
      * @param target 目标对象
      * @return 目标对象之前是否已经脱敏过
      */
-    private boolean isReferenceNested(Object target) {
+    private boolean notReferenceNested(Object target) {
         // 没有使用contains方法，仅仅比较目标是否引用同一个对象。
-        return RESOLVED.get().stream().anyMatch(o -> o == target);
+        return RESOLVED.get().stream().noneMatch(o -> o == target);
     }
 }

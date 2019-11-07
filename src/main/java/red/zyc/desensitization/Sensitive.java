@@ -16,7 +16,6 @@
 package red.zyc.desensitization;
 
 import red.zyc.desensitization.annotation.EraseSensitive;
-import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.metadata.resolver.Resolvers;
 import red.zyc.desensitization.metadata.resolver.TypeToken;
 
@@ -28,11 +27,11 @@ import java.util.Optional;
 public final class Sensitive {
 
     /**
-     * 对象内部域值脱敏，注意该方法会改变对象内部的域值。
+     * 对象内部域值脱敏，该方法不会改变原对象内部的域值。
      *
      * @param <T>    目标对象类型
      * @param target 目标对象
-     * @return 脱敏后的值
+     * @return 脱敏后的新对象
      */
     public static <T> T desensitize(T target) {
         return desensitize(target, new TypeToken<@EraseSensitive T>() {
@@ -40,12 +39,12 @@ public final class Sensitive {
     }
 
     /**
-     * 单个值脱敏，是否改变对象值取决于对应的{@link Desensitizer}的脱敏逻辑。
+     * 单个值脱敏，该方法不会改变原对象值。
      *
      * @param target    目标对象
      * @param typeToken {@link TypeToken}
      * @param <T>       目标对象类型
-     * @return 敏感信息被擦除后的值
+     * @return 脱敏后的新对象
      */
     public static <T> T desensitize(T target, TypeToken<T> typeToken) {
         try {

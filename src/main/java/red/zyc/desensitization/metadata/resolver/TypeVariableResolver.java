@@ -18,8 +18,11 @@ package red.zyc.desensitization.metadata.resolver;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.AnnotatedTypeVariable;
+import java.lang.reflect.TypeVariable;
 
 /**
+ * {@link TypeVariable}类型值解析器
+ *
  * @author zyc
  */
 public class TypeVariableResolver implements Resolver<Object, AnnotatedTypeVariable> {

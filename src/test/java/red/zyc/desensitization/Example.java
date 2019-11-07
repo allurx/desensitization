@@ -81,8 +81,8 @@ public class Example {
     @Test
     public void desensitizeObject() {
         Child<?> child = new Child<>();
-        log.info("before擦除复杂对象内部敏感信息:{}", child.toString());
-        Child<?> c = Sensitive.desensitize(child);
-        log.info("after擦除复杂对象内部敏感信息:{}", c);
+        log.info("脱敏前:{}", child);
+        log.info("脱敏后的新对象：{}", Sensitive.desensitize(child));
+        log.info("脱敏后:{}", child);
     }
 }
