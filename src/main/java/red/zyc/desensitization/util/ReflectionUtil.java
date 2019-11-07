@@ -20,14 +20,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.Sensitive;
 import red.zyc.desensitization.desensitizer.Desensitizer;
-import red.zyc.desensitization.exception.DesensitizerNotFoundException;
 import red.zyc.desensitization.exception.UnsupportedCollectionException;
 import red.zyc.desensitization.exception.UnsupportedMapException;
+import red.zyc.desensitization.metadata.resolver.UnsafeAllocator;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author zyc
@@ -43,6 +45,11 @@ public class ReflectionUtil {
      * 域缓存
      */
     private static final Map<Class<?>, List<Field>> FIELD_CACHE = new ConcurrentHashMap<>();
+
+    /**
+     * 脱敏器缓存
+     */
+    private static final Map<Class<? extends Desensitizer<?, ? extends Annotation>>, Desensitizer<?, ? extends Annotation>> DESENSITIZER_CACHE = new ConcurrentHashMap<>();
 
     /**
      * 获取{@link AnnotatedType}上的第一个敏感注解
@@ -67,15 +74,13 @@ public class ReflectionUtil {
      * @return 目标对象以及所有父类定义的 {@link Field}
      */
     public static List<Field> listAllFields(Class<?> targetClass) {
-        return FIELD_CACHE.computeIfAbsent(targetClass, clazz -> {
-            List<Field> fields = new ArrayList<>(Arrays.asList(targetClass.getDeclaredFields()));
-            Class<?> superclass = targetClass.getSuperclass();
-            while (superclass != null && superclass != Object.class) {
-                fields.addAll(Arrays.asList(superclass.getDeclaredFields()));
-                superclass = superclass.getSuperclass();
-            }
-            return fields;
-        });
+        return Optional.ofNullable(targetClass)
+                .filter(clazz -> clazz != Object.class)
+                .map(c -> FIELD_CACHE.computeIfAbsent(c, clazz -> {
+                    List<Field> fields = Stream.of(targetClass.getDeclaredFields()).collect(Collectors.toList());
+                    fields.addAll(listAllFields(targetClass.getSuperclass()));
+                    return fields;
+                })).orElseGet(ArrayList::new);
     }
 
     /**
@@ -89,14 +94,14 @@ public class ReflectionUtil {
      * @return 一个和原集合类型一样的包含脱敏结果的集合
      * @see Collection
      */
-    public static <T> Collection<T> constructCollection(Class<Collection<T>> original, Collection<T> erased) {
+    public static <T> Collection<T> constructCollection(Class<? extends Collection<T>> original, Collection<T> erased) {
         try {
-            Constructor<Collection<T>> declaredConstructor = original.getDeclaredConstructor(Collection.class);
+            Constructor<? extends Collection<T>> declaredConstructor = original.getDeclaredConstructor(Collection.class);
             return declaredConstructor.newInstance(erased);
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new UnsupportedCollectionException(original + "必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。");
         }
-        throw new UnsupportedCollectionException("Collection对象必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。");
     }
 
     /**
@@ -111,14 +116,14 @@ public class ReflectionUtil {
      * @return 一个和原Map类型一样的包含脱敏结果的Map
      * @see Map
      */
-    public static <K, V> Map<K, V> constructMap(Class<Map<K, V>> original, Map<K, V> erased) {
+    public static <K, V> Map<K, V> constructMap(Class<? extends Map<K, V>> original, Map<K, V> erased) {
         try {
-            Constructor<Map<K, V>> declaredConstructor = original.getDeclaredConstructor(Map.class);
+            Constructor<? extends Map<K, V>> declaredConstructor = original.getDeclaredConstructor(Map.class);
             return declaredConstructor.newInstance(erased);
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new UnsupportedMapException(original + "必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。");
         }
-        throw new UnsupportedMapException("Map对象必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。");
     }
 
     /**
@@ -130,29 +135,67 @@ public class ReflectionUtil {
      * @return 指定类型对象的 {@link Class}
      */
     @SuppressWarnings("unchecked")
-    public static <T> Class<T> getClass(T value) {
-        return (Class<T>) value.getClass();
+    public static <T> Class<? extends T> getClass(T value) {
+        return (Class<? extends T>) value.getClass();
     }
 
     /**
-     * 通过反射实例化敏感注解对应的{@link Desensitizer}
+     * 实例化敏感注解对应的{@link Desensitizer}
      *
      * @param annotation 敏感注解
-     * @param <T>        目标对象的类型
-     * @param <A>        敏感注解类型
      * @return 敏感注解对应的 {@link Desensitizer}
      */
+    @SuppressWarnings("unchecked")
     public static <T, A extends Annotation> Desensitizer<T, A> getDesensitizer(A annotation) {
         try {
             Class<? extends Annotation> annotationClass = annotation.annotationType();
             Method method = annotationClass.getDeclaredMethod("desensitizer");
-            @SuppressWarnings("unchecked")
-            Class<? extends Desensitizer<T, A>> handlerClass = (Class<? extends red.zyc.desensitization.desensitizer.Desensitizer<T, A>>) method.invoke(annotation);
-            return handlerClass.newInstance();
-        } catch (Throwable t) {
-            LOG.error(t.getMessage(), t);
+            Class<? extends Desensitizer<T, A>> desensitizerClass = (Class<? extends Desensitizer<T, A>>) method.invoke(annotation);
+            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, UnsafeAllocator::newInstance);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new RuntimeException("通过" + annotation.annotationType() + "实例化脱敏器失败");
         }
-        throw new DesensitizerNotFoundException("没有在" + annotation + "中找到脱敏器");
+    }
+
+    /**
+     * 获取目标对象中某个{@link Field}的值
+     *
+     * @param target 目标对象
+     * @param field  目标对象的{@link Field}
+     * @return {@link Field}的值
+     */
+    public static Object getFieldValue(Object target, Field field) {
+        try {
+            if (field.isAccessible()) {
+                return field.get(target);
+            }
+            field.setAccessible(true);
+            return field.get(target);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new RuntimeException("获取" + target.getClass() + "的域" + field.getName() + "失败。");
+        }
+    }
+
+    /**
+     * 设置目标对象某个域的值
+     *
+     * @param target   目标对象
+     * @param field    目标对象的{@link Field}
+     * @param newValue 将要设置的新值
+     */
+    public static void setFieldValue(Object target, Field field, Object newValue) {
+        try {
+            if (field.isAccessible()) {
+                field.set(target, newValue);
+            }
+            field.setAccessible(true);
+            field.set(target, newValue);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new RuntimeException("设置" + target.getClass() + "的域" + field.getName() + "失败。");
+        }
     }
 
     /**

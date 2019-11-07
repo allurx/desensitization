@@ -17,8 +17,11 @@ package red.zyc.desensitization.metadata.resolver;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.AnnotatedWildcardType;
+import java.lang.reflect.WildcardType;
 
 /**
+ * {@link WildcardType}类型值解析器
+ *
  * @author zyc
  */
 public class WildcardTypeResolver implements Resolver<Object, AnnotatedWildcardType> {

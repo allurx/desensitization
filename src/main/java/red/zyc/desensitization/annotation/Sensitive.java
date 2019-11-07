@@ -26,9 +26,6 @@ import java.lang.annotation.*;
  *     <li>被该注解标注的注解必须定义一个名称为{@code desensitizer}的方法，并且方法返回的{@code Class}代表的对象必须直接实现<br>
  *     或者由其父类实现具有明确泛型参数的{@link Desensitizer}接口，用来表明将要使用的脱敏器。
  *     </li>
- *     <li>
- *         脱敏器必须拥有无参构造函数，在擦除敏感信息时会根据{@code desensitizer}方法返回的{@code Class}对象通过反射实例化这个脱敏器。
- *     </li>
  * </ul>
  * 下面是一个敏感信息注解的定义例子：
  * <pre>
