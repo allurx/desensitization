@@ -257,10 +257,10 @@ public class ReflectionUtil {
     @SuppressWarnings("unchecked")
     private static <T> T[] mergeArray(T[]... arrays) {
         return Arrays.stream(arrays)
-                .reduce((classes1, classes2) -> {
-                    T[] classes = Arrays.copyOf(classes1, classes1.length + classes2.length);
-                    System.arraycopy(classes2, 0, classes, classes1.length, classes2.length);
-                    return classes;
+                .reduce((array1, array2) -> {
+                    T[] array = Arrays.copyOf(array1, array1.length + array2.length);
+                    System.arraycopy(array2, 0, array, array1.length, array2.length);
+                    return array;
                 }).orElse((T[]) Array.newInstance(arrays.getClass().getComponentType(), 0));
     }
 
