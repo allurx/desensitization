@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 /**
  * @author zyc
  */
-public class Child<T extends Collection<@EmailSensitive String>> extends Parent{
+public class Child<T extends Collection<@EmailSensitive String>> extends Parent {
 
     @ChineseNameSensitive(placeholder = 'x')
     private String name = "李富贵";
@@ -117,11 +117,10 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent{
 
     /**
      * 自定义脱敏器处理数字类型的手机号码，默认的脱敏器只支持处理{@link CharSequence}类型的手机号码。
-     * 注意内部类必须定义成public的，否则反射初始化时会失败。
      *
      * @see PhoneNumberDesensitizer
      */
-    public static class CustomizedPhoneNumberDesensitizer implements Desensitizer<Long, PhoneNumberSensitive> {
+    private static class CustomizedPhoneNumberDesensitizer implements Desensitizer<Long, PhoneNumberSensitive> {
 
         @Override
         public Long desensitize(Long target, PhoneNumberSensitive annotation) {
