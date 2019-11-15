@@ -191,6 +191,7 @@ public class ReflectionUtil {
         try {
             if (field.isAccessible()) {
                 field.set(target, newValue);
+                return;
             }
             field.setAccessible(true);
             field.set(target, newValue);
