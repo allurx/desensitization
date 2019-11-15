@@ -32,11 +32,11 @@ import java.util.regex.Pattern;
 public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A extends Annotation> extends AbstractDesensitizer<T, A> {
 
     /**
-     * * 如果脱敏器支持的目标对象是 {@link CharSequence}类型，
-     * * 可以调用这个快捷方法擦除原字符序列中的敏感信息。
+     * 如果脱敏器支持的目标对象是 {@link CharSequence}类型，
+     * 可以调用这个快捷方法擦除原字符序列中的敏感信息。
      *
      * @param descriptor {@link CharSequenceSensitiveDescriptor}
-     * @return 敏感信息被擦除后的字符序列
+     * @return 敏感信息被擦除后的新的字符序列
      */
     public CharSequence desensitizeCharSequence(CharSequenceSensitiveDescriptor<T, A> descriptor) {
         if (descriptor.getTarget() == null || descriptor.getTarget().length() == 0) {

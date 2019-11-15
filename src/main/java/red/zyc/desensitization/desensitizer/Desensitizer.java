@@ -80,26 +80,24 @@ public interface Desensitizer<T, A extends Annotation> {
      * @return 当前脱敏器直接实现或者由其某个父类实现的具有明确泛型参数的 {@link Desensitizer}接口的类型参数
      */
     default Class<?>[] getActualTypeArgumentsOfDesensitizer() {
-        if (Desensitizer.class.isAssignableFrom(getClass())) {
-            Class<?> current = getClass();
-            while (current != null && current != Object.class) {
-                // 递归获取当前类或者父类实现的所有泛型接口
-                Type[] genericInterfaces = current.getGenericInterfaces();
-                for (Type type : genericInterfaces) {
-                    if (type instanceof ParameterizedType) {
-                        ParameterizedType parameterizedType = (ParameterizedType) type;
-                        Class<?> rawType = (Class<?>) parameterizedType.getRawType();
-                        // 当泛型接口是Desensitizer时返回其明确的类型参数，注意此时的泛型参数可能为T，A之类的类型变量（TypeVariable）
-                        if (rawType == Desensitizer.class) {
-                            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-                            if (Arrays.stream(actualTypeArguments).allMatch(actualType -> actualType instanceof Class)) {
-                                return Arrays.copyOf(actualTypeArguments, actualTypeArguments.length, Class[].class);
-                            }
+        Class<?> current = getClass();
+        while (current != null && current != Object.class) {
+            // 递归获取当前类或者父类实现的所有泛型接口
+            Type[] genericInterfaces = current.getGenericInterfaces();
+            for (Type type : genericInterfaces) {
+                if (type instanceof ParameterizedType) {
+                    ParameterizedType parameterizedType = (ParameterizedType) type;
+                    Class<?> rawType = (Class<?>) parameterizedType.getRawType();
+                    // 当泛型接口是Desensitizer时返回其明确的类型参数，注意此时的泛型参数可能为T，A之类的类型变量（TypeVariable）
+                    if (rawType == Desensitizer.class) {
+                        Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                        if (Arrays.stream(actualTypeArguments).allMatch(actualType -> actualType instanceof Class)) {
+                            return Arrays.copyOf(actualTypeArguments, actualTypeArguments.length, Class[].class);
                         }
                     }
                 }
-                current = current.getSuperclass();
             }
+            current = current.getSuperclass();
         }
         throw new InvalidDesensitizerException(getClass() + "必须直接实现或由其父类直接实现具有明确泛型参数的" + Desensitizer.class.getName() + "接口");
     }
