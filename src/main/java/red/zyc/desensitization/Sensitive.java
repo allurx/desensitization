@@ -26,6 +26,9 @@ import java.util.Optional;
  */
 public final class Sensitive {
 
+    private Sensitive() {
+    }
+
     /**
      * 对象内部域值脱敏，该方法不会改变原对象内部的域值。
      *
