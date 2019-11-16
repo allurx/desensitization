@@ -23,19 +23,19 @@ import java.lang.annotation.*;
 /**
  * 标记注解，表明当前注解是一个用来擦除敏感信息的注解。
  * <ul>
- *     <li>被该注解标注的注解必须定义一个名称为{@code desensitizer}的方法，并且方法返回的{@code Class}代表的对象必须直接实现<br>
- *     或者由其父类实现具有明确泛型参数的{@link Desensitizer}接口，用来表明将要使用的脱敏器。
+ *     <li>被该注解标注的注解必须定义一个名称为{@code desensitizer}的方法，并且方法返回的{@code Class}代表的对象必须直接实现
+ *     具有明确泛型参数的{@link Desensitizer}接口，用来表明将要使用的脱敏器，以便在运行时我们能够捕获脱该敏器支持处理的数据类型和敏感注解类型。
  *     </li>
  * </ul>
- * 下面是一个敏感信息注解的定义例子：
+ * 下面是一个敏感注解的定义例子：
  * <pre>
- * &#64;Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.TYPE, ElementType.PARAMETER})
+ * &#64;Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.PARAMETER, ElementType.METHOD})
  * &#64;Retention(RetentionPolicy.RUNTIME)
  * &#64;Documented
  * &#64;Sensitive
  * public @interface CharSequenceSensitive {
  *
- *   Class &lt;? extends Sensitive&lt;?,CharSequenceSensitive&gt;&gt;; desensitizer() default CharSequenceDesensitizer.class;
+ *   Class &lt;? extends Desensitizer&lt;CharSequence,CharSequenceSensitive&gt;&gt;; desensitizer() default CharSequenceDesensitizer.class;
  *
  *   int startOffset() default 0;
  *

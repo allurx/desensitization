@@ -28,7 +28,7 @@ import red.zyc.desensitization.util.caller.StackTraceCaller;
  *
  * @author zyc
  */
-public class CallerUtil {
+public final class CallerUtil {
 
     private static final Caller CALLER;
 

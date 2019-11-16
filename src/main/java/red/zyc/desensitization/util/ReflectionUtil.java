@@ -22,7 +22,6 @@ import red.zyc.desensitization.annotation.Sensitive;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.exception.UnsupportedCollectionException;
 import red.zyc.desensitization.exception.UnsupportedMapException;
-import red.zyc.desensitization.metadata.resolver.UnsafeAllocator;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -34,7 +33,7 @@ import java.util.stream.Stream;
 /**
  * @author zyc
  */
-public class ReflectionUtil {
+public final class ReflectionUtil {
 
     /**
      * {@link Logger}
@@ -153,7 +152,7 @@ public class ReflectionUtil {
             Class<? extends Annotation> annotationClass = annotation.annotationType();
             Method method = annotationClass.getDeclaredMethod("desensitizer");
             Class<? extends Desensitizer<T, A>> desensitizerClass = (Class<? extends Desensitizer<T, A>>) method.invoke(annotation);
-            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, UnsafeAllocator::newInstance);
+            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, UnsafeUtil::newInstance);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new RuntimeException("通过" + annotation.annotationType() + "实例化脱敏器失败");

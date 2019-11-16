@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package red.zyc.desensitization.metadata.resolver;
+package red.zyc.desensitization.resolver;
 
 import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.AnnotatedTypeVariable;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.AnnotatedWildcardType;
+import java.lang.reflect.WildcardType;
 
 /**
- * {@link TypeVariable}类型值解析器
+ * {@link WildcardType}类型值解析器
  *
  * @author zyc
  */
-public class TypeVariableResolver implements Resolver<Object, AnnotatedTypeVariable> {
+public class WildcardTypeResolver implements Resolver<Object, AnnotatedWildcardType> {
 
     @Override
-    public Object resolve(Object value, AnnotatedTypeVariable annotatedTypeVariable) {
-        AnnotatedType[] annotatedBounds = annotatedTypeVariable.getAnnotatedBounds();
+    public Object resolve(Object value, AnnotatedWildcardType annotatedWildcardType) {
+        AnnotatedType[] annotatedUpperBounds = annotatedWildcardType.getAnnotatedUpperBounds();
+        AnnotatedType[] annotatedBounds = annotatedUpperBounds.length == 0 ? annotatedWildcardType.getAnnotatedLowerBounds() : annotatedUpperBounds;
         for (AnnotatedType annotatedBound : annotatedBounds) {
             value = Resolvers.resolve(value, annotatedBound);
         }
@@ -38,11 +38,11 @@ public class TypeVariableResolver implements Resolver<Object, AnnotatedTypeVaria
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return annotatedType instanceof AnnotatedTypeVariable;
+        return annotatedType instanceof AnnotatedWildcardType;
     }
 
     @Override
     public int order() {
-        return HIGHEST_PRIORITY;
+        return HIGHEST_PRIORITY + 1;
     }
 }

@@ -15,8 +15,6 @@
  */
 package red.zyc.desensitization.desensitizer;
 
-import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
-
 import java.lang.annotation.Annotation;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
