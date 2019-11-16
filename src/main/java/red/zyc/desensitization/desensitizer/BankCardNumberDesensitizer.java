@@ -17,7 +17,6 @@
 package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.BankCardNumberSensitive;
-import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
  * 银行卡号脱敏器

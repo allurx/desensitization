@@ -1,7 +1,6 @@
 package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.PasswordSensitive;
-import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
  * 密码脱敏器

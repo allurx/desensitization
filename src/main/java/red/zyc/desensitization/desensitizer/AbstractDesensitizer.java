@@ -15,6 +15,8 @@
  */
 package red.zyc.desensitization.desensitizer;
 
+import red.zyc.desensitization.util.ReflectionUtil;
+
 import java.lang.annotation.Annotation;
 
 /**
@@ -37,7 +39,7 @@ public abstract class AbstractDesensitizer<T, A extends Annotation> implements D
 
     @SuppressWarnings("unchecked")
     public AbstractDesensitizer() {
-        Class<?>[] actualTypeArgumentsOfSensitiveHandler = getActualTypeArgumentsOfDesensitizer();
+        Class<?>[] actualTypeArgumentsOfSensitiveHandler = Desensitizer.getActualTypeArgumentsOfDesensitizer(ReflectionUtil.getClass(this));
         supportedClass = (Class<T>) actualTypeArgumentsOfSensitiveHandler[0];
         annotationClass = (Class<A>) actualTypeArgumentsOfSensitiveHandler[1];
     }

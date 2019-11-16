@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package red.zyc.desensitization.metadata;
+package red.zyc.desensitization.desensitizer;
 
 import java.lang.annotation.Annotation;
 

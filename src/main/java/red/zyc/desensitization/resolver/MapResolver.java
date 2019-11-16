@@ -14,39 +14,43 @@
  * limitations under the License.
  */
 
-package red.zyc.desensitization.metadata.resolver;
+package red.zyc.desensitization.resolver;
 
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.reflect.AnnotatedParameterizedType;
 import java.lang.reflect.AnnotatedType;
-import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * {@link Collection}类型值解析器
+ * {@link Map}类型值解析器
  *
  * @author zyc
  */
-public class CollectionResolver implements Resolver<Collection<?>, AnnotatedParameterizedType> {
+public class MapResolver implements Resolver<Map<?, ?>, AnnotatedParameterizedType> {
 
     @Override
-    public Collection<?> resolve(Collection<?> value, AnnotatedParameterizedType annotatedParameterizedType) {
-        AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
-        List<Object> erased = value.stream().map(o -> Resolvers.resolve(o, typeArgument)).collect(Collectors.toList());
+    public Map<?, ?> resolve(Map<?, ?> value, AnnotatedParameterizedType annotatedParameterizedType) {
+        AnnotatedType[] annotatedActualTypeArguments = annotatedParameterizedType.getAnnotatedActualTypeArguments();
+        Map<Object, Object> erased = value.entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        entry -> Resolvers.resolve(entry.getKey(), annotatedActualTypeArguments[0]),
+                        entry -> Resolvers.resolve(entry.getValue(), annotatedActualTypeArguments[1])
+                ));
         @SuppressWarnings("unchecked")
-        Collection<Object> original = (Collection<Object>) value;
-        return ReflectionUtil.constructCollection(ReflectionUtil.getClass(original), erased);
+        Map<Object, Object> original = (Map<Object, Object>) value;
+        return ReflectionUtil.constructMap(ReflectionUtil.getClass(original), erased);
     }
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return value instanceof Collection && annotatedType instanceof AnnotatedParameterizedType;
+        return value instanceof Map && annotatedType instanceof AnnotatedParameterizedType;
     }
 
     @Override
     public int order() {
-        return 0;
+        return 1;
     }
 }

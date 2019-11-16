@@ -15,12 +15,19 @@
  */
 package red.zyc.desensitization.exception;
 
+import java.util.function.Supplier;
+
 /**
  * @author zyc
  */
-public abstract class AbstractSensitiveException extends RuntimeException {
+public abstract class AbstractSensitiveException extends RuntimeException implements Supplier<AbstractSensitiveException> {
 
     public AbstractSensitiveException(String message) {
         super(message);
+    }
+
+    @Override
+    public AbstractSensitiveException get() {
+        return this;
     }
 }

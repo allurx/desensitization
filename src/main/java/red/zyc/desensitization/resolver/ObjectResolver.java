@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package red.zyc.desensitization.metadata.resolver;
+package red.zyc.desensitization.resolver;
 
 import red.zyc.desensitization.util.ReflectionUtil;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedType;
 import java.util.Optional;
 
@@ -30,8 +31,11 @@ public class ObjectResolver implements Resolver<Object, AnnotatedType> {
 
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
-        return Optional.ofNullable(ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType))
-                .map(annotation -> ReflectionUtil.getDesensitizer(annotation).desensitizing(value, annotation))
+        Annotation sensitiveAnnotation = ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType);
+        return Optional.ofNullable(sensitiveAnnotation)
+                .map(ReflectionUtil::getDesensitizer)
+                .filter(desensitizer -> desensitizer.support(value.getClass()))
+                .map(desensitizer -> desensitizer.desensitize(value, sensitiveAnnotation))
                 .orElse(value);
     }
 

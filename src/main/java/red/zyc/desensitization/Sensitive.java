@@ -16,8 +16,8 @@
 package red.zyc.desensitization;
 
 import red.zyc.desensitization.annotation.EraseSensitive;
-import red.zyc.desensitization.metadata.resolver.Resolvers;
-import red.zyc.desensitization.metadata.resolver.TypeToken;
+import red.zyc.desensitization.resolver.Resolvers;
+import red.zyc.desensitization.resolver.TypeToken;
 
 import java.util.Optional;
 
@@ -25,6 +25,9 @@ import java.util.Optional;
  * @author zyc
  */
 public final class Sensitive {
+
+    private Sensitive() {
+    }
 
     /**
      * 对象内部域值脱敏，该方法不会改变原对象内部的域值。

@@ -17,7 +17,6 @@
 package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.CharSequenceSensitive;
-import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
  * 通用的{@link CharSequence}类型脱敏器

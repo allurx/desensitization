@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package red.zyc.desensitization.metadata.resolver;
+package red.zyc.desensitization.resolver;
 
 import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.util.ReflectionUtil;
+import red.zyc.desensitization.util.UnsafeUtil;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Modifier;
@@ -44,7 +45,7 @@ public class CascadeResolver implements Resolver<Object, AnnotatedType> {
                 .map(o -> {
                     RESOLVED.get().add(value);
                     Class<?> clazz = value.getClass();
-                    Object newObject = UnsafeAllocator.newInstance(clazz);
+                    Object newObject = UnsafeUtil.newInstance(clazz);
                     ReflectionUtil.listAllFields(clazz).forEach(field -> {
                         Object fieldValue;
                         if (!Modifier.isFinal(field.getModifiers()) && (fieldValue = ReflectionUtil.getFieldValue(value, field)) != null) {

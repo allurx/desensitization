@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package red.zyc.desensitization.metadata.resolver;
+package red.zyc.desensitization.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,14 +26,14 @@ import java.lang.reflect.Modifier;
 /**
  * @author zyc
  */
-public class UnsafeAllocator {
+public final class UnsafeUtil {
 
     private static final Unsafe UNSAFE;
 
     /**
      * {@link Logger}
      */
-    private static final Logger LOG = LoggerFactory.getLogger(UnsafeAllocator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UnsafeUtil.class);
 
     static {
         try {
@@ -47,11 +47,11 @@ public class UnsafeAllocator {
     }
 
     /**
-     * 实例化指定{@link Class}的对象
+     * 实例化指定{@code Class}的对象
      *
      * @param clazz 对象的{@link Class}
      * @param <T>   对象的类型
-     * @return 指定{@link Class}的对象
+     * @return 指定 {@code Class}的对象
      */
     @SuppressWarnings("unchecked")
     public static <T> T newInstance(Class<T> clazz) {
@@ -70,7 +70,7 @@ public class UnsafeAllocator {
      * @param field    指定对象的域
      * @param newValue 将要设置的值
      */
-    static void setFieldValue(Object object, Field field, Object newValue) {
+    private static void setFieldValue(Object object, Field field, Object newValue) {
         long fieldOffset;
         int modifiers = field.getModifiers();
         if (Modifier.isStatic(modifiers)) {

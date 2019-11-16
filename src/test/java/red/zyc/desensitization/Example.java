@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.ChineseNameSensitive;
 import red.zyc.desensitization.annotation.EmailSensitive;
-import red.zyc.desensitization.metadata.resolver.TypeToken;
 import red.zyc.desensitization.model.Child;
+import red.zyc.desensitization.resolver.TypeToken;
 
 import java.util.Arrays;
 import java.util.List;

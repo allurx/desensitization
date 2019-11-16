@@ -18,11 +18,12 @@ package red.zyc.desensitization.desensitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.exception.InvalidDesensitizerException;
+import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Optional;
 
 
 /**
@@ -34,6 +35,23 @@ import java.util.Arrays;
  */
 public interface Desensitizer<T, A extends Annotation> {
 
+    /**
+     * 获取当前脱敏器直接实现的具有明确泛型参数的 {@link Desensitizer}接口的类型参数
+     *
+     * @param desensitizerClass 脱敏器的{@code class}
+     * @return 当前脱敏器直接实现的具有明确泛型参数的 {@link Desensitizer}接口的类型参数
+     */
+    static Class<?>[] getActualTypeArgumentsOfDesensitizer(Class<? extends Desensitizer<?, ?>> desensitizerClass) {
+        return Optional.of(desensitizerClass)
+                .map(Class::getGenericInterfaces)
+                .map(genericInterfaces -> (ParameterizedType) Arrays.stream(genericInterfaces)
+                        .filter(genericInterface -> genericInterface instanceof ParameterizedType && ((ParameterizedType) genericInterface).getRawType() == Desensitizer.class)
+                        .findFirst().orElse(null))
+                .map(ParameterizedType::getActualTypeArguments)
+                .filter(actualTypeArguments -> Arrays.stream(actualTypeArguments).allMatch(actualType -> actualType instanceof Class))
+                .map(actualTypeArguments -> Arrays.copyOf(actualTypeArguments, actualTypeArguments.length, Class[].class))
+                .orElseThrow(new InvalidDesensitizerException(desensitizerClass + "必须直接实现具有明确泛型参数的" + Desensitizer.class.getName() + "接口"));
+    }
 
     /**
      * 由子类实现敏感信息脱敏逻辑
@@ -51,57 +69,14 @@ public interface Desensitizer<T, A extends Annotation> {
      * @return 脱敏器是否支持目标类型脱敏
      */
     default boolean support(Class<?> targetClass) {
-        Class<?>[] actualTypeArgumentsOfDesensitizer = getActualTypeArgumentsOfDesensitizer();
+        Class<?>[] actualTypeArgumentsOfDesensitizer = getActualTypeArgumentsOfDesensitizer(ReflectionUtil.getClass(this));
         // 类型参数T的class
         Class<?> supportedClass = actualTypeArgumentsOfDesensitizer[0];
-        return supportedClass.isAssignableFrom(targetClass);
-    }
-
-    /**
-     * 脱敏前的前置判断
-     *
-     * @param target     {@link T}
-     * @param annotation {@link A}
-     * @return {@link T}
-     */
-    default T desensitizing(T target, A annotation) {
-        Class<?> targetClass = target.getClass();
-        Class<?> desensitizerClass = getClass();
-        if (support(targetClass)) {
-            return desensitize(target, annotation);
+        if (supportedClass.isAssignableFrom(targetClass)) {
+            return true;
         }
-        getLogger().warn("{}不支持擦除{}类型的敏感信息", desensitizerClass, targetClass);
-        return target;
-    }
-
-    /**
-     * 获取当前脱敏器直接实现或者由其某个父类实现的具有明确泛型参数的 {@link Desensitizer}接口的类型参数
-     *
-     * @return 当前脱敏器直接实现或者由其某个父类实现的具有明确泛型参数的 {@link Desensitizer}接口的类型参数
-     */
-    default Class<?>[] getActualTypeArgumentsOfDesensitizer() {
-        if (Desensitizer.class.isAssignableFrom(getClass())) {
-            Class<?> current = getClass();
-            while (current != null && current != Object.class) {
-                // 递归获取当前类或者父类实现的所有泛型接口
-                Type[] genericInterfaces = current.getGenericInterfaces();
-                for (Type type : genericInterfaces) {
-                    if (type instanceof ParameterizedType) {
-                        ParameterizedType parameterizedType = (ParameterizedType) type;
-                        Class<?> rawType = (Class<?>) parameterizedType.getRawType();
-                        // 当泛型接口是Desensitizer时返回其明确的类型参数，注意此时的泛型参数可能为T，A之类的类型变量（TypeVariable）
-                        if (rawType == Desensitizer.class) {
-                            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-                            if (Arrays.stream(actualTypeArguments).allMatch(actualType -> actualType instanceof Class)) {
-                                return Arrays.copyOf(actualTypeArguments, actualTypeArguments.length, Class[].class);
-                            }
-                        }
-                    }
-                }
-                current = current.getSuperclass();
-            }
-        }
-        throw new InvalidDesensitizerException(getClass() + "必须直接实现或由其父类直接实现具有明确泛型参数的" + Desensitizer.class.getName() + "接口");
+        getLogger().warn("{}不支持擦除{}类型的敏感信息", getClass(), targetClass);
+        return false;
     }
 
     /**

@@ -17,7 +17,6 @@
 package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.UsccSensitive;
-import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
  * 统一社会信用代码脱敏器。

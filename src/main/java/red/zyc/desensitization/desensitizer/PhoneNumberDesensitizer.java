@@ -17,7 +17,6 @@ package red.zyc.desensitization.desensitizer;
 
 
 import red.zyc.desensitization.annotation.PhoneNumberSensitive;
-import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
  * 手机号码脱敏器。

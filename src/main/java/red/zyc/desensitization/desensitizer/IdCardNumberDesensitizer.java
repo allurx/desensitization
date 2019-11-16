@@ -17,7 +17,6 @@ package red.zyc.desensitization.desensitizer;
 
 
 import red.zyc.desensitization.annotation.IdCardNumberSensitive;
-import red.zyc.desensitization.metadata.CharSequenceSensitiveDescriptor;
 
 /**
  * 身份证号码脱敏器

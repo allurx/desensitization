@@ -22,7 +22,6 @@ import red.zyc.desensitization.annotation.Sensitive;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.exception.UnsupportedCollectionException;
 import red.zyc.desensitization.exception.UnsupportedMapException;
-import red.zyc.desensitization.metadata.resolver.UnsafeAllocator;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -34,7 +33,7 @@ import java.util.stream.Stream;
 /**
  * @author zyc
  */
-public class ReflectionUtil {
+public final class ReflectionUtil {
 
     /**
      * {@link Logger}
@@ -153,7 +152,7 @@ public class ReflectionUtil {
             Class<? extends Annotation> annotationClass = annotation.annotationType();
             Method method = annotationClass.getDeclaredMethod("desensitizer");
             Class<? extends Desensitizer<T, A>> desensitizerClass = (Class<? extends Desensitizer<T, A>>) method.invoke(annotation);
-            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, UnsafeAllocator::newInstance);
+            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, UnsafeUtil::newInstance);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new RuntimeException("通过" + annotation.annotationType() + "实例化脱敏器失败");
@@ -191,6 +190,7 @@ public class ReflectionUtil {
         try {
             if (field.isAccessible()) {
                 field.set(target, newValue);
+                return;
             }
             field.setAccessible(true);
             field.set(target, newValue);
@@ -257,10 +257,10 @@ public class ReflectionUtil {
     @SuppressWarnings("unchecked")
     private static <T> T[] mergeArray(T[]... arrays) {
         return Arrays.stream(arrays)
-                .reduce((classes1, classes2) -> {
-                    T[] classes = Arrays.copyOf(classes1, classes1.length + classes2.length);
-                    System.arraycopy(classes2, 0, classes, classes1.length, classes2.length);
-                    return classes;
+                .reduce((array1, array2) -> {
+                    T[] array = Arrays.copyOf(array1, array1.length + array2.length);
+                    System.arraycopy(array2, 0, array, array1.length, array2.length);
+                    return array;
                 }).orElse((T[]) Array.newInstance(arrays.getClass().getComponentType(), 0));
     }
 
