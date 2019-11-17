@@ -33,12 +33,10 @@ public class MapResolver implements Resolver<Map<?, ?>, AnnotatedParameterizedTy
     @Override
     public Map<?, ?> resolve(Map<?, ?> value, AnnotatedParameterizedType annotatedParameterizedType) {
         AnnotatedType[] annotatedActualTypeArguments = annotatedParameterizedType.getAnnotatedActualTypeArguments();
-        Map<Object, Object> erased = value.entrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        entry -> Resolvers.resolve(entry.getKey(), annotatedActualTypeArguments[0]),
-                        entry -> Resolvers.resolve(entry.getValue(), annotatedActualTypeArguments[1])
-                ));
+        Map<Object, Object> erased = value.entrySet().parallelStream().collect(Collectors.toMap(
+                entry -> Resolvers.resolve(entry.getKey(), annotatedActualTypeArguments[0]),
+                entry -> Resolvers.resolve(entry.getValue(), annotatedActualTypeArguments[1])
+        ));
         @SuppressWarnings("unchecked")
         Map<Object, Object> original = (Map<Object, Object>) value;
         return ReflectionUtil.constructMap(ReflectionUtil.getClass(original), erased);

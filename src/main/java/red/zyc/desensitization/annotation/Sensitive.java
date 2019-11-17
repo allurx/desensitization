@@ -35,7 +35,7 @@ import java.lang.annotation.*;
  * &#64;Sensitive
  * public @interface CharSequenceSensitive {
  *
- *   Class &lt;? extends Desensitizer&lt;CharSequence,CharSequenceSensitive&gt;&gt;; desensitizer() default CharSequenceDesensitizer.class;
+ *   Class &lt;? extends Desensitizer&lt;CharSequence,CharSequenceSensitive&gt;&gt; desensitizer() default CharSequenceDesensitizer.class;
  *
  *   int startOffset() default 0;
  *

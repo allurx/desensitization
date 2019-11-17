@@ -23,7 +23,7 @@ import java.lang.reflect.AnnotatedType;
 import java.util.Optional;
 
 /**
- * 对象解析器，解析被直接标注敏感注解的对象。
+ * 解析被直接标注敏感注解的对象。
  *
  * @author zyc
  */
@@ -41,7 +41,7 @@ public class ObjectResolver implements Resolver<Object, AnnotatedType> {
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return true;
+        return ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType) != null;
     }
 
     @Override
