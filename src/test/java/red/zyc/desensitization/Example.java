@@ -64,6 +64,7 @@ public class Example {
                 }));
     }
 
+
     /**
      * 这是一个错误的示例，对于单个值脱敏，放在实例方法中是不生效的，必须将脱敏代码放在静态方法中执行。这是由于jdk解析注解的一个bug导致的。
      *
@@ -82,7 +83,8 @@ public class Example {
     public void desensitizeObject() {
         Child<?> child = new Child<>();
         log.info("脱敏前:{}", child);
-        log.info("脱敏后的新对象：{}", Sensitive.desensitize(child));
+        Child<?> newChild = Sensitive.desensitize(child);
+        log.info("脱敏后的新对象：{}", newChild);
         log.info("脱敏后:{}", child);
     }
 }

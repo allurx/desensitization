@@ -19,9 +19,28 @@ import red.zyc.desensitization.annotation.EraseSensitive;
 import red.zyc.desensitization.resolver.Resolvers;
 import red.zyc.desensitization.resolver.TypeToken;
 
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 /**
+ * 提供两个有用的方法进行数据脱敏：
+ * <ol>
+ *     <li>
+ *         {@link Sensitive#desensitize(Object)} 的功能是将对象内部的所有域值进行脱敏处理。你可以传入任意一个对象，该对象的某些域上可能被
+ *         标注了敏感注解，最终该方法会返回一个脱敏后的新对象，不会改变原对象。
+ *     </li>
+ *     <li>
+ *         {@link Sensitive#desensitize(Object, TypeToken)}的功能是对单个值进行脱敏。传入的对象可以是
+ *         {@link Collection}、{@link Map}、{@link Array}、{@link  String}等等类型中的某一种类型，然后需要再传入一个{@link TypeToken}
+ *         以便我们能够在运行时获取脱敏对象具体的类型以及对象上的注解。最终该方法会返回一个脱敏后的新对象，不会改变原对象。
+ *     </li>
+ *
+ * </ol>
+ * 注意：对于以上两种方法在脱敏时可能存在对象与对象循环引用的情况，例如对象A中包含对象B的引用，对象B中也包含对象A的引用，甚至是A对象中包含自身的引用，
+ * 此时脱敏时必定会发生{@link StackOverflowError}，因此推荐不要在那些循环引用的域上标注敏感注解或者是避免对那些包含循环引用的对象进行脱敏。
+ *
  * @author zyc
  */
 public final class Sensitive {
@@ -30,7 +49,7 @@ public final class Sensitive {
     }
 
     /**
-     * 对象内部域值脱敏，该方法不会改变原对象内部的域值。
+     * 对象内部域值脱敏，该方法不会改变原对象。
      *
      * @param <T>    目标对象类型
      * @param target 目标对象
@@ -42,7 +61,7 @@ public final class Sensitive {
     }
 
     /**
-     * 单个值脱敏，该方法不会改变原对象值。
+     * 单个值脱敏，该方法不会改变原对象。
      *
      * @param target    目标对象
      * @param typeToken {@link TypeToken}
@@ -50,14 +69,10 @@ public final class Sensitive {
      * @return 脱敏后的新对象
      */
     public static <T> T desensitize(T target, TypeToken<T> typeToken) {
-        try {
-            return Optional.ofNullable(target)
-                    .map(t -> typeToken)
-                    .map(TypeToken::getAnnotatedType)
-                    .map(annotatedType -> Resolvers.resolve(target, annotatedType))
-                    .orElse(target);
-        } finally {
-            Resolvers.clean();
-        }
+        return Optional.ofNullable(target)
+                .map(t -> typeToken)
+                .map(TypeToken::getAnnotatedType)
+                .map(annotatedType -> Resolvers.resolve(target, annotatedType))
+                .orElse(target);
     }
 }

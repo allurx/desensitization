@@ -93,11 +93,4 @@ public final class Resolvers {
         }
         return value;
     }
-
-    /**
-     * 收尾工作，主要用来清除{@link CascadeResolver#resolve}方法解析过程中可能产生的引用嵌套对象。
-     */
-    public static void clean() {
-        CascadeResolver.RESOLVED.remove();
-    }
 }

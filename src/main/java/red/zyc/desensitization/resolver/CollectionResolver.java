@@ -34,7 +34,7 @@ public class CollectionResolver implements Resolver<Collection<?>, AnnotatedPara
     @Override
     public Collection<?> resolve(Collection<?> value, AnnotatedParameterizedType annotatedParameterizedType) {
         AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
-        List<Object> erased = value.stream().map(o -> Resolvers.resolve(o, typeArgument)).collect(Collectors.toList());
+        List<Object> erased = value.parallelStream().map(o -> Resolvers.resolve(o, typeArgument)).collect(Collectors.toList());
         @SuppressWarnings("unchecked")
         Collection<Object> original = (Collection<Object>) value;
         return ReflectionUtil.constructCollection(ReflectionUtil.getClass(original), erased);

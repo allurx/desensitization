@@ -22,8 +22,6 @@ import red.zyc.desensitization.util.UnsafeUtil;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -33,17 +31,10 @@ import java.util.Optional;
  */
 public class CascadeResolver implements Resolver<Object, AnnotatedType> {
 
-    /**
-     * 脱敏过的对象
-     */
-    static final ThreadLocal<List<Object>> RESOLVED = ThreadLocal.withInitial(ArrayList::new);
-
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
         return Optional.ofNullable(value)
-                .filter(this::notReferenceNested)
                 .map(o -> {
-                    RESOLVED.get().add(value);
                     Class<?> clazz = value.getClass();
                     Object newObject = UnsafeUtil.newInstance(clazz);
                     ReflectionUtil.listAllFields(clazz).forEach(field -> {
@@ -64,16 +55,5 @@ public class CascadeResolver implements Resolver<Object, AnnotatedType> {
     @Override
     public int order() {
         return LOWEST_PRIORITY;
-    }
-
-    /**
-     * 判断目标对象之前是否已经脱敏过（目标对象可能被引用嵌套）
-     *
-     * @param target 目标对象
-     * @return 目标对象之前是否已经脱敏过
-     */
-    private boolean notReferenceNested(Object target) {
-        // 没有使用contains方法，仅仅比较目标是否引用同一个对象。
-        return RESOLVED.get().stream().noneMatch(o -> o == target);
     }
 }
