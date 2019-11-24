@@ -58,7 +58,7 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
     @EraseSensitive
     private Father father = new Father();
 
-    private List<@EraseSensitive Parent> parents1 = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
+    private List<@EraseSensitive Parent> parents1 = Stream.of(new Father(), new Mother(), null).collect(Collectors.toList());
 
     private List<@EmailSensitive String> emails1 = Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList());
 
@@ -66,7 +66,7 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
 
     private Map<@EraseSensitive Parent, @EmailSensitive String> parents2 = Stream.of(new Father(), new Mother()).collect(Collectors.toMap(p -> p, p -> "123456@qq.com"));
 
-    private @PasswordSensitive String[] passwords = {"123456", "1234567", "12345678"};
+    private @PasswordSensitive String[] passwords = {"123456", "1234567", "12345678", null};
 
     private @EraseSensitive Parent[] parents3 = {new Father(), new Mother()};
 
@@ -78,12 +78,12 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
     private List<@EraseSensitive ? extends Parent> parents = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
 
     @SuppressWarnings("unchecked")
-    private List<? extends T> list = (List<? extends T>) Stream.of(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList())).collect(Collectors.toList());
+    private List<? extends T> list = (List<? extends T>) Stream.of(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com", null).collect(Collectors.toList())).collect(Collectors.toList());
 
     // 复杂字段赋值
     {
         // map1
-        List<String[]> list = Stream.of(new String[]{"123456@qq.com"}, new String[]{"1234567@qq.com"}, new String[]{"1234567@qq.com", "12345678@qq.com"}).collect(Collectors.toList());
+        List<String[]> list = Stream.of(new String[]{"123456@qq.com", null}, new String[]{"1234567@qq.com"}, new String[]{"1234567@qq.com", "12345678@qq.com"}).collect(Collectors.toList());
         @SuppressWarnings("unchecked")
         Map<Parent, List<String>[]> map = Stream.of(new Father(), new Mother()).collect(Collectors.toMap(p -> p, p -> (List<String>[]) new List<?>[]{Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList())}));
         map1.put(list, map);
