@@ -38,7 +38,7 @@ public class TypeVariableResolver implements Resolver<Object, AnnotatedTypeVaria
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return annotatedType instanceof AnnotatedTypeVariable;
+        return value != null && annotatedType instanceof AnnotatedTypeVariable;
     }
 
     @Override

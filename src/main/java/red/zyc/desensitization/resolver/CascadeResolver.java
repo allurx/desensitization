@@ -22,7 +22,6 @@ import red.zyc.desensitization.util.UnsafeUtil;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Modifier;
-import java.util.Optional;
 
 /**
  * 级联擦除对象内部敏感信息
@@ -33,23 +32,20 @@ public class CascadeResolver implements Resolver<Object, AnnotatedType> {
 
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
-        return Optional.ofNullable(value)
-                .map(o -> {
-                    Class<?> clazz = value.getClass();
-                    Object newObject = UnsafeUtil.newInstance(clazz);
-                    ReflectionUtil.listAllFields(clazz).forEach(field -> {
-                        Object fieldValue;
-                        if (!Modifier.isFinal(field.getModifiers()) && (fieldValue = ReflectionUtil.getFieldValue(value, field)) != null) {
-                            ReflectionUtil.setFieldValue(newObject, field, Resolvers.resolve(fieldValue, field.getAnnotatedType()));
-                        }
-                    });
-                    return newObject;
-                }).orElse(value);
+        Class<?> clazz = value.getClass();
+        Object newObject = UnsafeUtil.newInstance(clazz);
+        ReflectionUtil.listAllFields(clazz).forEach(field -> {
+            Object fieldValue;
+            if (!Modifier.isFinal(field.getModifiers()) && (fieldValue = ReflectionUtil.getFieldValue(value, field)) != null) {
+                ReflectionUtil.setFieldValue(newObject, field, Resolvers.resolve(fieldValue, field.getAnnotatedType()));
+            }
+        });
+        return newObject;
     }
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return annotatedType.isAnnotationPresent(EraseSensitive.class);
+        return value != null && annotatedType.isAnnotationPresent(EraseSensitive.class);
     }
 
     @Override

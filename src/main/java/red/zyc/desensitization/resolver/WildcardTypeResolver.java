@@ -38,7 +38,7 @@ public class WildcardTypeResolver implements Resolver<Object, AnnotatedWildcardT
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return annotatedType instanceof AnnotatedWildcardType;
+        return value != null && annotatedType instanceof AnnotatedWildcardType;
     }
 
     @Override
