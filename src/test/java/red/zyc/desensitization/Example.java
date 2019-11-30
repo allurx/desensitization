@@ -40,10 +40,9 @@ public class Example {
      * 对于单个值类型的脱敏，脱敏处理必须放在静态代码块中执行，不能放在对象的实例方法中执行，
      * 这是由于jdk解析注解的一个bug导致的。
      *
-     * @param args 参数
      * @see <a href="http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type"></a>
      */
-    public static void main(String[] args) {
+    private static void desensitize() {
         // 单个值
         log.info("值脱敏：{}", Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
         }));
@@ -64,11 +63,8 @@ public class Example {
                 }));
     }
 
-
     /**
      * 这是一个错误的示例，对于单个值脱敏，放在实例方法中是不生效的，必须将脱敏代码放在静态方法中执行。这是由于jdk解析注解的一个bug导致的。
-     *
-     * @see Example#main(java.lang.String[])
      */
     @Test
     public void wrongDesensitizeValue() {
@@ -81,10 +77,18 @@ public class Example {
      */
     @Test
     public void desensitizeObject() {
-        Child<?> child = new Child<>();
-        log.info("脱敏前:{}", child);
-        Child<?> newChild = Sensitive.desensitize(child);
-        log.info("脱敏后的新对象：{}", newChild);
-        log.info("脱敏后:{}", child);
+        Child<?> before = new Child<>();
+        log.info("脱敏前原对象:{}", before);
+        Child<?> after = Sensitive.desensitize(before);
+        log.info("脱敏后的新对象：{}", after);
+        log.info("脱敏后原对象:{}", before);
+    }
+
+    /**
+     * 单个值脱敏，脱敏代码必须放到静态方法中执行。
+     */
+    @Test
+    public void desensitizeValue() {
+        desensitize();
     }
 }

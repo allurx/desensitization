@@ -29,7 +29,7 @@ import java.util.Arrays;
  */
 public class SecurityManagerCaller extends SecurityManager implements Caller {
 
-    private static Logger log = LoggerFactory.getLogger(SecurityManagerCaller.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityManagerCaller.class);
 
     @Override
     public Class<?> getCaller() {
@@ -47,6 +47,6 @@ public class SecurityManagerCaller extends SecurityManager implements Caller {
 
     @Override
     public void printStackTrace() {
-        log.info(Arrays.toString(getClassContext()));
+        LOG.info(Arrays.toString(getClassContext()));
     }
 }

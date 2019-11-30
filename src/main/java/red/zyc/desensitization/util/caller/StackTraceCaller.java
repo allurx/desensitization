@@ -26,7 +26,7 @@ import java.util.Arrays;
  */
 public class StackTraceCaller implements Caller {
 
-    private static Logger log = LoggerFactory.getLogger(StackTraceCaller.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StackTraceCaller.class);
 
     @Override
     public Class<?> getCaller() {
@@ -40,7 +40,7 @@ public class StackTraceCaller implements Caller {
             try {
                 return Class.forName(stackTraceElements[depth].getClassName());
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                LOG.error(e.getMessage(), e);
             }
         }
         return null;
@@ -48,6 +48,6 @@ public class StackTraceCaller implements Caller {
 
     @Override
     public void printStackTrace() {
-        log.info(Arrays.toString(Thread.currentThread().getStackTrace()));
+        LOG.info(Arrays.toString(Thread.currentThread().getStackTrace()));
     }
 }

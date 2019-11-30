@@ -16,10 +16,9 @@
 
 package red.zyc.desensitization.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.Sensitive;
 import red.zyc.desensitization.desensitizer.Desensitizer;
+import red.zyc.desensitization.exception.DesensitizationException;
 import red.zyc.desensitization.exception.UnsupportedCollectionException;
 import red.zyc.desensitization.exception.UnsupportedMapException;
 
@@ -36,19 +35,16 @@ import java.util.stream.Stream;
 public final class ReflectionUtil {
 
     /**
-     * {@link Logger}
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(ReflectionUtil.class);
-
-    /**
      * 域缓存
      */
     private static final Map<Class<?>, List<Field>> FIELD_CACHE = new ConcurrentHashMap<>();
-
     /**
      * 脱敏器缓存
      */
     private static final Map<Class<? extends Desensitizer<?, ? extends Annotation>>, Desensitizer<?, ? extends Annotation>> DESENSITIZER_CACHE = new ConcurrentHashMap<>();
+
+    private ReflectionUtil() {
+    }
 
     /**
      * 获取{@link AnnotatedType}上的第一个敏感注解
@@ -98,8 +94,7 @@ public final class ReflectionUtil {
             Constructor<? extends Collection<T>> declaredConstructor = original.getDeclaredConstructor(Collection.class);
             return declaredConstructor.newInstance(erased);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new UnsupportedCollectionException(original + "必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。");
+            throw new UnsupportedCollectionException(original + "必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。", e);
         }
     }
 
@@ -120,8 +115,7 @@ public final class ReflectionUtil {
             Constructor<? extends Map<K, V>> declaredConstructor = original.getDeclaredConstructor(Map.class);
             return declaredConstructor.newInstance(erased);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new UnsupportedMapException(original + "必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。");
+            throw new UnsupportedMapException(original + "必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。", e);
         }
     }
 
@@ -154,8 +148,7 @@ public final class ReflectionUtil {
             Class<? extends Desensitizer<T, A>> desensitizerClass = (Class<? extends Desensitizer<T, A>>) method.invoke(annotation);
             return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, UnsafeUtil::newInstance);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new RuntimeException("通过" + annotation.annotationType() + "实例化脱敏器失败");
+            throw new DesensitizationException("通过" + annotation.annotationType() + "实例化脱敏器失败", e);
         }
     }
 
@@ -174,8 +167,7 @@ public final class ReflectionUtil {
             field.setAccessible(true);
             return field.get(target);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new RuntimeException("获取" + target.getClass() + "的域" + field.getName() + "失败。");
+            throw new DesensitizationException("获取" + target.getClass() + "的域" + field.getName() + "失败。", e);
         }
     }
 
@@ -195,8 +187,7 @@ public final class ReflectionUtil {
             field.setAccessible(true);
             field.set(target, newValue);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new RuntimeException("设置" + target.getClass() + "的域" + field.getName() + "失败。");
+            throw new DesensitizationException("设置" + target.getClass() + "的域" + field.getName() + "失败。", e);
         }
     }
 
