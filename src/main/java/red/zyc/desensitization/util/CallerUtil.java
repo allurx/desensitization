@@ -36,11 +36,14 @@ public final class CallerUtil {
         Caller temp = null;
         try {
             temp = new SecurityManagerCaller();
-        } catch (Throwable t) {
+        } catch (Exception t) {
             temp = new StackTraceCaller();
         } finally {
             CALLER = temp;
         }
+    }
+
+    private CallerUtil() {
     }
 
     /**

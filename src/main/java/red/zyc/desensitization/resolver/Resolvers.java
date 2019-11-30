@@ -34,7 +34,7 @@ public final class Resolvers {
     /**
      * 所有注册的{@link Resolver}
      */
-    private final static Set<Resolver<?, ? extends AnnotatedType>> RESOLVERS = new TreeSet<>();
+    private static final Set<Resolver<?, ? extends AnnotatedType>> REGISTERED_RESOLVERS = new TreeSet<>();
 
     static {
         register(new TypeVariableResolver());
@@ -68,7 +68,7 @@ public final class Resolvers {
      * @see TreeSet
      */
     public static void register(Resolver<?, ? extends AnnotatedType> resolver) {
-        RESOLVERS.add(resolver);
+        REGISTERED_RESOLVERS.add(resolver);
     }
 
 
@@ -84,7 +84,7 @@ public final class Resolvers {
      * @return 解析后的值
      */
     public static <T, AT extends AnnotatedType> T resolve(T value, AT annotatedType) {
-        for (Resolver<?, ? extends AnnotatedType> resolver : RESOLVERS) {
+        for (Resolver<?, ? extends AnnotatedType> resolver : REGISTERED_RESOLVERS) {
             if (resolver.support(value, annotatedType)) {
                 @SuppressWarnings("unchecked")
                 Resolver<T, AT> supportedResolver = (Resolver<T, AT>) resolver;

@@ -19,9 +19,9 @@ package red.zyc.desensitization.exception;
 /**
  * @author zyc
  */
-public class UnsupportedMapException extends AbstractSensitiveException {
+public class UnsupportedMapException extends DesensitizationException {
 
-    public UnsupportedMapException(String message) {
-        super(message);
+    public UnsupportedMapException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

@@ -16,8 +16,7 @@
 
 package red.zyc.desensitization.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import red.zyc.desensitization.exception.DesensitizationException;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -30,11 +29,6 @@ public final class UnsafeUtil {
 
     private static final Unsafe UNSAFE;
 
-    /**
-     * {@link Logger}
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(UnsafeUtil.class);
-
     static {
         try {
             Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
@@ -42,8 +36,11 @@ public final class UnsafeUtil {
             f.setAccessible(true);
             UNSAFE = (Unsafe) f.get(null);
         } catch (Exception e) {
-            throw new RuntimeException("初始化" + Unsafe.class + "失败！");
+            throw new DesensitizationException("初始化" + Unsafe.class + "失败！", e);
         }
+    }
+
+    private UnsafeUtil() {
     }
 
     /**
@@ -58,8 +55,7 @@ public final class UnsafeUtil {
         try {
             return (T) UNSAFE.allocateInstance(clazz);
         } catch (InstantiationException e) {
-            LOG.error(e.getMessage(), e);
-            throw new RuntimeException("实例化" + clazz + "失败");
+            throw new DesensitizationException("实例化" + clazz + "失败", e);
         }
     }
 

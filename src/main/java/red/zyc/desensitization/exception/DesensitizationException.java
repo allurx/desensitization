@@ -20,14 +20,18 @@ import java.util.function.Supplier;
 /**
  * @author zyc
  */
-public abstract class AbstractSensitiveException extends RuntimeException implements Supplier<AbstractSensitiveException> {
+public class DesensitizationException extends RuntimeException implements Supplier<DesensitizationException> {
 
-    public AbstractSensitiveException(String message) {
+    public DesensitizationException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public DesensitizationException(String message) {
         super(message);
     }
 
     @Override
-    public AbstractSensitiveException get() {
+    public DesensitizationException get() {
         return this;
     }
 }
