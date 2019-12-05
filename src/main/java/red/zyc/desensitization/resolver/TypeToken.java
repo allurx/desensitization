@@ -31,16 +31,62 @@ import java.lang.reflect.Type;
  * }
  * </pre>
  *
- * @param <T> {@link ParameterizedType}的类型对象
+ * @param <T> 需要捕获的明确类型
  * @author zyc
  */
 public abstract class TypeToken<T> extends TypeCapture<T> {
 
+    /**
+     * {@link T}运行时的类型
+     */
+    protected final Type type;
+
+    /**
+     * {@link T}运行时被注解的类型
+     */
+    protected final AnnotatedType annotatedType;
+
+    protected TypeToken() {
+        annotatedType = capture();
+        type = annotatedType.getType();
+    }
+
+    private TypeToken(AnnotatedType annotatedType) {
+        this.annotatedType = annotatedType;
+        this.type = annotatedType.getType();
+    }
+
+    /**
+     * 通过已知对象的{@link AnnotatedType}实例化{@link TypeToken}
+     *
+     * @param annotatedType 对象的{@link AnnotatedType}
+     * @param <T>           对象的运行时类型
+     * @return 该对象的 {@link TypeToken}
+     */
+    public static <T> TypeToken<T> of(AnnotatedType annotatedType) {
+        return new TypeToken<T>(annotatedType) {
+        };
+    }
+
+    /**
+     * @return 对象运行时的类型
+     */
     public final Type getType() {
         return type;
     }
 
+    /**
+     * @return 对象运行时被注解的类型
+     */
     public final AnnotatedType getAnnotatedType() {
         return annotatedType;
+    }
+
+    @Override
+    public String toString() {
+        return "TypeToken{" +
+                "type=" + type +
+                ", annotatedType=" + annotatedType +
+                "} ";
     }
 }

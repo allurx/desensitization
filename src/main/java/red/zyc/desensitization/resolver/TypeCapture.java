@@ -22,29 +22,22 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- * 捕获{@link T}运行时的明确类型
+ * 捕获{@link T}运行时被注解的类型
  *
- * @param <T> 需要捕获的类型
+ * @param <T> 需要捕获的对象类型
  * @author zyc
  */
 abstract class TypeCapture<T> {
 
     /**
-     * {@link T}运行时的{@link Type}
+     * @return {@link T}运行时被注解的类型
      */
-    protected final Type type;
-
-    /**
-     * {@link T}运行时的{@link AnnotatedType}
-     */
-    protected final AnnotatedType annotatedType;
-
-    TypeCapture() {
+    AnnotatedType capture() {
         Type superclass = getClass().getGenericSuperclass();
         if (!(superclass instanceof ParameterizedType)) {
             throw new IllegalArgumentException(getClass() + "必须是参数化类型");
         }
-        type = ((ParameterizedType) superclass).getActualTypeArguments()[0];
-        annotatedType = ((AnnotatedParameterizedType) getClass().getAnnotatedSuperclass()).getAnnotatedActualTypeArguments()[0];
+        return ((AnnotatedParameterizedType) getClass().getAnnotatedSuperclass()).getAnnotatedActualTypeArguments()[0];
     }
+
 }
