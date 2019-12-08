@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Sensitive
+@SensitiveAnnotation
 public @interface PasswordSensitive {
 
     /**

@@ -32,7 +32,7 @@ import java.lang.annotation.*;
  * &#64;Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.PARAMETER, ElementType.METHOD})
  * &#64;Retention(RetentionPolicy.RUNTIME)
  * &#64;Documented
- * &#64;Sensitive
+ * &#64;SensitiveAnnotation
  * public @interface CharSequenceSensitive {
  *
  *   Class &lt;? extends Desensitizer&lt;CharSequence,CharSequenceSensitive&gt;&gt; desensitizer() default CharSequenceDesensitizer.class;
@@ -53,5 +53,5 @@ import java.lang.annotation.*;
 @Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Sensitive {
+public @interface SensitiveAnnotation {
 }

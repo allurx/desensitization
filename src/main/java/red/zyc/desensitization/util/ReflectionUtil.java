@@ -16,7 +16,7 @@
 
 package red.zyc.desensitization.util;
 
-import red.zyc.desensitization.annotation.Sensitive;
+import red.zyc.desensitization.annotation.SensitiveAnnotation;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.exception.DesensitizationException;
 import red.zyc.desensitization.exception.UnsupportedCollectionException;
@@ -55,7 +55,7 @@ public final class ReflectionUtil {
     public static Annotation getFirstSensitiveAnnotationOnAnnotatedType(AnnotatedType annotatedType) {
         Annotation[] annotations = annotatedType.getDeclaredAnnotations();
         for (Annotation annotation : annotations) {
-            if (annotation.annotationType().isAnnotationPresent(Sensitive.class)) {
+            if (annotation.annotationType().isAnnotationPresent(SensitiveAnnotation.class)) {
                 return annotation;
             }
         }

@@ -16,7 +16,7 @@
 
 package red.zyc.desensitization.resolver;
 
-import red.zyc.desensitization.annotation.EraseSensitive;
+import red.zyc.desensitization.annotation.CascadeSensitive;
 import red.zyc.desensitization.util.ReflectionUtil;
 import red.zyc.desensitization.util.UnsafeUtil;
 
@@ -45,7 +45,7 @@ public class CascadeResolver implements Resolver<Object, AnnotatedType> {
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return value != null && annotatedType.isAnnotationPresent(EraseSensitive.class);
+        return value != null && annotatedType.isAnnotationPresent(CascadeSensitive.class);
     }
 
     @Override

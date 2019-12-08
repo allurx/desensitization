@@ -52,30 +52,30 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
     @BankCardNumberSensitive
     private String bankCardNumber = "6222600260001072444";
 
-    @EraseSensitive
+    @CascadeSensitive
     private Mother mother = new Mother();
 
-    @EraseSensitive
+    @CascadeSensitive
     private Father father = new Father();
 
-    private List<@EraseSensitive Parent> parents1 = Stream.of(new Father(), new Mother(), null).collect(Collectors.toList());
+    private List<@CascadeSensitive Parent> parents1 = Stream.of(new Father(), new Mother(), null).collect(Collectors.toList());
 
     private List<@EmailSensitive String> emails1 = Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList());
 
     private Map<@ChineseNameSensitive String, @EmailSensitive String> emails2 = Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com"));
 
-    private Map<@EraseSensitive Parent, @EmailSensitive String> parents2 = Stream.of(new Father(), new Mother()).collect(Collectors.toMap(p -> p, p -> "123456@qq.com"));
+    private Map<@CascadeSensitive Parent, @EmailSensitive String> parents2 = Stream.of(new Father(), new Mother()).collect(Collectors.toMap(p -> p, p -> "123456@qq.com"));
 
     private @PasswordSensitive String[] passwords = {"123456", "1234567", "12345678", null};
 
-    private @EraseSensitive Parent[] parents3 = {new Father(), new Mother()};
+    private @CascadeSensitive Parent[] parents3 = {new Father(), new Mother()};
 
-    private Map<List<@EmailSensitive String[]>, Map<@EraseSensitive Parent, List<@EmailSensitive String>[]>> map1 = new HashMap<>();
+    private Map<List<@EmailSensitive String[]>, Map<@CascadeSensitive Parent, List<@EmailSensitive String>[]>> map1 = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     private T t = (T) Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList());
 
-    private List<@EraseSensitive ? extends Parent> parents = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
+    private List<@CascadeSensitive ? extends Parent> parents = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
 
     @SuppressWarnings("unchecked")
     private List<? extends T> list = (List<? extends T>) Stream.of(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com", null).collect(Collectors.toList())).collect(Collectors.toList());
