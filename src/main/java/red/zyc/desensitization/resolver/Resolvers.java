@@ -16,7 +16,7 @@
 
 package red.zyc.desensitization.resolver;
 
-import red.zyc.desensitization.annotation.EraseSensitive;
+import red.zyc.desensitization.annotation.CascadeSensitive;
 
 import java.lang.reflect.AnnotatedType;
 import java.util.Collection;
@@ -53,7 +53,7 @@ public final class Resolvers {
     /**
      * 注册自己的类型解析器。<br><br>
      * 对于任何需要解析的对象o，本质上都可以通过类型参数或者通配符来代替它，同时o本身可能也需要擦除敏感信息（o本身被标记了敏感注解）
-     * 或者需要擦除o内部域中的敏感信息（o本身被标记了{@link EraseSensitive }注解），因此在注册解析器时，需要遵守以下两个约定：
+     * 或者需要擦除o内部域中的敏感信息（o本身被标记了{@link CascadeSensitive }注解），因此在注册解析器时，需要遵守以下两个约定：
      *
      * <ol>
      *     <li>

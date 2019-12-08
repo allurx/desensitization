@@ -15,7 +15,7 @@
  */
 package red.zyc.desensitization;
 
-import red.zyc.desensitization.annotation.EraseSensitive;
+import red.zyc.desensitization.annotation.CascadeSensitive;
 import red.zyc.desensitization.resolver.Resolvers;
 import red.zyc.desensitization.resolver.TypeToken;
 
@@ -56,7 +56,7 @@ public final class Sensitive {
      * @return 脱敏后的新对象
      */
     public static <T> T desensitize(T target) {
-        return desensitize(target, new TypeToken<@EraseSensitive T>() {
+        return desensitize(target, new TypeToken<@CascadeSensitive T>() {
         });
     }
 
