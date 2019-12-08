@@ -21,8 +21,9 @@ import red.zyc.desensitization.annotation.EraseSensitive;
 import java.lang.reflect.AnnotatedType;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 一个有用的解析器帮助类。用户可以通过这个类注册自己的类型解析器。
@@ -34,7 +35,7 @@ public final class Resolvers {
     /**
      * 所有注册的{@link Resolver}
      */
-    private static final Set<Resolver<?, ? extends AnnotatedType>> REGISTERED_RESOLVERS = new TreeSet<>();
+    private static final SortedSet<Resolver<?, ? extends AnnotatedType>> REGISTERED_RESOLVERS = new TreeSet<>();
 
     static {
         register(new TypeVariableResolver());
@@ -67,10 +68,18 @@ public final class Resolvers {
      * @param resolver 目标类型解析器
      * @see TreeSet
      */
-    public static void register(Resolver<?, ? extends AnnotatedType> resolver) {
+    public static synchronized void register(Resolver<?, ? extends AnnotatedType> resolver) {
         REGISTERED_RESOLVERS.add(resolver);
     }
 
+    /**
+     * 从已注册的类型解析器中移除指定的解析器
+     *
+     * @param resolver 需要移除的类型解析器
+     */
+    public static synchronized void remove(Resolver<?, ? extends AnnotatedType> resolver) {
+        REGISTERED_RESOLVERS.remove(resolver);
+    }
 
     /**
      * 对于任何需要解析的对象o，它可能继承了一些特殊的数据类型，例如{@link Collection}、{@link Map}等等，
@@ -92,5 +101,23 @@ public final class Resolvers {
             }
         }
         return value;
+    }
+
+    /**
+     * @return 一个不会与已注册的类型解析器顺序冲突的随机顺序值
+     */
+    public static synchronized int randomOrder() {
+        int order = ThreadLocalRandom.current().nextInt(Sortable.HIGHEST_PRIORITY, Sortable.LOWEST_PRIORITY);
+        if (REGISTERED_RESOLVERS.stream().noneMatch(resolver -> resolver.order() == order)) {
+            return order;
+        }
+        return randomOrder();
+    }
+
+    /**
+     * @return 所有已注册的类型解析器
+     */
+    public static SortedSet<Resolver<?, ? extends AnnotatedType>> registeredResolvers() {
+        return REGISTERED_RESOLVERS;
     }
 }
