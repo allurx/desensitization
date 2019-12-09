@@ -47,12 +47,12 @@ public final class ReflectionUtil {
     }
 
     /**
-     * 获取{@link AnnotatedType}上的第一个敏感注解
+     * 获取{@link AnnotatedType}上的第一个直接存在的敏感注解
      *
      * @param annotatedType {@link AnnotatedType}对象
      * @return {@link AnnotatedType}上的第一个敏感注解
      */
-    public static Annotation getFirstSensitiveAnnotationOnAnnotatedType(AnnotatedType annotatedType) {
+    public static Annotation getFirstDirectlyPresentSensitiveAnnotation(AnnotatedType annotatedType) {
         Annotation[] annotations = annotatedType.getDeclaredAnnotations();
         for (Annotation annotation : annotations) {
             if (annotation.annotationType().isAnnotationPresent(SensitiveAnnotation.class)) {

@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * 解析被直接标注敏感注解的对象。
+ * 解析被直接标注敏感注解的对象，只会处理对象上直接存在的第一个敏感注解。
  *
  * @author zyc
  */
@@ -32,7 +32,7 @@ public class ObjectResolver implements Resolver<Object, AnnotatedType> {
 
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
-        Annotation sensitiveAnnotation = ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType);
+        Annotation sensitiveAnnotation = ReflectionUtil.getFirstDirectlyPresentSensitiveAnnotation(annotatedType);
         return Optional.of(Objects.requireNonNull(sensitiveAnnotation))
                 .map(ReflectionUtil::getDesensitizer)
                 .filter(desensitizer -> desensitizer.support(value.getClass()))
@@ -42,7 +42,7 @@ public class ObjectResolver implements Resolver<Object, AnnotatedType> {
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return value != null && ReflectionUtil.getFirstSensitiveAnnotationOnAnnotatedType(annotatedType) != null;
+        return value != null && ReflectionUtil.getFirstDirectlyPresentSensitiveAnnotation(annotatedType) != null;
     }
 
     @Override
