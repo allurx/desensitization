@@ -21,7 +21,7 @@ package red.zyc.desensitization.exception;
  */
 public class UnsupportedMapException extends DesensitizationException {
 
-    public UnsupportedMapException(String message, Throwable cause) {
-        super(message, cause);
+    public UnsupportedMapException(String message) {
+        super(message);
     }
 }
