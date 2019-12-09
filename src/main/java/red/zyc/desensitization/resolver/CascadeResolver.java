@@ -45,7 +45,7 @@ public class CascadeResolver implements Resolver<Object, AnnotatedType> {
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return value != null && annotatedType.isAnnotationPresent(CascadeSensitive.class);
+        return value != null && annotatedType.getDeclaredAnnotation(CascadeSensitive.class) != null;
     }
 
     @Override
