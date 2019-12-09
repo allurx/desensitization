@@ -91,10 +91,19 @@ public final class ReflectionUtil {
      */
     public static <T> Collection<T> constructCollection(Class<? extends Collection<T>> original, Collection<T> erased) {
         try {
-            Constructor<? extends Collection<T>> declaredConstructor = original.getDeclaredConstructor(Collection.class);
-            return declaredConstructor.newInstance(erased);
+            Constructor<? extends Collection<T>> declaredConstructor = getDeclaredConstructor(original, Collection.class);
+            if (declaredConstructor != null) {
+                return declaredConstructor.newInstance(erased);
+            }
+            declaredConstructor = getDeclaredConstructor(original);
+            if (declaredConstructor == null) {
+                throw new UnsupportedCollectionException(original + "必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。");
+            }
+            Collection<T> collection = declaredConstructor.newInstance();
+            collection.addAll(erased);
+            return collection;
         } catch (Exception e) {
-            throw new UnsupportedCollectionException(original + "必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。", e);
+            throw new DesensitizationException(e.getMessage(), e);
         }
     }
 
@@ -112,10 +121,39 @@ public final class ReflectionUtil {
      */
     public static <K, V> Map<K, V> constructMap(Class<? extends Map<K, V>> original, Map<K, V> erased) {
         try {
-            Constructor<? extends Map<K, V>> declaredConstructor = original.getDeclaredConstructor(Map.class);
-            return declaredConstructor.newInstance(erased);
+            Constructor<? extends Map<K, V>> declaredConstructor = getDeclaredConstructor(original, Map.class);
+            if (declaredConstructor != null) {
+                return declaredConstructor.newInstance(erased);
+            }
+            declaredConstructor = getDeclaredConstructor(original);
+            if (declaredConstructor == null) {
+                throw new UnsupportedMapException(original + "必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。");
+            }
+            Map<K, V> map = declaredConstructor.newInstance();
+            map.putAll(erased);
+            return map;
         } catch (Exception e) {
-            throw new UnsupportedMapException(original + "必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。", e);
+            throw new DesensitizationException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 从指定的{@code class}中获取带有指定参数的构造器
+     *
+     * @param clazz          指定的{@code class}
+     * @param parameterTypes 构造器的参数
+     * @param <T>            构造器代表的对象类型
+     * @return 带有指定参数的构造器
+     */
+    public static <T> Constructor<T> getDeclaredConstructor(Class<T> clazz, Class<?>... parameterTypes) {
+        try {
+            Constructor<T> declaredConstructor = clazz.getDeclaredConstructor(parameterTypes);
+            if (!declaredConstructor.isAccessible()) {
+                declaredConstructor.setAccessible(true);
+            }
+            return declaredConstructor;
+        } catch (NoSuchMethodException e) {
+            return null;
         }
     }
 

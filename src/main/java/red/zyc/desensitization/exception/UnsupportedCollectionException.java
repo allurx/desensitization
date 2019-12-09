@@ -21,7 +21,7 @@ package red.zyc.desensitization.exception;
  */
 public class UnsupportedCollectionException extends DesensitizationException {
 
-    public UnsupportedCollectionException(String message, Throwable cause) {
-        super(message, cause);
+    public UnsupportedCollectionException(String message) {
+        super(message);
     }
 }
