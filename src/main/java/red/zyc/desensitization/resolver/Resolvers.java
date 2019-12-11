@@ -16,17 +16,12 @@
 
 package red.zyc.desensitization.resolver;
 
-import red.zyc.desensitization.annotation.CascadeSensitive;
-
 import java.lang.reflect.AnnotatedType;
-import java.util.Collection;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 一个有用的解析器帮助类。用户可以通过这个类注册自己的类型解析器。
+ * 一个有用的类型解析器帮助类，用户可以通过这个类注册自己的类型解析器或者删除已存在的类型解析器。
  *
  * @author zyc
  */
@@ -35,7 +30,7 @@ public final class Resolvers {
     /**
      * 所有注册的{@link Resolver}
      */
-    private static final SortedSet<Resolver<?, ? extends AnnotatedType>> REGISTERED_RESOLVERS = new TreeSet<>();
+    private static final SortedSet<Resolver<?, ? extends AnnotatedType>> REGISTERED_RESOLVERS = Collections.synchronizedSortedSet(new TreeSet<>());
 
     static {
         register(new TypeVariableResolver());
@@ -51,24 +46,14 @@ public final class Resolvers {
     }
 
     /**
-     * 注册自己的类型解析器。<br><br>
-     * 对于任何需要解析的对象o，本质上都可以通过类型参数或者通配符来代替它，同时o本身可能也需要擦除敏感信息（o本身被标记了敏感注解）
-     * 或者需要擦除o内部域中的敏感信息（o本身被标记了{@link CascadeSensitive }注解），因此在注册解析器时，需要遵守以下两个约定：
-     *
-     * <ol>
-     *     <li>
-     *         注册的解析器执行顺序都应该晚于{@link TypeVariableResolver}和{@link WildcardTypeResolver}这两个解析器。
-     *     </li>
-     *     <li>
-     *         注册的解析器执行顺序都应该早于{@link ObjectResolver}和{@link CascadeResolver}这两个解析器。
-     *     </li>
-     * </ol>
-     * 否则解析的结果可能会和预期不一样。注意如果注册的解析器的{@link Sortable#order()}方法返回值已经有其它解析器占用了，那么该解析器将会被忽略。
+     * 注册自己的类型解析器。<br>
+     * 注意：如果类型解析器的{@link Sortable#order()}方法返回值已经被其它解析器占用了，
+     * 那么该解析器将会被忽略。这是由{@link TreeSet}类的特性所导致的。
      *
      * @param resolver 目标类型解析器
      * @see TreeSet
      */
-    public static synchronized void register(Resolver<?, ? extends AnnotatedType> resolver) {
+    public static void register(Resolver<?, ? extends AnnotatedType> resolver) {
         REGISTERED_RESOLVERS.add(resolver);
     }
 
@@ -77,7 +62,7 @@ public final class Resolvers {
      *
      * @param resolver 需要移除的类型解析器
      */
-    public static synchronized void remove(Resolver<?, ? extends AnnotatedType> resolver) {
+    public static void remove(Resolver<?, ? extends AnnotatedType> resolver) {
         REGISTERED_RESOLVERS.remove(resolver);
     }
 
@@ -106,16 +91,19 @@ public final class Resolvers {
     /**
      * @return 一个不会与已注册的类型解析器顺序冲突的随机顺序值
      */
-    public static synchronized int randomOrder() {
+    public static int randomOrder() {
         int order = ThreadLocalRandom.current().nextInt(Sortable.HIGHEST_PRIORITY, Sortable.LOWEST_PRIORITY);
-        if (REGISTERED_RESOLVERS.stream().noneMatch(resolver -> resolver.order() == order)) {
-            return order;
+        synchronized (REGISTERED_RESOLVERS) {
+            if (REGISTERED_RESOLVERS.stream().noneMatch(resolver -> resolver.order() == order)) {
+                return order;
+            }
+            return randomOrder();
         }
-        return randomOrder();
     }
 
     /**
-     * @return 所有已注册的类型解析器
+     * @return 所有已注册的类型解析器，返回结果是一个通过{@link Collections#synchronizedSortedSet(java.util.SortedSet)}
+     * 方法包装的{@link SortedSet}，有关线程安全需要注意的事项请自行参照该包装方法。
      */
     public static SortedSet<Resolver<?, ? extends AnnotatedType>> registeredResolvers() {
         return REGISTERED_RESOLVERS;
