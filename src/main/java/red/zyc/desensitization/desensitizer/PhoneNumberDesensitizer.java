@@ -19,9 +19,7 @@ package red.zyc.desensitization.desensitizer;
 import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 
 /**
- * 手机号码脱敏器。
- * 注意该类在擦除敏感信息时不会校验目标对象的合法性，请确保目标对象是合法的手机号码，
- * 否则会抛出任何有可能的 {@link RuntimeException}。
+ * 手机号码脱敏器
  *
  * @author zyc
  */

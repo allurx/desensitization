@@ -23,6 +23,8 @@ import java.lang.annotation.*;
 
 /**
  * 邮箱敏感标记注解。默认的脱敏规则：擦除目标对象中第二个字符与@符号间的所有字符，例如123456@qq.com脱敏后的值为1*****@qq.com
+ * <p><strong>注意：脱敏时不会校验目标对象的合法性，请确保目标对象是合法的邮箱，
+ * 否则会抛出任何可能的 {@link RuntimeException}。</strong></p>
  *
  * @author zyc
  */

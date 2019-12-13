@@ -18,7 +18,7 @@ package red.zyc.desensitization.desensitizer;
 import red.zyc.desensitization.annotation.ChineseNameSensitive;
 
 /**
- * 中文名脱敏器
+ * 中文名称脱敏器
  *
  * @author zyc
  */

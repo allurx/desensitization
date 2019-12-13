@@ -19,7 +19,7 @@ package red.zyc.desensitization.desensitizer;
 import red.zyc.desensitization.annotation.BankCardNumberSensitive;
 
 /**
- * 银行卡号脱敏器
+ * 银行卡号码脱敏器
  *
  * @author zyc
  */

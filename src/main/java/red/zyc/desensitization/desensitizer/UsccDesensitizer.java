@@ -20,8 +20,6 @@ import red.zyc.desensitization.annotation.UsccSensitive;
 
 /**
  * 统一社会信用代码脱敏器。
- * 注意该类在擦除敏感信息时不会校验目标对象的合法性，请确保目标对象是合法的统一社会信用代码，
- * 否则会抛出任何有可能的 {@link RuntimeException}。
  *
  * @author zyc
  */

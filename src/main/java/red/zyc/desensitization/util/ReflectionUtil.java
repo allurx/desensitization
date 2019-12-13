@@ -23,7 +23,10 @@ import red.zyc.desensitization.exception.UnsupportedCollectionException;
 import red.zyc.desensitization.exception.UnsupportedMapException;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -227,70 +230,6 @@ public final class ReflectionUtil {
         } catch (Exception e) {
             throw new DesensitizationException("设置" + target.getClass() + "的域" + field.getName() + "失败。", e);
         }
-    }
-
-    /**
-     * 获取{@link Type}类型的原始{@link Class}
-     * <ol>
-     *     <li>
-     *         对于{@link ParameterizedType}类型，返回的是其本身（不是类型参数）的{@link Class}对象。
-     *         例如{@code List<String>}，返回的就是{@code List.class}。
-     *     </li>
-     *     <li>
-     *         对于{@link GenericArrayType}类型，返回的是数组的{@link Class}对象。
-     *         例如{@code String[]}，返回的就是{@code String[].class}。
-     *     </li>
-     *     <li>
-     *         对于{@link TypeVariable}类型，返回的就是{@code Object.class}。
-     *     </li>
-     *     <li>
-     *         对于{@link WildcardType}类型，返回的就是{@code Object.class}。
-     *     </li>
-     *     <li>
-     *         以上四种类型之外的类型，其本身就是{@link Class}对象，所以直接返回就行了。
-     *     </li>
-     * </ol>
-     *
-     * @param type {@link Type}
-     * @return {@link Type}类型的原始{@link Class}
-     * @see ParameterizedType
-     * @see GenericArrayType
-     * @see TypeVariable
-     * @see WildcardType
-     */
-    private static Class<?> getRawClass(Type type) {
-        if (type instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) type;
-            return (Class<?>) parameterizedType.getRawType();
-        }
-        if (type instanceof GenericArrayType) {
-            Class<?> componentType = getRawClass(((GenericArrayType) type).getGenericComponentType());
-            return Array.newInstance(componentType, 0).getClass();
-        }
-        if (type instanceof TypeVariable) {
-            return Object.class;
-        }
-        if (type instanceof WildcardType) {
-            return Object.class;
-        }
-        return (Class<?>) type;
-    }
-
-    /**
-     * 合并数组
-     *
-     * @param arrays 需要合并的二维数组
-     * @param <T>    数组类型
-     * @return 合并后的一维数组
-     */
-    @SuppressWarnings("unchecked")
-    private static <T> T[] mergeArray(T[]... arrays) {
-        return Arrays.stream(arrays)
-                .reduce((array1, array2) -> {
-                    T[] array = Arrays.copyOf(array1, array1.length + array2.length);
-                    System.arraycopy(array2, 0, array, array1.length, array2.length);
-                    return array;
-                }).orElse((T[]) Array.newInstance(arrays.getClass().getComponentType(), 0));
     }
 
 }

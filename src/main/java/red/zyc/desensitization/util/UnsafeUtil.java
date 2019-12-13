@@ -20,7 +20,6 @@ import red.zyc.desensitization.exception.DesensitizationException;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
 /**
  * @author zyc
@@ -57,24 +56,6 @@ public final class UnsafeUtil {
         } catch (InstantiationException e) {
             throw new DesensitizationException("实例化" + clazz + "失败", e);
         }
-    }
-
-    /**
-     * 设置指定对象中的域值
-     *
-     * @param object   指定对象
-     * @param field    指定对象的域
-     * @param newValue 将要设置的值
-     */
-    private static void setFieldValue(Object object, Field field, Object newValue) {
-        long fieldOffset;
-        int modifiers = field.getModifiers();
-        if (Modifier.isStatic(modifiers)) {
-            fieldOffset = UNSAFE.staticFieldOffset(field);
-        } else {
-            fieldOffset = UNSAFE.objectFieldOffset(field);
-        }
-        UNSAFE.putObject(object, fieldOffset, newValue);
     }
 
 }
