@@ -45,13 +45,10 @@ public final class InstanceCreators {
      */
     @SuppressWarnings("unchecked")
     public static <T> InstanceCreator<T> getCreator(Class<T> clazz) {
-        return (InstanceCreator<T>) Optional.of(clazz)
-                .filter(InstanceCreators::exclude)
-                .map(tClass -> INSTANCE_CREATORS.computeIfAbsent(clazz, c -> Optional.ofNullable(collectionOrMapConstructor(clazz))
-                        .orElseGet(() -> Optional.ofNullable(noArgsConstructor(clazz))
-                                .orElse(() -> UnsafeUtil.newInstance(clazz))
-                        )))
-                .orElseThrow(() -> new DesensitizationException("无法找到"));
+        return (InstanceCreator<T>) INSTANCE_CREATORS.computeIfAbsent(clazz, c -> Optional.ofNullable(collectionOrMapConstructor(clazz))
+                .orElseGet(() -> Optional.ofNullable(noArgsConstructor(clazz))
+                        .orElse(() -> UnsafeUtil.newInstance(clazz))
+                ));
     }
 
     /**
@@ -117,11 +114,4 @@ public final class InstanceCreators {
         return null;
     }
 
-    private static boolean exclude(Class<?> clazz) {
-        return clazz != Class.class
-                && !clazz.isPrimitive()
-                && !clazz.isInterface()
-                && !clazz.isEnum()
-                && !clazz.isArray();
-    }
 }
