@@ -16,18 +16,18 @@
 
 package red.zyc.desensitization.desensitizer;
 
-import red.zyc.desensitization.annotation.BankCardNumberSensitive;
+import red.zyc.desensitization.annotation.CharSequenceSensitive;
 
 /**
- * 银行卡号码脱敏器
+ * {@link String}类型对象脱敏器
  *
  * @author zyc
  */
-public class BankCardNumberDesensitizer extends AbstractCharSequenceDesensitizer<String, BankCardNumberSensitive> implements Desensitizer<String, BankCardNumberSensitive> {
+public class StringDesensitizer extends AbstractCharSequenceDesensitizer<String, CharSequenceSensitive> implements Desensitizer<String, CharSequenceSensitive> {
 
     @Override
-    public String desensitize(String target, BankCardNumberSensitive annotation) {
-        CharSequenceSensitiveDescriptor<String, BankCardNumberSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, BankCardNumberSensitive>builder()
+    public String desensitize(String target, CharSequenceSensitive annotation) {
+        CharSequenceSensitiveDescriptor<String, CharSequenceSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, CharSequenceSensitive>builder()
                 .target(target)
                 .chars(target.toCharArray())
                 .annotation(annotation)
@@ -38,4 +38,5 @@ public class BankCardNumberDesensitizer extends AbstractCharSequenceDesensitizer
                 .build());
         return String.valueOf(erased.getChars());
     }
+
 }

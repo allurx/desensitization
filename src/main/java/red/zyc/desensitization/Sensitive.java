@@ -16,7 +16,7 @@
 package red.zyc.desensitization;
 
 import red.zyc.desensitization.annotation.CascadeSensitive;
-import red.zyc.desensitization.resolver.Resolvers;
+import red.zyc.desensitization.resolver.TypeResolvers;
 import red.zyc.desensitization.resolver.TypeToken;
 
 import java.lang.reflect.Array;
@@ -69,11 +69,11 @@ public final class Sensitive {
      * @param <T>       目标对象类型
      * @return 脱敏后的新对象
      */
-    public static <T> T desensitize(T target, TypeToken<? extends T> typeToken) {
+    public static <T> T desensitize(T target, TypeToken<T> typeToken) {
         return Optional.ofNullable(target)
                 .map(t -> typeToken)
                 .map(TypeToken::getAnnotatedType)
-                .map(annotatedType -> Resolvers.resolve(target, annotatedType))
+                .map(annotatedType -> TypeResolvers.resolve(target, annotatedType))
                 .orElse(target);
     }
 }

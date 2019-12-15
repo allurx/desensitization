@@ -7,17 +7,19 @@ import red.zyc.desensitization.annotation.PasswordSensitive;
  *
  * @author zyc
  */
-public class PasswordDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, PasswordSensitive> implements Desensitizer<CharSequence, PasswordSensitive> {
+public class PasswordDesensitizer extends AbstractCharSequenceDesensitizer<String, PasswordSensitive> implements Desensitizer<String, PasswordSensitive> {
 
     @Override
-    public CharSequence desensitize(CharSequence target, PasswordSensitive annotation) {
-        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, PasswordSensitive>builder()
+    public String desensitize(String target, PasswordSensitive annotation) {
+        CharSequenceSensitiveDescriptor<String, PasswordSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, PasswordSensitive>builder()
                 .target(target)
+                .chars(target.toCharArray())
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())
                 .endOffset(annotation.endOffset())
                 .regexp(annotation.regexp())
                 .placeholder(annotation.placeholder())
                 .build());
+        return String.valueOf(erased.getChars());
     }
 }

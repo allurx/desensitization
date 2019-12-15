@@ -16,33 +16,33 @@
 
 package red.zyc.desensitization.resolver;
 
-import java.lang.reflect.AnnotatedArrayType;
 import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.Array;
-import java.util.Arrays;
+import java.lang.reflect.AnnotatedTypeVariable;
+import java.lang.reflect.TypeVariable;
 
 /**
- * {@link Array}类型值解析器
+ * {@link TypeVariable}类型值解析器
  *
  * @author zyc
  */
-public class ArrayResolver implements Resolver<Object[], AnnotatedArrayType> {
+public class TypeVariableTypeResolver implements TypeResolver<Object, AnnotatedTypeVariable> {
 
     @Override
-    public Object[] resolve(Object[] value, AnnotatedArrayType annotatedArrayType) {
-        AnnotatedType typeArgument = annotatedArrayType.getAnnotatedGenericComponentType();
-        Object[] erased = Arrays.stream(value).parallel().map(o -> Resolvers.resolve(o, typeArgument)).toArray();
-        return Arrays.copyOf(erased, erased.length, value.getClass());
+    public Object resolve(Object value, AnnotatedTypeVariable annotatedTypeVariable) {
+        AnnotatedType[] annotatedBounds = annotatedTypeVariable.getAnnotatedBounds();
+        for (AnnotatedType annotatedBound : annotatedBounds) {
+            value = TypeResolvers.resolve(value, annotatedBound);
+        }
+        return value;
     }
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return value instanceof Object[] && annotatedType instanceof AnnotatedArrayType;
+        return value != null && annotatedType instanceof AnnotatedTypeVariable;
     }
 
     @Override
     public int order() {
-        return 2;
+        return HIGHEST_PRIORITY;
     }
-
 }

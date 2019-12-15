@@ -23,18 +23,20 @@ import red.zyc.desensitization.annotation.IdCardNumberSensitive;
  *
  * @author zyc
  */
-public class IdCardNumberDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, IdCardNumberSensitive> implements Desensitizer<CharSequence, IdCardNumberSensitive> {
+public class IdCardNumberDesensitizer extends AbstractCharSequenceDesensitizer<String, IdCardNumberSensitive> implements Desensitizer<String, IdCardNumberSensitive> {
 
     @Override
-    public CharSequence desensitize(CharSequence target, IdCardNumberSensitive annotation) {
-        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, IdCardNumberSensitive>builder()
+    public String desensitize(String target, IdCardNumberSensitive annotation) {
+        CharSequenceSensitiveDescriptor<String, IdCardNumberSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, IdCardNumberSensitive>builder()
                 .target(target)
+                .chars(target.toCharArray())
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())
                 .endOffset(annotation.endOffset())
                 .regexp(annotation.regexp())
                 .placeholder(annotation.placeholder())
                 .build());
+        return String.valueOf(erased.getChars());
     }
 
 }

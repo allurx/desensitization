@@ -16,26 +16,29 @@
 
 package red.zyc.desensitization.desensitizer;
 
-import red.zyc.desensitization.annotation.BankCardNumberSensitive;
+import red.zyc.desensitization.annotation.CharSequenceSensitive;
 
 /**
- * 银行卡号码脱敏器
+ * {@link StringBuilder}类型对象脱敏器
  *
  * @author zyc
  */
-public class BankCardNumberDesensitizer extends AbstractCharSequenceDesensitizer<String, BankCardNumberSensitive> implements Desensitizer<String, BankCardNumberSensitive> {
+public class StringBuilderDesensitizer extends AbstractCharSequenceDesensitizer<StringBuilder, CharSequenceSensitive> implements Desensitizer<StringBuilder, CharSequenceSensitive> {
 
     @Override
-    public String desensitize(String target, BankCardNumberSensitive annotation) {
-        CharSequenceSensitiveDescriptor<String, BankCardNumberSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, BankCardNumberSensitive>builder()
+    public StringBuilder desensitize(StringBuilder target, CharSequenceSensitive annotation) {
+        int length = target.length();
+        char[] chars = new char[length];
+        target.getChars(0, target.length(), chars, 0);
+        CharSequenceSensitiveDescriptor<StringBuilder, CharSequenceSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<StringBuilder, CharSequenceSensitive>builder()
                 .target(target)
-                .chars(target.toCharArray())
+                .chars(chars)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())
                 .endOffset(annotation.endOffset())
                 .regexp(annotation.regexp())
                 .placeholder(annotation.placeholder())
                 .build());
-        return String.valueOf(erased.getChars());
+        return new StringBuilder().append(erased.getChars());
     }
 }

@@ -16,6 +16,7 @@
 
 package red.zyc.desensitization.resolver;
 
+import red.zyc.desensitization.util.InstanceCreators;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.reflect.AnnotatedParameterizedType;
@@ -29,15 +30,17 @@ import java.util.stream.Collectors;
  *
  * @author zyc
  */
-public class CollectionResolver implements Resolver<Collection<?>, AnnotatedParameterizedType> {
+public class CollectionTypeResolver implements TypeResolver<Collection<?>, AnnotatedParameterizedType> {
 
     @Override
     public Collection<?> resolve(Collection<?> value, AnnotatedParameterizedType annotatedParameterizedType) {
         AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
-        List<Object> erased = value.parallelStream().map(o -> Resolvers.resolve(o, typeArgument)).collect(Collectors.toList());
+        List<Object> erased = value.parallelStream().map(o -> TypeResolvers.resolve(o, typeArgument)).collect(Collectors.toList());
         @SuppressWarnings("unchecked")
         Collection<Object> original = (Collection<Object>) value;
-        return ReflectionUtil.constructCollection(ReflectionUtil.getClass(original), erased);
+        Collection<Object> collection = InstanceCreators.getCreator(ReflectionUtil.getClass(original)).create();
+        collection.addAll(erased);
+        return collection;
     }
 
     @Override

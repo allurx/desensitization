@@ -7,6 +7,9 @@ import java.lang.annotation.*;
 
 /**
  * 密码敏感标记注解。默认的脱敏规则：擦除目标对象中所有的字符。
+ * <p><strong>注意：默认的脱敏器是{@link PasswordDesensitizer}，该脱敏器只会处理{@link String}
+ * 类型的对象，并且脱敏时不会校验目标对象的合法性，请确保目标对象是合法的身份证号码，
+ * 否则会抛出任何可能的 {@link RuntimeException}。</strong></p>
  *
  * @author zyc
  */
@@ -17,8 +20,8 @@ import java.lang.annotation.*;
 public @interface PasswordSensitive {
 
     /**
-     * @return 处理被 {@link PasswordSensitive}注解的字段脱敏器，注意密码字段类型可能为其它任何类型，
-     * 所以此处的脱敏器支持的类型并没有作限制，可以自定义子类重写默认的处理逻辑
+     * @return 处理被 {@link PasswordSensitive}标记的对象脱敏器，注意密码字段类型可能为任意类型，
+     * 所以此处的脱敏器支持的类型并没有作限制，可以自定义子类重写默认的处理逻辑。
      */
     Class<? extends Desensitizer<?, PasswordSensitive>> desensitizer() default PasswordDesensitizer.class;
 

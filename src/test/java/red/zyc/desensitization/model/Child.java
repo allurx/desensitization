@@ -16,6 +16,7 @@
 package red.zyc.desensitization.model;
 
 import red.zyc.desensitization.annotation.*;
+import red.zyc.desensitization.desensitizer.AbstractDesensitizer;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.desensitizer.PhoneNumberDesensitizer;
 
@@ -120,7 +121,7 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
      *
      * @see PhoneNumberDesensitizer
      */
-    private static class CustomizedPhoneNumberDesensitizer implements Desensitizer<Long, PhoneNumberSensitive> {
+    private static class CustomizedPhoneNumberDesensitizer extends AbstractDesensitizer<Long, PhoneNumberSensitive> implements Desensitizer<Long, PhoneNumberSensitive> {
 
         @Override
         public Long desensitize(Long target, PhoneNumberSensitive annotation) {

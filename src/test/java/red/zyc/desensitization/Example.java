@@ -22,6 +22,7 @@ import red.zyc.desensitization.annotation.ChineseNameSensitive;
 import red.zyc.desensitization.annotation.EmailSensitive;
 import red.zyc.desensitization.model.Child;
 import red.zyc.desensitization.resolver.TypeToken;
+import red.zyc.desensitization.util.InstanceCreators;
 
 import java.util.Arrays;
 import java.util.List;
@@ -90,6 +91,10 @@ public class Example {
     @Test
     public void desensitizeValue() {
         desensitize();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(InstanceCreators.getCreator(String.class).create()+"1");
     }
 
 }

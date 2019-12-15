@@ -39,8 +39,8 @@ public interface Sortable {
 
     /**
      * 对象的顺序值，较高的顺序值将被解析为较低的优先级。相同的顺序值的对象只会取第一个对象。
-     * 例如顺序值较高的{@link Resolver}将会比顺序值较低的{@link Resolver}晚执行。而两个相同
-     * 顺序值的{@link Resolver}只会保留第一个解析器。
+     * 例如顺序值较高的{@link TypeResolver}将会比顺序值较低的{@link TypeResolver}晚执行。而两个相同
+     * 顺序值的{@link TypeResolver}只会保留第一个解析器。
      *
      * @return 对应的顺序
      */

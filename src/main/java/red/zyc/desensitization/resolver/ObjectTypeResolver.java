@@ -16,40 +16,38 @@
 
 package red.zyc.desensitization.resolver;
 
-import red.zyc.desensitization.annotation.CascadeSensitive;
 import red.zyc.desensitization.util.ReflectionUtil;
-import red.zyc.desensitization.util.UnsafeUtil;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.Modifier;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * 级联擦除对象内部敏感信息
+ * 解析被直接标注敏感注解的对象，只会处理对象上直接存在的第一个敏感注解。
  *
  * @author zyc
  */
-public class CascadeResolver implements Resolver<Object, AnnotatedType> {
+public class ObjectTypeResolver implements TypeResolver<Object, AnnotatedType> {
 
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
-        Class<?> clazz = value.getClass();
-        Object newObject = UnsafeUtil.newInstance(clazz);
-        ReflectionUtil.listAllFields(clazz).forEach(field -> {
-            Object fieldValue;
-            if (!Modifier.isFinal(field.getModifiers()) && (fieldValue = ReflectionUtil.getFieldValue(value, field)) != null) {
-                ReflectionUtil.setFieldValue(newObject, field, Resolvers.resolve(fieldValue, field.getAnnotatedType()));
-            }
-        });
-        return newObject;
+        Annotation sensitiveAnnotation = ReflectionUtil.getFirstDirectlyPresentSensitiveAnnotation(annotatedType);
+        return Optional.of(Objects.requireNonNull(sensitiveAnnotation))
+                .map(ReflectionUtil::getDesensitizer)
+                .filter(desensitizer -> desensitizer.support(value.getClass()))
+                .map(desensitizer -> desensitizer.desensitize(value, sensitiveAnnotation))
+                .orElse(value);
     }
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return value != null && annotatedType.getDeclaredAnnotation(CascadeSensitive.class) != null;
+        return value != null && ReflectionUtil.getFirstDirectlyPresentSensitiveAnnotation(annotatedType) != null;
     }
 
     @Override
     public int order() {
-        return LOWEST_PRIORITY;
+        return LOWEST_PRIORITY - 1;
     }
+
 }

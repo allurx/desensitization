@@ -29,32 +29,32 @@ import java.util.Map;
 
 /**
  * 类型解析器，用来解析一些特殊的数据类型。例如{@link Collection}，{@link Map}，{@link Array}等类型。
- * 用户可以实现该接口定义特定类型的解析器，然后调用{@link Resolvers#register}方法来注册自己的类型解析器。
+ * 用户可以实现该接口定义特定类型的解析器，然后调用{@link TypeResolvers#register}方法来注册自己的类型解析器。
  * 对于任何需要解析的对象o来说，本质上都可以通过{@link TypeVariable 类型变量}或者{@link WildcardType 通配符}来代替它，
  * 同时o本身也可能需要擦除敏感信息（o被标记了敏感注解）或者需要擦除o内部域中的敏感信息（o被标记了{@link CascadeSensitive}注解），
  * 因此在注册解析器时，需要遵守以下两个约定：
  *
  * <ol>
  *     <li>
- *         注册的类型解析器执行顺序都应该晚于{@link TypeVariableResolver}和{@link WildcardTypeResolver}这两个解析器。
+ *         注册的类型解析器执行顺序都应该晚于{@link TypeVariableTypeResolver}和{@link WildcardTypeTypeResolver}这两个解析器。
  *     </li>
  *     <li>
- *         注册的类型解析器执行顺序都应该早于{@link ObjectResolver}和{@link CascadeResolver}这两个解析器。
+ *         注册的类型解析器执行顺序都应该早于{@link ObjectTypeResolver}和{@link CascadeTypeResolver}这两个解析器。
  *     </li>
  * </ol>
  * 否则解析的结果可能会和预期不一致。
  *
  * @param <T> 类型解析器支持的处理类型
  * @author zyc
- * @see CollectionResolver
- * @see MapResolver
- * @see ArrayResolver
- * @see TypeVariableResolver
- * @see WildcardTypeResolver
- * @see ObjectResolver
- * @see CascadeResolver
+ * @see CollectionTypeResolver
+ * @see MapTypeResolver
+ * @see ArrayTypeResolver
+ * @see TypeVariableTypeResolver
+ * @see WildcardTypeTypeResolver
+ * @see ObjectTypeResolver
+ * @see CascadeTypeResolver
  */
-public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Comparable<Resolver<?, ? extends AnnotatedType>> {
+public interface TypeResolver<T, AT extends AnnotatedType> extends Sortable, Comparable<TypeResolver<?, ? extends AnnotatedType>> {
 
     /**
      * 解析对象，注意实现该方法的子类如果能够解析目标对象，那么最终应当返回一个新的{@link T}实例
@@ -77,12 +77,12 @@ public interface Resolver<T, AT extends AnnotatedType> extends Sortable, Compara
     /**
      * 解析器执行顺序
      *
-     * @param resolver 解析器
+     * @param typeResolver 解析器
      * @return 解析器执行顺序
      */
     @Override
-    default int compareTo(Resolver<?, ? extends AnnotatedType> resolver) {
-        return Integer.compare(order(), resolver.order());
+    default int compareTo(TypeResolver<?, ? extends AnnotatedType> typeResolver) {
+        return Integer.compare(order(), typeResolver.order());
     }
 
     /**

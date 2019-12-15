@@ -16,6 +16,7 @@
 
 package red.zyc.desensitization.resolver;
 
+import red.zyc.desensitization.util.InstanceCreators;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.reflect.AnnotatedParameterizedType;
@@ -28,18 +29,20 @@ import java.util.stream.Collectors;
  *
  * @author zyc
  */
-public class MapResolver implements Resolver<Map<?, ?>, AnnotatedParameterizedType> {
+public class MapTypeResolver implements TypeResolver<Map<?, ?>, AnnotatedParameterizedType> {
 
     @Override
     public Map<?, ?> resolve(Map<?, ?> value, AnnotatedParameterizedType annotatedParameterizedType) {
         AnnotatedType[] annotatedActualTypeArguments = annotatedParameterizedType.getAnnotatedActualTypeArguments();
         Map<Object, Object> erased = value.entrySet().parallelStream().collect(Collectors.toMap(
-                entry -> Resolvers.resolve(entry.getKey(), annotatedActualTypeArguments[0]),
-                entry -> Resolvers.resolve(entry.getValue(), annotatedActualTypeArguments[1])
+                entry -> TypeResolvers.resolve(entry.getKey(), annotatedActualTypeArguments[0]),
+                entry -> TypeResolvers.resolve(entry.getValue(), annotatedActualTypeArguments[1])
         ));
         @SuppressWarnings("unchecked")
         Map<Object, Object> original = (Map<Object, Object>) value;
-        return ReflectionUtil.constructMap(ReflectionUtil.getClass(original), erased);
+        Map<Object, Object> map = InstanceCreators.getCreator(ReflectionUtil.getClass(original)).create();
+        map.putAll(erased);
+        return map;
     }
 
     @Override

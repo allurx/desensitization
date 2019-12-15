@@ -19,15 +19,16 @@ package red.zyc.desensitization.util;
 import red.zyc.desensitization.annotation.SensitiveAnnotation;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.exception.DesensitizationException;
-import red.zyc.desensitization.exception.UnsupportedCollectionException;
-import red.zyc.desensitization.exception.UnsupportedMapException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -82,65 +83,6 @@ public final class ReflectionUtil {
     }
 
     /**
-     * 构造一个和原集合类型一样的包含脱敏结果的集合。
-     * 注意集合对象必须遵守{@link Collection}中的约定，定义一个无参构造函数和
-     * 带有一个{@link Collection}类型参数的构造函数。
-     *
-     * @param original 原集合对象的{@link Class}
-     * @param erased   脱敏后的结果
-     * @param <T>      集合内部元素类型
-     * @return 一个和原集合类型一样的包含脱敏结果的集合
-     * @see Collection
-     */
-    public static <T> Collection<T> constructCollection(Class<? extends Collection<T>> original, Collection<T> erased) {
-        try {
-            Constructor<? extends Collection<T>> declaredConstructor = getDeclaredConstructor(original, Collection.class);
-            if (declaredConstructor != null) {
-                return declaredConstructor.newInstance(erased);
-            }
-            declaredConstructor = getDeclaredConstructor(original);
-            if (declaredConstructor == null) {
-                throw new UnsupportedCollectionException(original + "必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。");
-            }
-            Collection<T> collection = declaredConstructor.newInstance();
-            collection.addAll(erased);
-            return collection;
-        } catch (Exception e) {
-            throw new DesensitizationException(e.getMessage(), e);
-        }
-    }
-
-    /**
-     * 构造一个和原Map类型一样的包含脱敏结果Map。
-     * 注意Map对象必须遵守{@link Map}中的约定，定义一个无参构造函数和
-     * 带有一个{@link Map}类型参数的构造函数。
-     *
-     * @param original 原Map对象的{@link Class}
-     * @param erased   脱敏后的结果
-     * @param <K>      Map的键类型
-     * @param <V>      Map的值类型
-     * @return 一个和原Map类型一样的包含脱敏结果的Map
-     * @see Map
-     */
-    public static <K, V> Map<K, V> constructMap(Class<? extends Map<K, V>> original, Map<K, V> erased) {
-        try {
-            Constructor<? extends Map<K, V>> declaredConstructor = getDeclaredConstructor(original, Map.class);
-            if (declaredConstructor != null) {
-                return declaredConstructor.newInstance(erased);
-            }
-            declaredConstructor = getDeclaredConstructor(original);
-            if (declaredConstructor == null) {
-                throw new UnsupportedMapException(original + "必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。");
-            }
-            Map<K, V> map = declaredConstructor.newInstance();
-            map.putAll(erased);
-            return map;
-        } catch (Exception e) {
-            throw new DesensitizationException(e.getMessage(), e);
-        }
-    }
-
-    /**
      * 从指定的{@code class}中获取带有指定参数的构造器
      *
      * @param clazz          指定的{@code class}
@@ -169,8 +111,8 @@ public final class ReflectionUtil {
      * @return 指定类型对象的 {@link Class}
      */
     @SuppressWarnings("unchecked")
-    public static <T> Class<? extends T> getClass(T value) {
-        return (Class<? extends T>) value.getClass();
+    public static <T> Class<T> getClass(T value) {
+        return (Class<T>) value.getClass();
     }
 
     /**
@@ -186,8 +128,8 @@ public final class ReflectionUtil {
         try {
             Class<? extends Annotation> annotationClass = annotation.annotationType();
             Method method = annotationClass.getDeclaredMethod("desensitizer");
-            Class<? extends Desensitizer<T, A>> desensitizerClass = (Class<? extends Desensitizer<T, A>>) method.invoke(annotation);
-            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, UnsafeUtil::newInstance);
+            Class<Desensitizer<T, A>> desensitizerClass = (Class<Desensitizer<T, A>>) method.invoke(annotation);
+            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, clazz -> InstanceCreators.getCreator(clazz).create());
         } catch (Exception e) {
             throw new DesensitizationException("通过" + annotation.annotationType() + "实例化脱敏器失败", e);
         }

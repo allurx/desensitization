@@ -43,11 +43,11 @@ public final class UnsafeUtil {
     }
 
     /**
-     * 实例化指定{@code Class}的对象
+     * 实例化指定{@link Class}
      *
      * @param clazz 对象的{@link Class}
      * @param <T>   对象的类型
-     * @return 指定 {@code Class}的对象
+     * @return 指定 {@link Class}的对象
      */
     @SuppressWarnings("unchecked")
     public static <T> T newInstance(Class<T> clazz) {
