@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package red.zyc.desensitization.util;
+package red.zyc.desensitization.support;
 
 import red.zyc.desensitization.exception.DesensitizationException;
 import red.zyc.desensitization.exception.UnsupportedCollectionException;
 import red.zyc.desensitization.exception.UnsupportedMapException;
+import red.zyc.desensitization.util.ReflectionUtil;
+import red.zyc.desensitization.util.UnsafeUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;

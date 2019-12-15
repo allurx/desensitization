@@ -16,7 +16,7 @@
 
 package red.zyc.desensitization.resolver;
 
-import red.zyc.desensitization.util.InstanceCreators;
+import red.zyc.desensitization.support.InstanceCreators;
 import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.reflect.AnnotatedParameterizedType;

@@ -19,7 +19,7 @@ import org.junit.Test;
 import red.zyc.desensitization.annotation.ChineseNameSensitive;
 import red.zyc.desensitization.annotation.EmailSensitive;
 import red.zyc.desensitization.model.Child;
-import red.zyc.desensitization.resolver.TypeToken;
+import red.zyc.desensitization.support.TypeToken;
 
 import java.util.Arrays;
 import java.util.List;

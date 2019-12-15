@@ -19,6 +19,7 @@ package red.zyc.desensitization.util;
 import red.zyc.desensitization.annotation.SensitiveAnnotation;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.exception.DesensitizationException;
+import red.zyc.desensitization.support.InstanceCreators;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedType;

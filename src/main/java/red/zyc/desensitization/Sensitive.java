@@ -17,7 +17,7 @@ package red.zyc.desensitization;
 
 import red.zyc.desensitization.annotation.CascadeSensitive;
 import red.zyc.desensitization.resolver.TypeResolvers;
-import red.zyc.desensitization.resolver.TypeToken;
+import red.zyc.desensitization.support.TypeToken;
 
 import java.lang.reflect.Array;
 import java.util.Collection;

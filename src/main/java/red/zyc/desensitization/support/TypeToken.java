@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package red.zyc.desensitization.resolver;
+package red.zyc.desensitization.support;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.ParameterizedType;
@@ -25,8 +25,8 @@ import java.lang.reflect.Type;
  * 由于java泛型擦除机制，如果我们想获取{@code new ArrayList<String>}这个对象运行时的泛型参数{@code String}，
  * 这几乎是很难做到的。而利用{@link TypeToken}你只需要构造一个它的匿名子类，我们就能获取它运行时的泛型参数：
  * <pre>
- *     TypeToken<List<String>> stringList= new TypeToken<List<String>>(){};
- *     stringList.getType()返回的泛型参数为：java.util.List<java.lang.String>;
+ *     TypeToken&lt;List&lt;String&gt;&gt; stringList = new TypeToken&lt;List&lt;String&gt;&gt;(){};
+ *     stringList.getType()返回的泛型参数为：java.util.List&lt;java.lang.String&gt;
  * </pre>
  *
  * @param <T> 需要捕获的明确类型

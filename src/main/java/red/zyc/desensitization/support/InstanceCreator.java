@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package red.zyc.desensitization.util;
+package red.zyc.desensitization.support;
 
 /**
  * 实例创建器，用户可以通过该接口实现特定类型的实例创建器，例如有以下对象定义：
