@@ -15,8 +15,7 @@
  */
 package red.zyc.desensitization.desensitizer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import red.zyc.desensitization.exception.InvalidDesensitizerException;
 import red.zyc.desensitization.util.ReflectionUtil;
 
@@ -72,19 +71,7 @@ public interface Desensitizer<T, A extends Annotation> {
         Class<?>[] actualTypeArgumentsOfDesensitizer = getActualTypeArgumentsOfDesensitizer(ReflectionUtil.getClass(this));
         // 类型参数T的class
         Class<?> supportedClass = actualTypeArgumentsOfDesensitizer[0];
-        if (supportedClass.isAssignableFrom(targetClass)) {
-            return true;
-        }
-        getLogger().warn("{}不支持擦除{}类型的敏感信息", getClass(), targetClass);
-        return false;
+        return supportedClass.isAssignableFrom(targetClass);
     }
 
-    /**
-     * 获取{@link Logger}
-     *
-     * @return {@link Logger}
-     */
-    default Logger getLogger() {
-        return LoggerFactory.getLogger(getClass());
-    }
 }

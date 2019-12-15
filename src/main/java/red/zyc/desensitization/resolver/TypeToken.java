@@ -25,10 +25,8 @@ import java.lang.reflect.Type;
  * 由于java泛型擦除机制，如果我们想获取{@code new ArrayList<String>}这个对象运行时的泛型参数{@code String}，
  * 这几乎是很难做到的。而利用{@link TypeToken}你只需要构造一个它的匿名子类，我们就能获取它运行时的泛型参数：
  * <pre>
- *  {@code
  *     TypeToken<List<String>> stringList= new TypeToken<List<String>>(){};
  *     stringList.getType()返回的泛型参数为：java.util.List<java.lang.String>;
- * }
  * </pre>
  *
  * @param <T> 需要捕获的明确类型
@@ -80,6 +78,23 @@ public abstract class TypeToken<T> extends TypeCapture<T> {
      */
     public final AnnotatedType getAnnotatedType() {
         return annotatedType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TypeToken<?> typeToken = (TypeToken<?>) o;
+        return type.equals(typeToken.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return type.hashCode();
     }
 
     @Override

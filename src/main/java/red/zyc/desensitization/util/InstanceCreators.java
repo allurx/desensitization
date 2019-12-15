@@ -41,14 +41,17 @@ public final class InstanceCreators {
      *
      * @param clazz 指定的{@link Class}
      * @param <T>   实例创建器创建的对象类型
-     * @return 指定{@link Class}的实例创建器
+     * @return 指定 {@link Class}的实例创建器
      */
     @SuppressWarnings("unchecked")
     public static <T> InstanceCreator<T> getCreator(Class<T> clazz) {
-        return (InstanceCreator<T>) INSTANCE_CREATORS.computeIfAbsent(clazz, c -> Optional.ofNullable(collectionOrMapConstructor(clazz))
-                .orElseGet(() -> Optional.ofNullable(noArgsConstructor(clazz))
-                        .orElse(() -> UnsafeUtil.newInstance(clazz))
-                ));
+        return (InstanceCreator<T>) Optional.of(clazz)
+                .filter(InstanceCreators::exclude)
+                .map(tClass -> INSTANCE_CREATORS.computeIfAbsent(clazz, c -> Optional.ofNullable(collectionOrMapConstructor(clazz))
+                        .orElseGet(() -> Optional.ofNullable(noArgsConstructor(clazz))
+                                .orElse(() -> UnsafeUtil.newInstance(clazz))
+                        )))
+                .orElseThrow(() -> new DesensitizationException("无法找到"));
     }
 
     /**
@@ -114,4 +117,11 @@ public final class InstanceCreators {
         return null;
     }
 
+    private static boolean exclude(Class<?> clazz) {
+        return clazz != Class.class
+                && !clazz.isPrimitive()
+                && !clazz.isInterface()
+                && !clazz.isEnum()
+                && !clazz.isArray();
+    }
 }

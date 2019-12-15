@@ -33,8 +33,8 @@ public final class TypeResolvers {
     private static final SortedSet<TypeResolver<?, ? extends AnnotatedType>> TYPE_RESOLVERS = Collections.synchronizedSortedSet(new TreeSet<>());
 
     static {
-        register(new TypeVariableTypeResolver());
-        register(new WildcardTypeTypeResolver());
+        register(new TypeVariableResolver());
+        register(new WildcardTypeResolver());
         register(new CollectionTypeResolver());
         register(new MapTypeResolver());
         register(new ArrayTypeResolver());

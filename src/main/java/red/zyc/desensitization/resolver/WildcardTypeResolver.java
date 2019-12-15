@@ -24,7 +24,7 @@ import java.lang.reflect.WildcardType;
  *
  * @author zyc
  */
-public class WildcardTypeTypeResolver implements TypeResolver<Object, AnnotatedWildcardType> {
+public class WildcardTypeResolver implements TypeResolver<Object, AnnotatedWildcardType> {
 
     @Override
     public Object resolve(Object value, AnnotatedWildcardType annotatedWildcardType) {

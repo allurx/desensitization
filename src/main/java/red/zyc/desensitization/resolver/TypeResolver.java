@@ -16,8 +16,6 @@
 
 package red.zyc.desensitization.resolver;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.CascadeSensitive;
 
 import java.lang.reflect.AnnotatedType;
@@ -36,7 +34,7 @@ import java.util.Map;
  *
  * <ol>
  *     <li>
- *         注册的类型解析器执行顺序都应该晚于{@link TypeVariableTypeResolver}和{@link WildcardTypeTypeResolver}这两个解析器。
+ *         注册的类型解析器执行顺序都应该晚于{@link TypeVariableResolver}和{@link WildcardTypeResolver}这两个解析器。
  *     </li>
  *     <li>
  *         注册的类型解析器执行顺序都应该早于{@link ObjectTypeResolver}和{@link CascadeTypeResolver}这两个解析器。
@@ -49,8 +47,8 @@ import java.util.Map;
  * @see CollectionTypeResolver
  * @see MapTypeResolver
  * @see ArrayTypeResolver
- * @see TypeVariableTypeResolver
- * @see WildcardTypeTypeResolver
+ * @see TypeVariableResolver
+ * @see WildcardTypeResolver
  * @see ObjectTypeResolver
  * @see CascadeTypeResolver
  */
@@ -83,15 +81,6 @@ public interface TypeResolver<T, AT extends AnnotatedType> extends Sortable, Com
     @Override
     default int compareTo(TypeResolver<?, ? extends AnnotatedType> typeResolver) {
         return Integer.compare(order(), typeResolver.order());
-    }
-
-    /**
-     * 获取{@link Logger}
-     *
-     * @return {@link Logger}
-     */
-    default Logger getLogger() {
-        return LoggerFactory.getLogger(getClass());
     }
 
 }

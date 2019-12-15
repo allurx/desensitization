@@ -25,7 +25,7 @@ import java.lang.reflect.TypeVariable;
  *
  * @author zyc
  */
-public class TypeVariableTypeResolver implements TypeResolver<Object, AnnotatedTypeVariable> {
+public class TypeVariableResolver implements TypeResolver<Object, AnnotatedTypeVariable> {
 
     @Override
     public Object resolve(Object value, AnnotatedTypeVariable annotatedTypeVariable) {
