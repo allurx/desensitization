@@ -69,6 +69,10 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
 
     private @PasswordSensitive String[] passwords = {"123456", "1234567", "12345678", null};
 
+    private @EmailSensitive String[][] emails3 = {{"123456@qq.com", "1234567@qq.com"}, {"12345678@qq.com"}};
+
+    private @EmailSensitive String[][][] emails4 = {{{"123456@qq.com", "1234567@qq.com"}, {"12345678@qq.com"}}, {{"123456@qq.com"}, {"123456@qq.com"}, {"123456@qq.com"}}};
+
     private @CascadeSensitive Parent[] parents3 = {new Father(), new Mother()};
 
     private Map<List<@EmailSensitive String[]>, Map<@CascadeSensitive Parent, List<@EmailSensitive String>[]>> map1 = new HashMap<>();
@@ -108,7 +112,9 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
                 ", emails2=" + emails2 +
                 ", parents2=" + parents2 +
                 ", passwords=" + Arrays.toString(passwords) +
-                ", parents3=" + Arrays.toString(parents3) +
+                ", emails3=" + Arrays.deepToString(emails3) +
+                ", emails4=" + Arrays.deepToString(emails4) +
+                ", parents3=" + Arrays.deepToString(parents3) +
                 ", map1=" + map1 +
                 ", t=" + t +
                 ", parents=" + parents +
