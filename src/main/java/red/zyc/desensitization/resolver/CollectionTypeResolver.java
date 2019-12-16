@@ -38,7 +38,7 @@ public class CollectionTypeResolver implements TypeResolver<Collection<?>, Annot
         List<Object> erased = value.parallelStream().map(o -> TypeResolvers.resolve(o, typeArgument)).collect(Collectors.toList());
         @SuppressWarnings("unchecked")
         Collection<Object> original = (Collection<Object>) value;
-        Collection<Object> collection = InstanceCreators.getCreator(ReflectionUtil.getClass(original)).create();
+        Collection<Object> collection = InstanceCreators.getInstanceCreator(ReflectionUtil.getClass(original)).create();
         collection.addAll(erased);
         return collection;
     }

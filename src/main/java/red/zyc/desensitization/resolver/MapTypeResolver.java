@@ -40,7 +40,7 @@ public class MapTypeResolver implements TypeResolver<Map<?, ?>, AnnotatedParamet
         ));
         @SuppressWarnings("unchecked")
         Map<Object, Object> original = (Map<Object, Object>) value;
-        Map<Object, Object> map = InstanceCreators.getCreator(ReflectionUtil.getClass(original)).create();
+        Map<Object, Object> map = InstanceCreators.getInstanceCreator(ReflectionUtil.getClass(original)).create();
         map.putAll(erased);
         return map;
     }

@@ -37,12 +37,12 @@ public abstract class TypeToken<T> extends TypeCapture<T> {
     /**
      * {@link T}运行时的类型
      */
-    protected final Type type;
+    private final Type type;
 
     /**
      * {@link T}运行时被注解的类型
      */
-    protected final AnnotatedType annotatedType;
+    private final AnnotatedType annotatedType;
 
     protected TypeToken() {
         annotatedType = capture();

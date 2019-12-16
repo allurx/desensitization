@@ -105,7 +105,7 @@ public final class TypeResolvers {
      * @return 所有已注册的类型解析器，返回结果是一个通过{@link Collections#synchronizedSortedSet(java.util.SortedSet)}
      * 方法包装的{@link SortedSet}，有关线程安全需要注意的事项请自行参照该包装方法。
      */
-    public static SortedSet<TypeResolver<?, ? extends AnnotatedType>> registeredResolvers() {
+    public static SortedSet<TypeResolver<?, ? extends AnnotatedType>> typeResolvers() {
         return TYPE_RESOLVERS;
     }
 }

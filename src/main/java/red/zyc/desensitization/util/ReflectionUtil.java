@@ -130,7 +130,7 @@ public final class ReflectionUtil {
             Class<? extends Annotation> annotationClass = annotation.annotationType();
             Method method = annotationClass.getDeclaredMethod("desensitizer");
             Class<Desensitizer<T, A>> desensitizerClass = (Class<Desensitizer<T, A>>) method.invoke(annotation);
-            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, clazz -> InstanceCreators.getCreator(clazz).create());
+            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, clazz -> InstanceCreators.getInstanceCreator(clazz).create());
         } catch (Exception e) {
             throw new DesensitizationException("通过" + annotation.annotationType() + "实例化脱敏器失败", e);
         }
