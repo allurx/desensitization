@@ -40,10 +40,6 @@ import java.util.stream.Stream;
 public final class ReflectionUtil {
 
     /**
-     * 域缓存
-     */
-    private static final Map<Class<?>, List<Field>> FIELD_CACHE = new ConcurrentHashMap<>();
-    /**
      * 脱敏器缓存
      */
     private static final Map<Class<? extends Desensitizer<?, ? extends Annotation>>, Desensitizer<?, ? extends Annotation>> DESENSITIZER_CACHE = new ConcurrentHashMap<>();
@@ -68,19 +64,20 @@ public final class ReflectionUtil {
     }
 
     /**
-     * 获取目标对象以及所有父类定义的 {@link Field}
+     * 获取目标对象以及所有父类定义的 {@link Field}。
+     * <p><strong>注意：不要缓存域对象，否则在多线程运行环境下会有线程安全问题。</strong></p>
      *
-     * @param targetClass 目标对象的{@code Class}
+     * @param targetClass 目标对象的{@link Class}
      * @return 目标对象以及所有父类定义的 {@link Field}
      */
     public static List<Field> listAllFields(Class<?> targetClass) {
         return Optional.ofNullable(targetClass)
                 .filter(clazz -> clazz != Object.class)
-                .map(c -> FIELD_CACHE.computeIfAbsent(c, clazz -> {
-                    List<Field> fields = Stream.of(targetClass.getDeclaredFields()).collect(Collectors.toList());
-                    fields.addAll(listAllFields(targetClass.getSuperclass()));
+                .map(clazz -> {
+                    List<Field> fields = Stream.of(clazz.getDeclaredFields()).collect(Collectors.toList());
+                    fields.addAll(listAllFields(clazz.getSuperclass()));
                     return fields;
-                })).orElseGet(ArrayList::new);
+                }).orElseGet(ArrayList::new);
     }
 
     /**
