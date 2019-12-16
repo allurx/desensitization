@@ -19,12 +19,17 @@ package red.zyc.desensitization.util;
 import red.zyc.desensitization.annotation.SensitiveAnnotation;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.exception.DesensitizationException;
-import red.zyc.desensitization.exception.UnsupportedCollectionException;
-import red.zyc.desensitization.exception.UnsupportedMapException;
+import red.zyc.desensitization.support.InstanceCreators;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,10 +39,6 @@ import java.util.stream.Stream;
  */
 public final class ReflectionUtil {
 
-    /**
-     * 域缓存
-     */
-    private static final Map<Class<?>, List<Field>> FIELD_CACHE = new ConcurrentHashMap<>();
     /**
      * 脱敏器缓存
      */
@@ -63,78 +64,20 @@ public final class ReflectionUtil {
     }
 
     /**
-     * 获取目标对象以及所有父类定义的 {@link Field}
+     * 获取目标对象以及所有父类定义的 {@link Field}。
+     * <p><strong>注意：不要缓存域对象，否则在多线程运行环境下会有线程安全问题。</strong></p>
      *
-     * @param targetClass 目标对象的{@code Class}
+     * @param targetClass 目标对象的{@link Class}
      * @return 目标对象以及所有父类定义的 {@link Field}
      */
     public static List<Field> listAllFields(Class<?> targetClass) {
         return Optional.ofNullable(targetClass)
                 .filter(clazz -> clazz != Object.class)
-                .map(c -> FIELD_CACHE.computeIfAbsent(c, clazz -> {
-                    List<Field> fields = Stream.of(targetClass.getDeclaredFields()).collect(Collectors.toList());
-                    fields.addAll(listAllFields(targetClass.getSuperclass()));
+                .map(clazz -> {
+                    List<Field> fields = Stream.of(clazz.getDeclaredFields()).collect(Collectors.toList());
+                    fields.addAll(listAllFields(clazz.getSuperclass()));
                     return fields;
-                })).orElseGet(ArrayList::new);
-    }
-
-    /**
-     * 构造一个和原集合类型一样的包含脱敏结果的集合。
-     * 注意集合对象必须遵守{@link Collection}中的约定，定义一个无参构造函数和
-     * 带有一个{@link Collection}类型参数的构造函数。
-     *
-     * @param original 原集合对象的{@link Class}
-     * @param erased   脱敏后的结果
-     * @param <T>      集合内部元素类型
-     * @return 一个和原集合类型一样的包含脱敏结果的集合
-     * @see Collection
-     */
-    public static <T> Collection<T> constructCollection(Class<? extends Collection<T>> original, Collection<T> erased) {
-        try {
-            Constructor<? extends Collection<T>> declaredConstructor = getDeclaredConstructor(original, Collection.class);
-            if (declaredConstructor != null) {
-                return declaredConstructor.newInstance(erased);
-            }
-            declaredConstructor = getDeclaredConstructor(original);
-            if (declaredConstructor == null) {
-                throw new UnsupportedCollectionException(original + "必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。");
-            }
-            Collection<T> collection = declaredConstructor.newInstance();
-            collection.addAll(erased);
-            return collection;
-        } catch (Exception e) {
-            throw new DesensitizationException(e.getMessage(), e);
-        }
-    }
-
-    /**
-     * 构造一个和原Map类型一样的包含脱敏结果Map。
-     * 注意Map对象必须遵守{@link Map}中的约定，定义一个无参构造函数和
-     * 带有一个{@link Map}类型参数的构造函数。
-     *
-     * @param original 原Map对象的{@link Class}
-     * @param erased   脱敏后的结果
-     * @param <K>      Map的键类型
-     * @param <V>      Map的值类型
-     * @return 一个和原Map类型一样的包含脱敏结果的Map
-     * @see Map
-     */
-    public static <K, V> Map<K, V> constructMap(Class<? extends Map<K, V>> original, Map<K, V> erased) {
-        try {
-            Constructor<? extends Map<K, V>> declaredConstructor = getDeclaredConstructor(original, Map.class);
-            if (declaredConstructor != null) {
-                return declaredConstructor.newInstance(erased);
-            }
-            declaredConstructor = getDeclaredConstructor(original);
-            if (declaredConstructor == null) {
-                throw new UnsupportedMapException(original + "必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。");
-            }
-            Map<K, V> map = declaredConstructor.newInstance();
-            map.putAll(erased);
-            return map;
-        } catch (Exception e) {
-            throw new DesensitizationException(e.getMessage(), e);
-        }
+                }).orElseGet(ArrayList::new);
     }
 
     /**
@@ -166,8 +109,8 @@ public final class ReflectionUtil {
      * @return 指定类型对象的 {@link Class}
      */
     @SuppressWarnings("unchecked")
-    public static <T> Class<? extends T> getClass(T value) {
-        return (Class<? extends T>) value.getClass();
+    public static <T> Class<T> getClass(T value) {
+        return (Class<T>) value.getClass();
     }
 
     /**
@@ -183,8 +126,8 @@ public final class ReflectionUtil {
         try {
             Class<? extends Annotation> annotationClass = annotation.annotationType();
             Method method = annotationClass.getDeclaredMethod("desensitizer");
-            Class<? extends Desensitizer<T, A>> desensitizerClass = (Class<? extends Desensitizer<T, A>>) method.invoke(annotation);
-            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, UnsafeUtil::newInstance);
+            Class<Desensitizer<T, A>> desensitizerClass = (Class<Desensitizer<T, A>>) method.invoke(annotation);
+            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, clazz -> InstanceCreators.getInstanceCreator(clazz).create());
         } catch (Exception e) {
             throw new DesensitizationException("通过" + annotation.annotationType() + "实例化脱敏器失败", e);
         }
@@ -227,70 +170,6 @@ public final class ReflectionUtil {
         } catch (Exception e) {
             throw new DesensitizationException("设置" + target.getClass() + "的域" + field.getName() + "失败。", e);
         }
-    }
-
-    /**
-     * 获取{@link Type}类型的原始{@link Class}
-     * <ol>
-     *     <li>
-     *         对于{@link ParameterizedType}类型，返回的是其本身（不是类型参数）的{@link Class}对象。
-     *         例如{@code List<String>}，返回的就是{@code List.class}。
-     *     </li>
-     *     <li>
-     *         对于{@link GenericArrayType}类型，返回的是数组的{@link Class}对象。
-     *         例如{@code String[]}，返回的就是{@code String[].class}。
-     *     </li>
-     *     <li>
-     *         对于{@link TypeVariable}类型，返回的就是{@code Object.class}。
-     *     </li>
-     *     <li>
-     *         对于{@link WildcardType}类型，返回的就是{@code Object.class}。
-     *     </li>
-     *     <li>
-     *         以上四种类型之外的类型，其本身就是{@link Class}对象，所以直接返回就行了。
-     *     </li>
-     * </ol>
-     *
-     * @param type {@link Type}
-     * @return {@link Type}类型的原始{@link Class}
-     * @see ParameterizedType
-     * @see GenericArrayType
-     * @see TypeVariable
-     * @see WildcardType
-     */
-    private static Class<?> getRawClass(Type type) {
-        if (type instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) type;
-            return (Class<?>) parameterizedType.getRawType();
-        }
-        if (type instanceof GenericArrayType) {
-            Class<?> componentType = getRawClass(((GenericArrayType) type).getGenericComponentType());
-            return Array.newInstance(componentType, 0).getClass();
-        }
-        if (type instanceof TypeVariable) {
-            return Object.class;
-        }
-        if (type instanceof WildcardType) {
-            return Object.class;
-        }
-        return (Class<?>) type;
-    }
-
-    /**
-     * 合并数组
-     *
-     * @param arrays 需要合并的二维数组
-     * @param <T>    数组类型
-     * @return 合并后的一维数组
-     */
-    @SuppressWarnings("unchecked")
-    private static <T> T[] mergeArray(T[]... arrays) {
-        return Arrays.stream(arrays)
-                .reduce((array1, array2) -> {
-                    T[] array = Arrays.copyOf(array1, array1.length + array2.length);
-                    System.arraycopy(array2, 0, array, array1.length, array2.length);
-                    return array;
-                }).orElse((T[]) Array.newInstance(arrays.getClass().getComponentType(), 0));
     }
 
 }

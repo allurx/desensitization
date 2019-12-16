@@ -16,12 +16,10 @@
 package red.zyc.desensitization;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import red.zyc.desensitization.annotation.ChineseNameSensitive;
 import red.zyc.desensitization.annotation.EmailSensitive;
 import red.zyc.desensitization.model.Child;
-import red.zyc.desensitization.resolver.TypeToken;
+import red.zyc.desensitization.support.TypeToken;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +32,6 @@ import java.util.stream.Stream;
  */
 public class Example {
 
-    private static Logger log = LoggerFactory.getLogger(Example.class);
 
     /**
      * 对于单个值类型的脱敏，脱敏处理必须放在静态代码块中执行，不能放在对象的实例方法中执行，
@@ -44,21 +41,21 @@ public class Example {
      */
     private static void desensitize() {
         // 单个值
-        log.info("值脱敏：{}", Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
+        System.out.println("值脱敏：" + Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
         }));
 
         // Collection
-        log.info("集合值脱敏：{}", Sensitive.desensitize(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList()),
+        System.out.println("集合值脱敏：" + Sensitive.desensitize(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList()),
                 new TypeToken<List<@EmailSensitive String>>() {
                 }));
 
         // Array
-        log.info("数组值脱敏：{}", Arrays.toString(Sensitive.desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
+        System.out.println("数组值脱敏：" + Arrays.toString(Sensitive.desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
                 new TypeToken<@EmailSensitive String[]>() {
                 })));
 
         // Map
-        log.info("Map值脱敏：{}", Sensitive.desensitize(Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com")),
+        System.out.println("Map值脱敏：" + Sensitive.desensitize(Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com")),
                 new TypeToken<Map<@ChineseNameSensitive String, @EmailSensitive String>>() {
                 }));
     }
@@ -68,7 +65,7 @@ public class Example {
      */
     @Test
     public void wrongDesensitizeValue() {
-        log.info("不要在实例方法中脱敏单个值：{}", Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
+        System.out.println("不要在实例方法中脱敏单个值：" + Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
         }));
     }
 
@@ -78,10 +75,10 @@ public class Example {
     @Test
     public void desensitizeObject() {
         Child<?> before = new Child<>();
-        log.info("脱敏前原对象:{}", before);
+        System.out.println("脱敏前原对象：" + before);
         Child<?> after = Sensitive.desensitize(before);
-        log.info("脱敏后的新对象：{}", after);
-        log.info("脱敏后原对象:{}", before);
+        System.out.println("脱敏后的新对象：" + after);
+        System.out.println("脱敏后原对象：" + before);
     }
 
     /**
@@ -91,4 +88,5 @@ public class Example {
     public void desensitizeValue() {
         desensitize();
     }
+
 }

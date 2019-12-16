@@ -31,16 +31,24 @@ public abstract class AbstractDesensitizer<T, A extends Annotation> implements D
     /**
      * 敏感信息处理注解支持的目标{@code Class}
      */
-    protected Class<T> supportedClass;
+    private Class<T> supportedClass;
     /**
      * 敏感信息处理注解的{@code Class}
      */
-    protected Class<A> annotationClass;
+    private Class<A> annotationClass;
 
     @SuppressWarnings("unchecked")
     public AbstractDesensitizer() {
         Class<?>[] actualTypeArgumentsOfSensitiveHandler = Desensitizer.getActualTypeArgumentsOfDesensitizer(ReflectionUtil.getClass(this));
         supportedClass = (Class<T>) actualTypeArgumentsOfSensitiveHandler[0];
         annotationClass = (Class<A>) actualTypeArgumentsOfSensitiveHandler[1];
+    }
+
+    public Class<T> getSupportedClass() {
+        return supportedClass;
+    }
+
+    public Class<A> getAnnotationClass() {
+        return annotationClass;
     }
 }

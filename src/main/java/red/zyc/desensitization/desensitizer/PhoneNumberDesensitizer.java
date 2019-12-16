@@ -19,23 +19,23 @@ package red.zyc.desensitization.desensitizer;
 import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 
 /**
- * 手机号码脱敏器。
- * 注意该类在擦除敏感信息时不会校验目标对象的合法性，请确保目标对象是合法的手机号码，
- * 否则会抛出任何有可能的 {@link RuntimeException}。
+ * 手机号码脱敏器
  *
  * @author zyc
  */
-public class PhoneNumberDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, PhoneNumberSensitive> implements Desensitizer<CharSequence, PhoneNumberSensitive> {
+public class PhoneNumberDesensitizer extends AbstractCharSequenceDesensitizer<String, PhoneNumberSensitive> implements Desensitizer<String, PhoneNumberSensitive> {
 
     @Override
-    public CharSequence desensitize(CharSequence target, PhoneNumberSensitive annotation) {
-        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, PhoneNumberSensitive>builder()
+    public String desensitize(String target, PhoneNumberSensitive annotation) {
+        CharSequenceSensitiveDescriptor<String, PhoneNumberSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, PhoneNumberSensitive>builder()
                 .target(target)
+                .chars(target.toCharArray())
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())
                 .endOffset(annotation.endOffset())
                 .regexp(annotation.regexp())
                 .placeholder(annotation.placeholder())
                 .build());
+        return String.valueOf(erased.getChars());
     }
 }

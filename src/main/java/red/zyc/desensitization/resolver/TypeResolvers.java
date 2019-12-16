@@ -25,24 +25,24 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @author zyc
  */
-public final class Resolvers {
+public final class TypeResolvers {
 
     /**
-     * 所有注册的{@link Resolver}
+     * 所有注册的{@link TypeResolver}
      */
-    private static final SortedSet<Resolver<?, ? extends AnnotatedType>> REGISTERED_RESOLVERS = Collections.synchronizedSortedSet(new TreeSet<>());
+    private static final SortedSet<TypeResolver<?, ? extends AnnotatedType>> TYPE_RESOLVERS = Collections.synchronizedSortedSet(new TreeSet<>());
 
     static {
         register(new TypeVariableResolver());
         register(new WildcardTypeResolver());
-        register(new CollectionResolver());
-        register(new MapResolver());
-        register(new ArrayResolver());
-        register(new ObjectResolver());
-        register(new CascadeResolver());
+        register(new CollectionTypeResolver());
+        register(new MapTypeResolver());
+        register(new ArrayTypeResolver());
+        register(new ObjectTypeResolver());
+        register(new CascadeTypeResolver());
     }
 
-    private Resolvers() {
+    private TypeResolvers() {
     }
 
     /**
@@ -50,20 +50,20 @@ public final class Resolvers {
      * 注意：如果类型解析器的{@link Sortable#order()}方法返回值已经被其它解析器占用了，
      * 那么该解析器将会被忽略。这是由{@link TreeSet}类的特性所导致的。
      *
-     * @param resolver 目标类型解析器
+     * @param typeResolver 目标类型解析器
      * @see TreeSet
      */
-    public static void register(Resolver<?, ? extends AnnotatedType> resolver) {
-        REGISTERED_RESOLVERS.add(resolver);
+    public static void register(TypeResolver<?, ? extends AnnotatedType> typeResolver) {
+        TYPE_RESOLVERS.add(typeResolver);
     }
 
     /**
      * 从已注册的类型解析器中移除指定的解析器
      *
-     * @param resolver 需要移除的类型解析器
+     * @param typeResolver 需要移除的类型解析器
      */
-    public static void remove(Resolver<?, ? extends AnnotatedType> resolver) {
-        REGISTERED_RESOLVERS.remove(resolver);
+    public static void remove(TypeResolver<?, ? extends AnnotatedType> typeResolver) {
+        TYPE_RESOLVERS.remove(typeResolver);
     }
 
     /**
@@ -78,11 +78,11 @@ public final class Resolvers {
      * @return 解析后的值
      */
     public static <T, AT extends AnnotatedType> T resolve(T value, AT annotatedType) {
-        for (Resolver<?, ? extends AnnotatedType> resolver : REGISTERED_RESOLVERS) {
-            if (resolver.support(value, annotatedType)) {
+        for (TypeResolver<?, ? extends AnnotatedType> typeResolver : TYPE_RESOLVERS) {
+            if (typeResolver.support(value, annotatedType)) {
                 @SuppressWarnings("unchecked")
-                Resolver<T, AT> supportedResolver = (Resolver<T, AT>) resolver;
-                value = supportedResolver.resolve(value, annotatedType);
+                TypeResolver<T, AT> supportedTypeResolver = (TypeResolver<T, AT>) typeResolver;
+                value = supportedTypeResolver.resolve(value, annotatedType);
             }
         }
         return value;
@@ -93,8 +93,8 @@ public final class Resolvers {
      */
     public static int randomOrder() {
         int order = ThreadLocalRandom.current().nextInt(Sortable.HIGHEST_PRIORITY, Sortable.LOWEST_PRIORITY);
-        synchronized (REGISTERED_RESOLVERS) {
-            if (REGISTERED_RESOLVERS.stream().noneMatch(resolver -> resolver.order() == order)) {
+        synchronized (TYPE_RESOLVERS) {
+            if (TYPE_RESOLVERS.stream().noneMatch(resolver -> resolver.order() == order)) {
                 return order;
             }
             return randomOrder();
@@ -105,7 +105,7 @@ public final class Resolvers {
      * @return 所有已注册的类型解析器，返回结果是一个通过{@link Collections#synchronizedSortedSet(java.util.SortedSet)}
      * 方法包装的{@link SortedSet}，有关线程安全需要注意的事项请自行参照该包装方法。
      */
-    public static SortedSet<Resolver<?, ? extends AnnotatedType>> registeredResolvers() {
-        return REGISTERED_RESOLVERS;
+    public static SortedSet<TypeResolver<?, ? extends AnnotatedType>> typeResolvers() {
+        return TYPE_RESOLVERS;
     }
 }

@@ -17,7 +17,7 @@
 <dependency>
   <groupId>red.zyc</groupId>
   <artifactId>desensitization</artifactId>
-  <version>2.2.12</version>
+  <version>2.2.13</version>
 </dependency>
 ```
 ## 例子
@@ -67,23 +67,23 @@ Child child = Sensitive.desensitize(new Child());
 ### 值脱敏
 可能你的敏感信息是一个字符串类型的值或者是一个`Collection`、`Array`、`Map`之类的值，同样擦除它们的敏感信息也很简单：
 ```java
-static void desensitizeValue(){
+private static void desensitizeValue(){
     // 单个值
-    log.info("值脱敏：{}", Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
+    System.out.println("值脱敏：" + Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
     }));
 
     // Collection
-    log.info("集合值脱敏：{}", Sensitive.desensitize(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList()),
+    System.out.println("集合值脱敏：" + Sensitive.desensitize(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com").collect(Collectors.toList()),
             new TypeToken<List<@EmailSensitive String>>() {
             }));
 
     // Array
-    log.info("数组值脱敏：{}", Arrays.toString(Sensitive.desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
+    System.out.println("数组值脱敏：" + Arrays.toString(Sensitive.desensitize(new String[]{"123456@qq.com", "1234567@qq.com", "12345678@qq.com"},
             new TypeToken<@EmailSensitive String[]>() {
             })));
 
     // Map
-    log.info("Map值脱敏：{}", Sensitive.desensitize(Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com")),
+    System.out.println("Map值脱敏：" + Sensitive.desensitize(Stream.of("张三", "李四", "小明").collect(Collectors.toMap(s -> s, s -> "123456@qq.com")),
             new TypeToken<Map<@ChineseNameSensitive String, @EmailSensitive String>>() {
             }));
 }

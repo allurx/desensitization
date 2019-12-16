@@ -18,21 +18,23 @@ package red.zyc.desensitization.desensitizer;
 import red.zyc.desensitization.annotation.ChineseNameSensitive;
 
 /**
- * 中文名脱敏器
+ * 中文名称脱敏器
  *
  * @author zyc
  */
-public class ChineseNameDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, ChineseNameSensitive> implements Desensitizer<CharSequence, ChineseNameSensitive> {
+public class ChineseNameDesensitizer extends AbstractCharSequenceDesensitizer<String, ChineseNameSensitive> implements Desensitizer<String, ChineseNameSensitive> {
 
     @Override
-    public CharSequence desensitize(CharSequence target, ChineseNameSensitive annotation) {
-        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, ChineseNameSensitive>builder()
+    public String desensitize(String target, ChineseNameSensitive annotation) {
+        CharSequenceSensitiveDescriptor<String, ChineseNameSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, ChineseNameSensitive>builder()
                 .target(target)
+                .chars(target.toCharArray())
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())
                 .endOffset(annotation.endOffset())
                 .regexp(annotation.regexp())
                 .placeholder(annotation.placeholder())
                 .build());
+        return String.valueOf(erased.getChars());
     }
 }

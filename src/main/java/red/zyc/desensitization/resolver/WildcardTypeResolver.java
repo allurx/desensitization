@@ -24,14 +24,14 @@ import java.lang.reflect.WildcardType;
  *
  * @author zyc
  */
-public class WildcardTypeResolver implements Resolver<Object, AnnotatedWildcardType> {
+public class WildcardTypeResolver implements TypeResolver<Object, AnnotatedWildcardType> {
 
     @Override
     public Object resolve(Object value, AnnotatedWildcardType annotatedWildcardType) {
         AnnotatedType[] annotatedUpperBounds = annotatedWildcardType.getAnnotatedUpperBounds();
         AnnotatedType[] annotatedBounds = annotatedUpperBounds.length == 0 ? annotatedWildcardType.getAnnotatedLowerBounds() : annotatedUpperBounds;
         for (AnnotatedType annotatedBound : annotatedBounds) {
-            value = Resolvers.resolve(value, annotatedBound);
+            value = TypeResolvers.resolve(value, annotatedBound);
         }
         return value;
     }

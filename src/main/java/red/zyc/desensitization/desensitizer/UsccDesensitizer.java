@@ -19,23 +19,23 @@ package red.zyc.desensitization.desensitizer;
 import red.zyc.desensitization.annotation.UsccSensitive;
 
 /**
- * 统一社会信用代码脱敏器。
- * 注意该类在擦除敏感信息时不会校验目标对象的合法性，请确保目标对象是合法的统一社会信用代码，
- * 否则会抛出任何有可能的 {@link RuntimeException}。
+ * 统一社会信用代码脱敏器
  *
  * @author zyc
  */
-public class UsccDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, UsccSensitive> implements Desensitizer<CharSequence, UsccSensitive> {
+public class UsccDesensitizer extends AbstractCharSequenceDesensitizer<String, UsccSensitive> implements Desensitizer<String, UsccSensitive> {
 
     @Override
-    public CharSequence desensitize(CharSequence target, UsccSensitive annotation) {
-        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, UsccSensitive>builder()
+    public String desensitize(String target, UsccSensitive annotation) {
+        CharSequenceSensitiveDescriptor<String, UsccSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, UsccSensitive>builder()
                 .target(target)
+                .chars(target.toCharArray())
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())
                 .endOffset(annotation.endOffset())
                 .regexp(annotation.regexp())
                 .placeholder(annotation.placeholder())
                 .build());
+        return String.valueOf(erased.getChars());
     }
 }

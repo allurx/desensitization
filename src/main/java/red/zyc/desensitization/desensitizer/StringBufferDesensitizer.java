@@ -19,21 +19,28 @@ package red.zyc.desensitization.desensitizer;
 import red.zyc.desensitization.annotation.CharSequenceSensitive;
 
 /**
- * 通用的{@link CharSequence}类型脱敏器
+ * {@link StringBuffer}类型对象脱敏器
  *
  * @author zyc
  */
-public class CharSequenceDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, CharSequenceSensitive> implements Desensitizer<CharSequence, CharSequenceSensitive> {
+public class StringBufferDesensitizer extends AbstractCharSequenceDesensitizer<StringBuffer, CharSequenceSensitive> implements Desensitizer<StringBuffer, CharSequenceSensitive> {
 
     @Override
-    public CharSequence desensitize(CharSequence target, CharSequenceSensitive annotation) {
-        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, CharSequenceSensitive>builder()
+    public StringBuffer desensitize(StringBuffer target, CharSequenceSensitive annotation) {
+        int length = target.length();
+        char[] chars = new char[length];
+        target.getChars(0, length, chars, 0);
+        CharSequenceSensitiveDescriptor<StringBuffer, CharSequenceSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<StringBuffer, CharSequenceSensitive>builder()
                 .target(target)
+                .chars(chars)
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())
                 .endOffset(annotation.endOffset())
                 .regexp(annotation.regexp())
                 .placeholder(annotation.placeholder())
                 .build());
+        return new StringBuffer().append(erased.getChars());
     }
+
+
 }

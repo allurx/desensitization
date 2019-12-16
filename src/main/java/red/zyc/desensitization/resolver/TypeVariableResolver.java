@@ -25,13 +25,13 @@ import java.lang.reflect.TypeVariable;
  *
  * @author zyc
  */
-public class TypeVariableResolver implements Resolver<Object, AnnotatedTypeVariable> {
+public class TypeVariableResolver implements TypeResolver<Object, AnnotatedTypeVariable> {
 
     @Override
     public Object resolve(Object value, AnnotatedTypeVariable annotatedTypeVariable) {
         AnnotatedType[] annotatedBounds = annotatedTypeVariable.getAnnotatedBounds();
         for (AnnotatedType annotatedBound : annotatedBounds) {
-            value = Resolvers.resolve(value, annotatedBound);
+            value = TypeResolvers.resolve(value, annotatedBound);
         }
         return value;
     }

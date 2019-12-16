@@ -20,23 +20,23 @@ import red.zyc.desensitization.annotation.IdCardNumberSensitive;
 
 /**
  * 身份证号码脱敏器
- * 注意该类在擦除敏感信息时不会校验目标对象的合法性，请确保目标对象是合法的身份证号码，
- * 否则会抛出任何有可能的 {@link RuntimeException}
  *
  * @author zyc
  */
-public class IdCardNumberDesensitizer extends AbstractCharSequenceDesensitizer<CharSequence, IdCardNumberSensitive> implements Desensitizer<CharSequence, IdCardNumberSensitive> {
+public class IdCardNumberDesensitizer extends AbstractCharSequenceDesensitizer<String, IdCardNumberSensitive> implements Desensitizer<String, IdCardNumberSensitive> {
 
     @Override
-    public CharSequence desensitize(CharSequence target, IdCardNumberSensitive annotation) {
-        return super.desensitizeCharSequence(CharSequenceSensitiveDescriptor.<CharSequence, IdCardNumberSensitive>builder()
+    public String desensitize(String target, IdCardNumberSensitive annotation) {
+        CharSequenceSensitiveDescriptor<String, IdCardNumberSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, IdCardNumberSensitive>builder()
                 .target(target)
+                .chars(target.toCharArray())
                 .annotation(annotation)
                 .startOffset(annotation.startOffset())
                 .endOffset(annotation.endOffset())
                 .regexp(annotation.regexp())
                 .placeholder(annotation.placeholder())
                 .build());
+        return String.valueOf(erased.getChars());
     }
 
 }

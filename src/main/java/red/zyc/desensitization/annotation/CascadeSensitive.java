@@ -19,7 +19,7 @@ import java.lang.annotation.*;
 
 
 /**
- * 级联脱敏被注解元素内部域值
+ * 被该注解标记的对象表明需要对其内部域值进行脱敏处理。
  *
  * @author zyc
  */

@@ -26,12 +26,12 @@ import java.util.Arrays;
  *
  * @author zyc
  */
-public class ArrayResolver implements Resolver<Object[], AnnotatedArrayType> {
+public class ArrayTypeResolver implements TypeResolver<Object[], AnnotatedArrayType> {
 
     @Override
     public Object[] resolve(Object[] value, AnnotatedArrayType annotatedArrayType) {
         AnnotatedType typeArgument = annotatedArrayType.getAnnotatedGenericComponentType();
-        Object[] erased = Arrays.stream(value).parallel().map(o -> Resolvers.resolve(o, typeArgument)).toArray();
+        Object[] erased = Arrays.stream(value).parallel().map(o -> TypeResolvers.resolve(o, typeArgument)).toArray();
         return Arrays.copyOf(erased, erased.length, value.getClass());
     }
 
