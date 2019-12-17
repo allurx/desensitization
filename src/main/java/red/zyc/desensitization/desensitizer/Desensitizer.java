@@ -40,7 +40,7 @@ public interface Desensitizer<T, A extends Annotation> {
      * @param desensitizerClass 脱敏器的{@code class}
      * @return 当前脱敏器直接实现的具有明确泛型参数的 {@link Desensitizer}接口的类型参数
      */
-    static Class<?>[] getActualTypeArgumentsOfDesensitizer(Class<? extends Desensitizer<?, ?>> desensitizerClass) {
+    static Class<?>[] getActualTypeArgumentsOfDesensitizer(Class<? extends Desensitizer<?, ? extends Annotation>> desensitizerClass) {
         return Optional.of(desensitizerClass)
                 .map(Class::getGenericInterfaces)
                 .map(genericInterfaces -> (ParameterizedType) Arrays.stream(genericInterfaces)
@@ -69,7 +69,6 @@ public interface Desensitizer<T, A extends Annotation> {
      */
     default boolean support(Class<?> targetClass) {
         Class<?>[] actualTypeArgumentsOfDesensitizer = getActualTypeArgumentsOfDesensitizer(ReflectionUtil.getClass(this));
-        // 类型参数T的class
         Class<?> supportedClass = actualTypeArgumentsOfDesensitizer[0];
         return supportedClass.isAssignableFrom(targetClass);
     }
