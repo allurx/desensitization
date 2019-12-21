@@ -45,11 +45,12 @@ public final class InstanceCreators {
      * 获取指定{@link Class}的实例创建器，尝试获取的顺序如下：
      * <ol>
      *     <li>如果{@link InstanceCreators#INSTANCE_CREATORS}中已存在该类型的实例创建器则直接返回。</li>
-     *     <li>如果该类型存在无参构造器，则通过该构造器来生成实例创建器。</li>
+     *     <li>如果该类型存在无参构造器，则通过该构造器来生成实例创建器，然后存放到{@link InstanceCreators#INSTANCE_CREATORS}中。</li>
      *     <li>如果该类型是{@link Collection}或者{@link Map}类型则尝试获取其带有一个{@link Collection}或者{@link Map}
-     *     类型参数的构造器来生成实例创建器，具体原因请参照{@link Collection}或者{@link Map}的定义规范。
+     *     类型参数的构造器来生成实例创建器，具体原因请参照{@link Collection}或者{@link Map}的定义规范，
+     *     然后存放到{@link InstanceCreators#INSTANCE_CREATORS}中。
      *     </li>
-     *     <li>通过{@link Unsafe#allocateInstance}方法来生成实例创建器。</li>
+     *     <li>通过{@link Unsafe#allocateInstance}方法来生成实例创建器，然后存放到{@link InstanceCreators#INSTANCE_CREATORS}中。</li>
      * </ol>
      *
      * @param clazz 指定的{@link Class}
@@ -90,7 +91,7 @@ public final class InstanceCreators {
     }
 
     /**
-     * @return 所有的实例创建器
+     * @return 所有实例创建器
      */
     public static Map<Class<?>, InstanceCreator<?>> instanceCreators() {
         return INSTANCE_CREATORS;
