@@ -89,15 +89,18 @@ public final class TypeResolvers {
     }
 
     /**
-     * @return 一个不会与已注册的类型解析器顺序冲突的随机顺序值
+     * @return 一个不会与已注册的类型解析器顺序冲突的随机顺序值。
+     * <p><strong>注意：不要在类型解析器的{@link Sortable#order()}方法中直接返回该方法。
+     * 应该将该方法的返回值赋值给一个实例或静态变量，然后再返回这个变量。
+     * 因为如果有解析器的顺序是直接返回该方法的话，由于在其它解析器调用这个方法的时候
+     * 是通过遍历已注册解析器的{@link Sortable#order()}方法返回值来确定一个唯一顺序值的，
+     * 此时就会产生无限递归。
+     * </strong></p>
      */
     public static int randomOrder() {
         int order = ThreadLocalRandom.current().nextInt(Sortable.HIGHEST_PRIORITY, Sortable.LOWEST_PRIORITY);
         synchronized (TYPE_RESOLVERS) {
-            if (TYPE_RESOLVERS.stream().noneMatch(resolver -> resolver.order() == order)) {
-                return order;
-            }
-            return randomOrder();
+            return TYPE_RESOLVERS.stream().noneMatch(resolver -> resolver.order() == order) ? order : randomOrder();
         }
     }
 
