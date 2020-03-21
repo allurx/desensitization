@@ -16,9 +16,9 @@
 
 package red.zyc.desensitization.annotation;
 
+import red.zyc.desensitization.desensitizer.Condition;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.desensitizer.UsccDesensitizer;
-import red.zyc.desensitization.desensitizer.Condition;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

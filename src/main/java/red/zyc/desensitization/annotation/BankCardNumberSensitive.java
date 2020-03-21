@@ -17,8 +17,8 @@
 package red.zyc.desensitization.annotation;
 
 import red.zyc.desensitization.desensitizer.BankCardNumberDesensitizer;
-import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.desensitizer.Condition;
+import red.zyc.desensitization.desensitizer.Desensitizer;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
