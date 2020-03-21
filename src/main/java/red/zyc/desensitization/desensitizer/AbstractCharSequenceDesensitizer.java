@@ -57,6 +57,7 @@ public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A
         }
 
         // 使用位置偏移匹配擦除敏感信息
+        check(descriptor.getStartOffset(), descriptor.getEndOffset(), descriptor.getTarget());
         replace(descriptor.getChars(), descriptor.getStartOffset(), descriptor.getTarget().length() - descriptor.getEndOffset(), descriptor.getPlaceholder());
         return descriptor;
     }
@@ -72,6 +73,21 @@ public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A
     private void replace(char[] chars, int start, int end, char placeholder) {
         while (start < end) {
             chars[start++] = placeholder;
+        }
+    }
+
+    /**
+     * 校验起始偏移和结束偏移的合法性
+     *
+     * @param startOffset 敏感信息在原字符序列中的起始偏移
+     * @param endOffset   敏感信息在原字符序列中的结束偏移
+     * @param target      原字符序列
+     */
+    private void check(int startOffset, int endOffset, CharSequence target) {
+        if (startOffset < 0 ||
+                endOffset < 0 ||
+                startOffset + endOffset > target.length()) {
+            throw new IllegalArgumentException("startOffset：" + startOffset + "，" + "endOffset：" + endOffset + "，" + "target：" + target);
         }
     }
 

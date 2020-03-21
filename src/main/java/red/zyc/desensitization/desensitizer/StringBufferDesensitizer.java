@@ -17,6 +17,7 @@
 package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.CharSequenceSensitive;
+import red.zyc.desensitization.support.InstanceCreators;
 
 /**
  * {@link StringBuffer}类型对象脱敏器
@@ -27,6 +28,11 @@ public class StringBufferDesensitizer extends AbstractCharSequenceDesensitizer<S
 
     @Override
     public StringBuffer desensitize(StringBuffer target, CharSequenceSensitive annotation) {
+        @SuppressWarnings("unchecked")
+        Condition<StringBuffer> condition = (Condition<StringBuffer>) InstanceCreators.getInstanceCreator(annotation.condition()).create();
+        if (!condition.required(target)) {
+            return target;
+        }
         int length = target.length();
         char[] chars = new char[length];
         target.getChars(0, length, chars, 0);

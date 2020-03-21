@@ -1,6 +1,7 @@
 package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.PasswordSensitive;
+import red.zyc.desensitization.support.InstanceCreators;
 
 /**
  * 密码脱敏器
@@ -11,6 +12,11 @@ public class PasswordDesensitizer extends AbstractCharSequenceDesensitizer<Strin
 
     @Override
     public String desensitize(String target, PasswordSensitive annotation) {
+        @SuppressWarnings("unchecked")
+        Condition<String> condition = (Condition<String>) InstanceCreators.getInstanceCreator(annotation.condition()).create();
+        if (!condition.required(target)) {
+            return target;
+        }
         CharSequenceSensitiveDescriptor<String, PasswordSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, PasswordSensitive>builder()
                 .target(target)
                 .chars(target.toCharArray())

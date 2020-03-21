@@ -15,12 +15,25 @@
  */
 package red.zyc.desensitization.model;
 
-import red.zyc.desensitization.annotation.*;
+import red.zyc.desensitization.annotation.BankCardNumberSensitive;
+import red.zyc.desensitization.annotation.CascadeSensitive;
+import red.zyc.desensitization.annotation.CharSequenceSensitive;
+import red.zyc.desensitization.annotation.ChineseNameSensitive;
+import red.zyc.desensitization.annotation.EmailSensitive;
+import red.zyc.desensitization.annotation.IdCardNumberSensitive;
+import red.zyc.desensitization.annotation.PasswordSensitive;
+import red.zyc.desensitization.annotation.PhoneNumberSensitive;
+import red.zyc.desensitization.annotation.UsccSensitive;
 import red.zyc.desensitization.desensitizer.AbstractDesensitizer;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.desensitizer.PhoneNumberDesensitizer;
+import red.zyc.desensitization.desensitizer.Condition;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -85,6 +98,8 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
     @SuppressWarnings("unchecked")
     private List<? extends T> list = (List<? extends T>) Stream.of(Stream.of("123456@qq.com", "1234567@qq.com", "1234568@qq.com", null).collect(Collectors.toList())).collect(Collectors.toList());
 
+    private List<@CharSequenceSensitive(condition = StringCondition.class) String> condition = Stream.of("1", "2", "3", "4", "5", "6").collect(Collectors.toList());
+
     // 复杂字段赋值
     {
         // map1
@@ -119,6 +134,7 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
                 ", t=" + t +
                 ", parents=" + parents +
                 ", list=" + list +
+                ", condition=" + condition +
                 "} " + super.toString();
     }
 
@@ -132,6 +148,14 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
         @Override
         public Long desensitize(Long target, PhoneNumberSensitive annotation) {
             return Long.parseLong(target.toString().replaceAll("4567", "0000"));
+        }
+    }
+
+    private static class StringCondition implements Condition<String> {
+
+        @Override
+        public boolean required(String target) {
+            return !target.equals("1") && !target.equals("3") && !target.equals("5");
         }
     }
 }

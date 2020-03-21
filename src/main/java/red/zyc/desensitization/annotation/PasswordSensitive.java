@@ -2,13 +2,18 @@ package red.zyc.desensitization.annotation;
 
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.desensitizer.PasswordDesensitizer;
+import red.zyc.desensitization.desensitizer.Condition;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * 密码敏感标记注解。默认的脱敏规则：擦除目标对象中所有的字符。
  * <p><strong>注意：默认的脱敏器是{@link PasswordDesensitizer}，该脱敏器只会处理{@link String}
- * 类型的对象，并且脱敏时不会校验目标对象的合法性，请确保目标对象是合法的身份证号码，
+ * 类型的对象，并且脱敏时不会校验目标对象的合法性，请确保目标对象是合法的密码，
  * 否则会抛出任何可能的 {@link RuntimeException}。</strong></p>
  *
  * @author zyc
@@ -45,4 +50,17 @@ public @interface PasswordSensitive {
      * @return 敏感信息替换后的占位符
      */
     char placeholder() default '*';
+
+    /**
+     * @return 是否需要对目标对象进行脱敏的条件
+     */
+    Class<? extends Condition<?>> condition() default AlwaysTrue.class;
+
+    class AlwaysTrue implements Condition<Object> {
+
+        @Override
+        public boolean required(Object target) {
+            return true;
+        }
+    }
 }

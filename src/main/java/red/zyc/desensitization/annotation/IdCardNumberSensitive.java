@@ -18,8 +18,13 @@ package red.zyc.desensitization.annotation;
 
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.desensitizer.IdCardNumberDesensitizer;
+import red.zyc.desensitization.desensitizer.Condition;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * 身份证号码敏感标记注解。默认的脱敏规则：擦除目标对象中除了前六位和后四位以外的所有字符。
@@ -60,4 +65,17 @@ public @interface IdCardNumberSensitive {
      * @return 敏感信息替换后的占位符
      */
     char placeholder() default '*';
+
+    /**
+     * @return 是否需要对目标对象进行脱敏的条件
+     */
+    Class<? extends Condition<? extends CharSequence>> condition() default AlwaysTrue.class;
+
+    class AlwaysTrue implements Condition<CharSequence> {
+
+        @Override
+        public boolean required(CharSequence target) {
+            return true;
+        }
+    }
 }

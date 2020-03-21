@@ -150,23 +150,8 @@ public class CharSequenceSensitiveDescriptor<T extends CharSequence, A extends A
         }
 
         public CharSequenceSensitiveDescriptor<T, A> build() {
-            check(startOffset, endOffset, target);
             return new CharSequenceSensitiveDescriptor<>(this);
         }
 
-        /**
-         * 校验起始偏移和结束偏移的合法性
-         *
-         * @param startOffset 敏感信息在原字符序列中的起始偏移
-         * @param endOffset   敏感信息在原字符序列中的结束偏移
-         * @param target      原字符序列
-         */
-        private void check(int startOffset, int endOffset, CharSequence target) {
-            if (startOffset < 0 ||
-                    endOffset < 0 ||
-                    startOffset + endOffset >= target.length()) {
-                throw new IllegalArgumentException("startOffset：" + startOffset + "，" + "endOffset：" + endOffset + "，" + "target：" + target);
-            }
-        }
     }
 }
