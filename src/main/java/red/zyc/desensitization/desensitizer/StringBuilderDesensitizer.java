@@ -17,6 +17,7 @@
 package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.CharSequenceSensitive;
+import red.zyc.desensitization.support.InstanceCreators;
 
 /**
  * {@link StringBuilder}类型对象脱敏器
@@ -27,6 +28,11 @@ public class StringBuilderDesensitizer extends AbstractCharSequenceDesensitizer<
 
     @Override
     public StringBuilder desensitize(StringBuilder target, CharSequenceSensitive annotation) {
+        @SuppressWarnings("unchecked")
+        Condition<StringBuilder> condition = (Condition<StringBuilder>) InstanceCreators.getInstanceCreator(annotation.condition()).create();
+        if (!condition.required(target)) {
+            return target;
+        }
         int length = target.length();
         char[] chars = new char[length];
         target.getChars(0, target.length(), chars, 0);

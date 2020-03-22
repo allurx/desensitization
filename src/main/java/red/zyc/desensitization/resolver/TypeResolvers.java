@@ -17,7 +17,11 @@
 package red.zyc.desensitization.resolver;
 
 import java.lang.reflect.AnnotatedType;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**

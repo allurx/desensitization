@@ -17,6 +17,7 @@ package red.zyc.desensitization.desensitizer;
 
 
 import red.zyc.desensitization.annotation.PhoneNumberSensitive;
+import red.zyc.desensitization.support.InstanceCreators;
 
 /**
  * 手机号码脱敏器
@@ -27,6 +28,11 @@ public class PhoneNumberDesensitizer extends AbstractCharSequenceDesensitizer<St
 
     @Override
     public String desensitize(String target, PhoneNumberSensitive annotation) {
+        @SuppressWarnings("unchecked")
+        Condition<String> condition = (Condition<String>) InstanceCreators.getInstanceCreator(annotation.condition()).create();
+        if (!condition.required(target)) {
+            return target;
+        }
         CharSequenceSensitiveDescriptor<String, PhoneNumberSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, PhoneNumberSensitive>builder()
                 .target(target)
                 .chars(target.toCharArray())

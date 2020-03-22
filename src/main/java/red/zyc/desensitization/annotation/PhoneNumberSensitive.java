@@ -16,10 +16,15 @@
 package red.zyc.desensitization.annotation;
 
 
+import red.zyc.desensitization.desensitizer.Condition;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.desensitizer.PhoneNumberDesensitizer;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * 手机号码敏感标记注解。默认的脱敏规则：擦除目标对象中除了前三位和后四位以外的所有字符。
@@ -61,4 +66,17 @@ public @interface PhoneNumberSensitive {
      * @return 敏感信息替换后的占位符
      */
     char placeholder() default '*';
+
+    /**
+     * @return 是否需要对目标对象进行脱敏的条件
+     */
+    Class<? extends Condition<?>> condition() default AlwaysTrue.class;
+
+    class AlwaysTrue implements Condition<Object> {
+
+        @Override
+        public boolean required(Object target) {
+            return true;
+        }
+    }
 }

@@ -18,7 +18,11 @@ package red.zyc.desensitization.annotation;
 
 import red.zyc.desensitization.desensitizer.Desensitizer;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * 标记注解，表明当前注解是一个敏感注解。用户可以基于此注解扩展自己的敏感注解，但是需要遵守以下约定：
