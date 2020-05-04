@@ -34,7 +34,7 @@ public class CascadeTypeResolver implements TypeResolver<Object, AnnotatedType> 
     public Object resolve(Object value, AnnotatedType annotatedType) {
         Class<?> clazz = value.getClass();
         Object newObject = InstanceCreators.getInstanceCreator(clazz).create();
-        ReflectionUtil.listAllFields(clazz).forEach(field -> {
+        ReflectionUtil.listAllFields(clazz).parallelStream().forEach(field -> {
             Object fieldValue;
             if (!Modifier.isFinal(field.getModifiers()) && (fieldValue = ReflectionUtil.getFieldValue(value, field)) != null) {
                 ReflectionUtil.setFieldValue(newObject, field, TypeResolvers.resolve(fieldValue, field.getAnnotatedType()));
