@@ -24,10 +24,9 @@ import red.zyc.desensitization.annotation.IdCardNumberSensitive;
 import red.zyc.desensitization.annotation.PasswordSensitive;
 import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 import red.zyc.desensitization.annotation.UsccSensitive;
-import red.zyc.desensitization.desensitizer.AbstractDesensitizer;
+import red.zyc.desensitization.desensitizer.Condition;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.desensitizer.PhoneNumberDesensitizer;
-import red.zyc.desensitization.desensitizer.Condition;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -139,15 +138,15 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
     }
 
     /**
-     * 自定义脱敏器处理数字类型的手机号码，默认的脱敏器只支持处理{@link CharSequence}类型的手机号码。
+     * 自定义脱敏器处理数字类型的手机号码，默认的脱敏器只支持处理{@link String}类型的手机号码。
      *
      * @see PhoneNumberDesensitizer
      */
-    private static class CustomizedPhoneNumberDesensitizer extends AbstractDesensitizer<Long, PhoneNumberSensitive> implements Desensitizer<Long, PhoneNumberSensitive> {
+    private static class CustomizedPhoneNumberDesensitizer implements Desensitizer<Long, PhoneNumberSensitive> {
 
         @Override
         public Long desensitize(Long target, PhoneNumberSensitive annotation) {
-            return Long.parseLong(target.toString().replaceAll("4567", "0000"));
+            return Long.parseLong(target.toString().replace("4567", "0000"));
         }
     }
 

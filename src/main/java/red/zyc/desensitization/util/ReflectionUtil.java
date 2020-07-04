@@ -129,7 +129,7 @@ public final class ReflectionUtil {
             Class<Desensitizer<T, A>> desensitizerClass = (Class<Desensitizer<T, A>>) method.invoke(annotation);
             return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, clazz -> InstanceCreators.getInstanceCreator(clazz).create());
         } catch (Exception e) {
-            throw new DesensitizationException("通过" + annotation.annotationType() + "实例化脱敏器失败", e);
+            throw new DesensitizationException(String.format("实例化敏感注解%s的脱敏器失败。", annotation.annotationType()), e);
         }
     }
 
@@ -148,7 +148,7 @@ public final class ReflectionUtil {
             field.setAccessible(true);
             return field.get(target);
         } catch (Exception e) {
-            throw new DesensitizationException("获取" + target.getClass() + "的域" + field.getName() + "失败。", e);
+            throw new DesensitizationException(String.format("获取%s的域%s失败。", target.getClass(), field.getName()), e);
         }
     }
 
@@ -168,7 +168,7 @@ public final class ReflectionUtil {
             field.setAccessible(true);
             field.set(target, newValue);
         } catch (Exception e) {
-            throw new DesensitizationException("设置" + target.getClass() + "的域" + field.getName() + "失败。", e);
+            throw new DesensitizationException(String.format("给%s的域%s赋值失败。", target.getClass(), field.getName()), e);
         }
     }
 
