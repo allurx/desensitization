@@ -91,9 +91,10 @@ private static void desensitizeValue(){
 在上面的例子中通过`TypeToken`指定需要脱敏对象的类型以便我们能够准确的捕获被脱敏对象的实际类型和相应的敏感注解。
 这里有一个很重要的地方需要我们格外的关注：**由于jdk在解析注解时的bug导致无法正确的获取嵌套类上的注解，因此对于值脱敏时，我们需要将脱敏代码放到一个静态方法或者是静态块中，这样运行时才能正确的获取脱敏对象上的注解。**
 有关这个bug的详情可以参考这个链接[why-annotation-on-generic-type-argument-is-not-visible-for-nested-type](http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type)
-# 测试用例
-更详细的例子可以参考
+# 例子
 1. [一个需要脱敏的复杂对象](https://github.com/Allurx/desensitization/blob/master/src/test/java/red/zyc/desensitization/model/Child.java)
 2. [测试用例](https://github.com/Allurx/desensitization/blob/master/src/test/java/red/zyc/desensitization/Example.java)
+# 扩展
+如果你的应用是基于spring-boot搭建的，并且你不想在代码中每次都手动调用脱敏方法对数据进行脱敏处理，那么[desensitization-spring-boot](https://github.com/Allurx/desensitization-spring-boot)这个starter可能会对你有很大的帮助，详细的信息可以查看该工程介绍。
 # License
 [Apache License 2.0](https://github.com/Allurx/desensitization/blob/master/LICENSE.txt)
