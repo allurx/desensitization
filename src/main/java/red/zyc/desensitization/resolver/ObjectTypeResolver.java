@@ -20,7 +20,6 @@ import red.zyc.desensitization.util.ReflectionUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedType;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -33,16 +32,15 @@ public class ObjectTypeResolver implements TypeResolver<Object, AnnotatedType> {
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
         Annotation sensitiveAnnotation = ReflectionUtil.getFirstDirectlyPresentSensitiveAnnotation(annotatedType);
-        return Optional.of(Objects.requireNonNull(sensitiveAnnotation))
+        return Optional.ofNullable(sensitiveAnnotation)
                 .map(ReflectionUtil::getDesensitizer)
-                .filter(desensitizer -> desensitizer.support(value.getClass()))
                 .map(desensitizer -> desensitizer.desensitize(value, sensitiveAnnotation))
                 .orElse(value);
     }
 
     @Override
     public boolean support(Object value, AnnotatedType annotatedType) {
-        return value != null && ReflectionUtil.getFirstDirectlyPresentSensitiveAnnotation(annotatedType) != null;
+        return value != null;
     }
 
     @Override

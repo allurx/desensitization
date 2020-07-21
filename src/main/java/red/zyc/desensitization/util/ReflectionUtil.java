@@ -44,6 +44,11 @@ public final class ReflectionUtil {
      */
     private static final Map<Class<? extends Desensitizer<?, ? extends Annotation>>, Desensitizer<?, ? extends Annotation>> DESENSITIZER_CACHE = new ConcurrentHashMap<>();
 
+    /**
+     * 脱敏器方法缓存
+     */
+    private static final Map<Class<? extends Annotation>, Method> DESENSITIZER_METHOD_CACHE = new ConcurrentHashMap<>();
+
     private ReflectionUtil() {
     }
 
@@ -124,12 +129,27 @@ public final class ReflectionUtil {
     @SuppressWarnings("unchecked")
     public static <T, A extends Annotation> Desensitizer<T, A> getDesensitizer(A annotation) {
         try {
-            Class<? extends Annotation> annotationClass = annotation.annotationType();
-            Method method = annotationClass.getDeclaredMethod("desensitizer");
-            Class<Desensitizer<T, A>> desensitizerClass = (Class<Desensitizer<T, A>>) method.invoke(annotation);
+            Method desensitizerMethod = DESENSITIZER_METHOD_CACHE.computeIfAbsent(annotation.annotationType(), annotationClass -> getDeclaredMethod(annotationClass, "desensitizer"));
+            Class<Desensitizer<T, A>> desensitizerClass = (Class<Desensitizer<T, A>>) desensitizerMethod.invoke(annotation);
             return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, clazz -> InstanceCreators.getInstanceCreator(clazz).create());
         } catch (Exception e) {
             throw new DesensitizationException(String.format("实例化敏感注解%s的脱敏器失败。", annotation.annotationType()), e);
+        }
+    }
+
+    /**
+     * 获取目标{@link Class}代表的类或接口中声明的方法
+     *
+     * @param clazz          目标{@link Class}
+     * @param name           方法名
+     * @param parameterTypes 方法参数类型
+     * @return 目标{@code Class}代表的类或接口中声明的方法
+     */
+    public static Method getDeclaredMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
+        try {
+            return clazz.getDeclaredMethod(name, parameterTypes);
+        } catch (NoSuchMethodException e) {
+            throw new DesensitizationException(String.format("获取%s的方法%s失败。", clazz, name), e);
         }
     }
 

@@ -17,31 +17,20 @@
 package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.BankCardNumberSensitive;
-import red.zyc.desensitization.support.InstanceCreators;
 
 /**
  * 银行卡号码脱敏器
  *
  * @author zyc
  */
-public class BankCardNumberDesensitizer extends AbstractCharSequenceDesensitizer<String, BankCardNumberSensitive> implements Desensitizer<String, BankCardNumberSensitive> {
+public class BankCardNumberDesensitizer extends AbstractCharSequenceDesensitizer<String, BankCardNumberSensitive> {
 
     @Override
     public String desensitize(String target, BankCardNumberSensitive annotation) {
-        @SuppressWarnings("unchecked")
-        Condition<String> condition = (Condition<String>) InstanceCreators.getInstanceCreator(annotation.condition()).create();
-        if (!condition.required(target)) {
-            return target;
+        if (required(target, annotation.condition())) {
+            return String.valueOf(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder()));
         }
-        CharSequenceSensitiveDescriptor<String, BankCardNumberSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, BankCardNumberSensitive>builder()
-                .target(target)
-                .chars(target.toCharArray())
-                .annotation(annotation)
-                .startOffset(annotation.startOffset())
-                .endOffset(annotation.endOffset())
-                .regexp(annotation.regexp())
-                .placeholder(annotation.placeholder())
-                .build());
-        return String.valueOf(erased.getChars());
+        return target;
     }
+
 }

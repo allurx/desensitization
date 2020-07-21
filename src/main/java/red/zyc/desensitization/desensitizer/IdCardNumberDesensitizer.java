@@ -17,32 +17,20 @@ package red.zyc.desensitization.desensitizer;
 
 
 import red.zyc.desensitization.annotation.IdCardNumberSensitive;
-import red.zyc.desensitization.support.InstanceCreators;
 
 /**
  * 身份证号码脱敏器
  *
  * @author zyc
  */
-public class IdCardNumberDesensitizer extends AbstractCharSequenceDesensitizer<String, IdCardNumberSensitive> implements Desensitizer<String, IdCardNumberSensitive> {
+public class IdCardNumberDesensitizer extends AbstractCharSequenceDesensitizer<String, IdCardNumberSensitive> {
 
     @Override
     public String desensitize(String target, IdCardNumberSensitive annotation) {
-        @SuppressWarnings("unchecked")
-        Condition<String> condition = (Condition<String>) InstanceCreators.getInstanceCreator(annotation.condition()).create();
-        if (!condition.required(target)) {
-            return target;
+        if (required(target, annotation.condition())) {
+            return String.valueOf(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder()));
         }
-        CharSequenceSensitiveDescriptor<String, IdCardNumberSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, IdCardNumberSensitive>builder()
-                .target(target)
-                .chars(target.toCharArray())
-                .annotation(annotation)
-                .startOffset(annotation.startOffset())
-                .endOffset(annotation.endOffset())
-                .regexp(annotation.regexp())
-                .placeholder(annotation.placeholder())
-                .build());
-        return String.valueOf(erased.getChars());
+        return target;
     }
 
 }

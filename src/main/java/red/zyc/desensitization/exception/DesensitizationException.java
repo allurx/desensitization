@@ -26,6 +26,10 @@ public class DesensitizationException extends RuntimeException implements Suppli
         super(message, cause);
     }
 
+    public DesensitizationException(Throwable cause) {
+        super(cause);
+    }
+
     public DesensitizationException(String message) {
         super(message);
     }

@@ -29,18 +29,16 @@ import java.util.stream.Collectors;
  *
  * @author zyc
  */
-public class MapTypeResolver implements TypeResolver<Map<?, ?>, AnnotatedParameterizedType> {
+public class MapTypeResolver implements TypeResolver<Map<Object, Object>, AnnotatedParameterizedType> {
 
     @Override
-    public Map<?, ?> resolve(Map<?, ?> value, AnnotatedParameterizedType annotatedParameterizedType) {
+    public Map<Object, Object> resolve(Map<Object, Object> value, AnnotatedParameterizedType annotatedParameterizedType) {
         AnnotatedType[] annotatedActualTypeArguments = annotatedParameterizedType.getAnnotatedActualTypeArguments();
         Map<Object, Object> erased = value.entrySet().parallelStream().collect(Collectors.toMap(
                 entry -> TypeResolvers.resolve(entry.getKey(), annotatedActualTypeArguments[0]),
                 entry -> TypeResolvers.resolve(entry.getValue(), annotatedActualTypeArguments[1])
         ));
-        @SuppressWarnings("unchecked")
-        Map<Object, Object> original = (Map<Object, Object>) value;
-        Map<Object, Object> map = InstanceCreators.getInstanceCreator(ReflectionUtil.getClass(original)).create();
+        Map<Object, Object> map = InstanceCreators.getInstanceCreator(ReflectionUtil.getClass(value)).create();
         map.putAll(erased);
         return map;
     }

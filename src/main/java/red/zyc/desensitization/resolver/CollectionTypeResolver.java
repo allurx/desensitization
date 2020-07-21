@@ -30,15 +30,13 @@ import java.util.stream.Collectors;
  *
  * @author zyc
  */
-public class CollectionTypeResolver implements TypeResolver<Collection<?>, AnnotatedParameterizedType> {
+public class CollectionTypeResolver implements TypeResolver<Collection<Object>, AnnotatedParameterizedType> {
 
     @Override
-    public Collection<?> resolve(Collection<?> value, AnnotatedParameterizedType annotatedParameterizedType) {
+    public Collection<Object> resolve(Collection<Object> value, AnnotatedParameterizedType annotatedParameterizedType) {
         AnnotatedType typeArgument = annotatedParameterizedType.getAnnotatedActualTypeArguments()[0];
         List<Object> erased = value.parallelStream().map(o -> TypeResolvers.resolve(o, typeArgument)).collect(Collectors.toList());
-        @SuppressWarnings("unchecked")
-        Collection<Object> original = (Collection<Object>) value;
-        Collection<Object> collection = InstanceCreators.getInstanceCreator(ReflectionUtil.getClass(original)).create();
+        Collection<Object> collection = InstanceCreators.getInstanceCreator(ReflectionUtil.getClass(value)).create();
         collection.addAll(erased);
         return collection;
     }
