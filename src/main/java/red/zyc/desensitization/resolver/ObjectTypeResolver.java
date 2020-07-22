@@ -68,7 +68,7 @@ public class ObjectTypeResolver implements TypeResolver<Object, AnnotatedType> {
     /**
      * 实例化敏感注解对应的{@link Desensitizer}。
      * 目前对同一个{@link Class}的脱敏器都添加了缓存，也就是说每个脱敏器都是
-     * 以单例的形式存在的，如何后期需要创建同一类型脱敏器的多个实例，就需要添加一个配置来控制。
+     * 以单例的形式存在的，如果后期需要创建同一类型脱敏器的多个实例，就需要添加一个配置来控制。
      *
      * @param annotation 敏感注解
      * @param <T>        脱敏器支持的目标类型

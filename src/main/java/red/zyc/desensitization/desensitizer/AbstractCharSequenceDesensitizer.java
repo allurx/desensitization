@@ -62,11 +62,8 @@ public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A
      * @param placeholder 敏感信息替换后的占位符
      * @return 脱敏后的新字符序列对象的字符数组
      */
-    public final char[] desensitize(CharSequence target, String regexp, int start, int end, char placeholder) {
-        if (isNotEmptyString(regexp)) {
-            return desensitize(target, regexp, placeholder);
-        }
-        return desensitize(target, start, end, placeholder);
+    public final char[] desensitize(T target, String regexp, int start, int end, char placeholder) {
+        return isNotEmptyString(regexp) ? desensitize(target, regexp, placeholder) : desensitize(target, start, end, placeholder);
     }
 
     /**
@@ -77,7 +74,7 @@ public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A
      * @param placeholder 敏感信息替换后的占位符
      * @return 脱敏后的新字符序列对象的字符数组
      */
-    private char[] desensitize(CharSequence target, String regexp, char placeholder) {
+    private char[] desensitize(T target, String regexp, char placeholder) {
         char[] chars = chars(target);
         Matcher matcher = PATTERN_CACHE.computeIfAbsent(regexp, s -> Pattern.compile(regexp)).matcher(target);
         // 将正则匹配的每一项中的每一个字符都替换成占位符
@@ -100,9 +97,9 @@ public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A
      * @param placeholder 敏感信息替换后的占位符
      * @return 脱敏后的新字符序列对象的字符数组
      */
-    private char[] desensitize(CharSequence target, int start, int end, char placeholder) {
-        char[] chars = chars(target);
+    private char[] desensitize(T target, int start, int end, char placeholder) {
         check(start, end, target);
+        char[] chars = chars(target);
         replace(chars, start, target.length() - end, placeholder);
         return chars;
     }
@@ -113,7 +110,7 @@ public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A
      * @param target 字符序列对象
      * @return 字符序列对象所代表的字符数组
      */
-    private char[] chars(CharSequence target) {
+    private char[] chars(T target) {
         char[] chars = new char[target.length()];
         IntStream.range(0, target.length()).forEach(i -> chars[i] = target.charAt(i));
         return chars;
@@ -140,7 +137,7 @@ public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A
      * @param endOffset   敏感信息在原字符序列中的结束偏移
      * @param target      原字符序列
      */
-    private void check(int startOffset, int endOffset, CharSequence target) {
+    private void check(int startOffset, int endOffset, T target) {
         if (startOffset < 0 ||
                 endOffset < 0 ||
                 startOffset + endOffset > target.length()) {
