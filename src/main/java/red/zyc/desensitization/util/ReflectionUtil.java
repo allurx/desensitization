@@ -16,21 +16,14 @@
 
 package red.zyc.desensitization.util;
 
-import red.zyc.desensitization.annotation.SensitiveAnnotation;
-import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.exception.DesensitizationException;
-import red.zyc.desensitization.support.InstanceCreators;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,33 +32,7 @@ import java.util.stream.Stream;
  */
 public final class ReflectionUtil {
 
-    /**
-     * 脱敏器缓存
-     */
-    private static final Map<Class<? extends Desensitizer<?, ? extends Annotation>>, Desensitizer<?, ? extends Annotation>> DESENSITIZER_CACHE = new ConcurrentHashMap<>();
-
-    /**
-     * 脱敏器方法缓存
-     */
-    private static final Map<Class<? extends Annotation>, Method> DESENSITIZER_METHOD_CACHE = new ConcurrentHashMap<>();
-
     private ReflectionUtil() {
-    }
-
-    /**
-     * 获取{@link AnnotatedType}上的第一个直接存在的敏感注解
-     *
-     * @param annotatedType {@link AnnotatedType}对象
-     * @return {@link AnnotatedType}上的第一个敏感注解
-     */
-    public static Annotation getFirstDirectlyPresentSensitiveAnnotation(AnnotatedType annotatedType) {
-        Annotation[] annotations = annotatedType.getDeclaredAnnotations();
-        for (Annotation annotation : annotations) {
-            if (annotation.annotationType().isAnnotationPresent(SensitiveAnnotation.class)) {
-                return annotation;
-            }
-        }
-        return null;
     }
 
     /**
@@ -116,25 +83,6 @@ public final class ReflectionUtil {
     @SuppressWarnings("unchecked")
     public static <T> Class<T> getClass(T value) {
         return (Class<T>) value.getClass();
-    }
-
-    /**
-     * 实例化敏感注解对应的{@link Desensitizer}
-     *
-     * @param annotation 敏感注解
-     * @param <T>        脱敏器支持的目标类型
-     * @param <A>        脱敏器支持的注解类型
-     * @return 敏感注解对应的 {@link Desensitizer}
-     */
-    @SuppressWarnings("unchecked")
-    public static <T, A extends Annotation> Desensitizer<T, A> getDesensitizer(A annotation) {
-        try {
-            Method desensitizerMethod = DESENSITIZER_METHOD_CACHE.computeIfAbsent(annotation.annotationType(), annotationClass -> getDeclaredMethod(annotationClass, "desensitizer"));
-            Class<Desensitizer<T, A>> desensitizerClass = (Class<Desensitizer<T, A>>) desensitizerMethod.invoke(annotation);
-            return (Desensitizer<T, A>) DESENSITIZER_CACHE.computeIfAbsent(desensitizerClass, clazz -> InstanceCreators.getInstanceCreator(clazz).create());
-        } catch (Exception e) {
-            throw new DesensitizationException(String.format("实例化敏感注解%s的脱敏器失败。", annotation.annotationType()), e);
-        }
     }
 
     /**

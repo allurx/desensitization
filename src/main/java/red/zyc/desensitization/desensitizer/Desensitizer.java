@@ -20,7 +20,7 @@ import java.lang.annotation.Annotation;
 
 
 /**
- * 脱敏器
+ * 脱敏器，通常情况下脱敏器应该以单例的形式存在。
  *
  * @param <A> 敏感注解类型
  * @param <T> 需要脱敏的对象类型

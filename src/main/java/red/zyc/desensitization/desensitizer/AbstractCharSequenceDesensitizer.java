@@ -18,6 +18,8 @@ package red.zyc.desensitization.desensitizer;
 import red.zyc.desensitization.support.InstanceCreators;
 
 import java.lang.annotation.Annotation;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -31,6 +33,11 @@ import java.util.stream.IntStream;
  * @author zyc
  */
 public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A extends Annotation> implements Desensitizer<T, A> {
+
+    /**
+     * 正则表达式缓存
+     */
+    private static final ConcurrentMap<String, Pattern> PATTERN_CACHE = new ConcurrentHashMap<>();
 
     /**
      * 根据条件判断是否需要脱敏
@@ -72,7 +79,7 @@ public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A
      */
     private char[] desensitize(CharSequence target, String regexp, char placeholder) {
         char[] chars = chars(target);
-        Matcher matcher = Pattern.compile(regexp).matcher(target);
+        Matcher matcher = PATTERN_CACHE.computeIfAbsent(regexp, s -> Pattern.compile(regexp)).matcher(target);
         // 将正则匹配的每一项中的每一个字符都替换成占位符
         while (matcher.find()) {
             // 排除空字符串
