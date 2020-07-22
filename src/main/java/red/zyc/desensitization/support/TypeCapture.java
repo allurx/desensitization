@@ -33,11 +33,12 @@ abstract class TypeCapture<T> {
      * @return {@link T}运行时被注解的类型
      */
     AnnotatedType capture() {
-        Type superclass = getClass().getGenericSuperclass();
+        Class<?> clazz = getClass();
+        Type superclass = clazz.getGenericSuperclass();
         if (!(superclass instanceof ParameterizedType)) {
-            throw new IllegalArgumentException(getClass() + "必须是参数化类型");
+            throw new IllegalArgumentException(String.format("%s必须是参数化类型", superclass));
         }
-        return ((AnnotatedParameterizedType) getClass().getAnnotatedSuperclass()).getAnnotatedActualTypeArguments()[0];
+        return ((AnnotatedParameterizedType) clazz.getAnnotatedSuperclass()).getAnnotatedActualTypeArguments()[0];
     }
 
 }
