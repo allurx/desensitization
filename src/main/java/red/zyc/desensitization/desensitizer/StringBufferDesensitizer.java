@@ -27,10 +27,7 @@ public class StringBufferDesensitizer extends AbstractCharSequenceDesensitizer<S
 
     @Override
     public StringBuffer desensitize(StringBuffer target, CharSequenceSensitive annotation) {
-        if (required(target, annotation.condition())) {
-            return new StringBuffer().append(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder()));
-        }
-        return target;
+        return required(target, annotation.condition()) ? new StringBuffer().append(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder())) : target;
     }
 
 }

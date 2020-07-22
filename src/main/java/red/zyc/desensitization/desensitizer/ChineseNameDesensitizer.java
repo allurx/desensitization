@@ -26,10 +26,7 @@ public class ChineseNameDesensitizer extends AbstractCharSequenceDesensitizer<St
 
     @Override
     public String desensitize(String target, ChineseNameSensitive annotation) {
-        if (required(target, annotation.condition())) {
-            return String.valueOf(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder()));
-        }
-        return target;
+        return required(target, annotation.condition()) ? String.valueOf(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder())) : target;
     }
 
 }

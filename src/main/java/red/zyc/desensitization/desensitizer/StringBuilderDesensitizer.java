@@ -27,10 +27,7 @@ public class StringBuilderDesensitizer extends AbstractCharSequenceDesensitizer<
 
     @Override
     public StringBuilder desensitize(StringBuilder target, CharSequenceSensitive annotation) {
-        if (required(target, annotation.condition())) {
-            return new StringBuilder().append(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder()));
-        }
-        return target;
+        return required(target, annotation.condition()) ? new StringBuilder().append(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder())) : target;
     }
 
 }

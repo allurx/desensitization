@@ -27,10 +27,7 @@ public class PhoneNumberDesensitizer extends AbstractCharSequenceDesensitizer<St
 
     @Override
     public String desensitize(String target, PhoneNumberSensitive annotation) {
-        if (required(target, annotation.condition())) {
-            return String.valueOf(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder()));
-        }
-        return target;
+        return required(target, annotation.condition()) ? String.valueOf(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder())) : target;
     }
 
 }
