@@ -15,51 +15,105 @@
  */
 package red.zyc.desensitization.desensitizer;
 
+import red.zyc.desensitization.support.InstanceCreators;
+
 import java.lang.annotation.Annotation;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 
 /**
  * {@link CharSequence}类型对象脱敏器基类，为子类提供了一些快捷有用的方法处理该类型的敏感信息。
  *
  * @param <A> 敏感注解类型
- * @param <T> 目标对象类型
+ * @param <T> 需要脱敏的对象类型
  * @author zyc
  */
-public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A extends Annotation> extends AbstractDesensitizer<T, A> {
+public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A extends Annotation> implements Desensitizer<T, A> {
 
     /**
-     * 如果目标对象是{@link CharSequence}类型，可以通过构造一个{@link CharSequenceSensitiveDescriptor}
-     * 然后调用该方法擦除字符序列中的敏感信息。
-     * <p><strong>注意：请确保在构造{@link CharSequenceSensitiveDescriptor}时填充完整的目标对象信息，
-     * 否则会抛出任何可能的 {@link RuntimeException}。</strong></p>
-     *
-     * @param descriptor {@link CharSequenceSensitiveDescriptor}
-     * @return 方法执行完毕后其内部的 {@link CharSequenceSensitiveDescriptor#getChars() 字符数组}即为擦除后的新对象
+     * 正则表达式缓存
      */
-    public final CharSequenceSensitiveDescriptor<T, A> desensitize(CharSequenceSensitiveDescriptor<T, A> descriptor) {
-        if (descriptor.getTarget() == null || descriptor.getTarget().length() == 0) {
-            return descriptor;
-        }
-        // 使用正则表达式匹配擦除敏感信息
-        if (isNotEmptyString(descriptor.getRegexp())) {
-            Matcher matcher = Pattern.compile(descriptor.getRegexp()).matcher(descriptor.getTarget());
-            // 将正则匹配的每一项中的每一个字符都替换成占位符
-            while (matcher.find()) {
-                // 排除空字符串
-                if (isNotEmptyString(matcher.group())) {
-                    // 将匹配项的每一个字符都替换成占位符
-                    replace(descriptor.getChars(), matcher.start(), matcher.end(), descriptor.getPlaceholder());
-                }
-            }
-            return descriptor;
-        }
+    private static final ConcurrentMap<String, Pattern> PATTERN_CACHE = new ConcurrentHashMap<>();
 
-        // 使用位置偏移匹配擦除敏感信息
-        check(descriptor.getStartOffset(), descriptor.getEndOffset(), descriptor.getTarget());
-        replace(descriptor.getChars(), descriptor.getStartOffset(), descriptor.getTarget().length() - descriptor.getEndOffset(), descriptor.getPlaceholder());
-        return descriptor;
+    /**
+     * 根据条件判断是否需要脱敏
+     *
+     * @param target         目标字符序列对象
+     * @param conditionClass 条件的{@link Class}
+     * @return 是否需要脱敏
+     */
+    public boolean required(T target, Class<? extends Condition<?>> conditionClass) {
+        @SuppressWarnings("unchecked")
+        Class<? extends Condition<T>> clazz = (Class<? extends Condition<T>>) conditionClass;
+        return InstanceCreators.getInstanceCreator(clazz).create().required(target);
+    }
+
+    /**
+     * 脱敏方法
+     *
+     * @param target      目标字符序列对象
+     * @param regexp      正则表达式
+     * @param start       敏感信息在原字符序列中的起始偏移
+     * @param end         敏感信息在原字符序列中的结束偏移
+     * @param placeholder 敏感信息替换后的占位符
+     * @return 脱敏后的新字符序列对象的字符数组
+     */
+    public final char[] desensitize(T target, String regexp, int start, int end, char placeholder) {
+        return isNotEmptyString(regexp) ? desensitize(target, regexp, placeholder) : desensitize(target, start, end, placeholder);
+    }
+
+    /**
+     * 基于正则表达式脱敏
+     *
+     * @param target      目标字符序列对象
+     * @param regexp      正则表达式
+     * @param placeholder 敏感信息替换后的占位符
+     * @return 脱敏后的新字符序列对象的字符数组
+     */
+    private char[] desensitize(T target, String regexp, char placeholder) {
+        char[] chars = chars(target);
+        Matcher matcher = PATTERN_CACHE.computeIfAbsent(regexp, s -> Pattern.compile(regexp)).matcher(target);
+        // 将正则匹配的每一项中的每一个字符都替换成占位符
+        while (matcher.find()) {
+            // 排除空字符串
+            if (isNotEmptyString(matcher.group())) {
+                // 将匹配项的每一个字符都替换成占位符
+                replace(chars, matcher.start(), matcher.end(), placeholder);
+            }
+        }
+        return chars;
+    }
+
+    /**
+     * 基于位置偏移脱敏
+     *
+     * @param target      目标字符序列对象
+     * @param start       敏感信息在原字符序列中的起始偏移
+     * @param end         敏感信息在原字符序列中的结束偏移
+     * @param placeholder 敏感信息替换后的占位符
+     * @return 脱敏后的新字符序列对象的字符数组
+     */
+    private char[] desensitize(T target, int start, int end, char placeholder) {
+        check(start, end, target);
+        char[] chars = chars(target);
+        replace(chars, start, target.length() - end, placeholder);
+        return chars;
+    }
+
+    /**
+     * 将字符序列转换为字符数组
+     *
+     * @param target 字符序列对象
+     * @return 字符序列对象所代表的字符数组
+     */
+    private char[] chars(T target) {
+        char[] chars = new char[target.length()];
+        IntStream.range(0, target.length()).forEach(i -> chars[i] = target.charAt(i));
+        return chars;
     }
 
     /**
@@ -83,11 +137,11 @@ public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A
      * @param endOffset   敏感信息在原字符序列中的结束偏移
      * @param target      原字符序列
      */
-    private void check(int startOffset, int endOffset, CharSequence target) {
+    private void check(int startOffset, int endOffset, T target) {
         if (startOffset < 0 ||
                 endOffset < 0 ||
                 startOffset + endOffset > target.length()) {
-            throw new IllegalArgumentException("startOffset：" + startOffset + "，" + "endOffset：" + endOffset + "，" + "target：" + target);
+            throw new IllegalArgumentException("startOffset: " + startOffset + ", " + "endOffset: " + endOffset + ", " + "target: " + target);
         }
     }
 

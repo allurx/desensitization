@@ -16,41 +16,17 @@
 package red.zyc.desensitization.desensitizer;
 
 
-import red.zyc.desensitization.exception.InvalidDesensitizerException;
-import red.zyc.desensitization.util.ReflectionUtil;
-
 import java.lang.annotation.Annotation;
-import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
-import java.util.Optional;
 
 
 /**
- * 脱敏器
+ * 脱敏器，通常情况下脱敏器应该以单例的形式存在。
  *
- * @param <A> 实现类要处理的注解类型
- * @param <T> 实现类支持的处理类型
+ * @param <A> 敏感注解类型
+ * @param <T> 需要脱敏的对象类型
  * @author zyc
  */
 public interface Desensitizer<T, A extends Annotation> {
-
-    /**
-     * 获取当前脱敏器直接实现的具有明确泛型参数的 {@link Desensitizer}接口的类型参数
-     *
-     * @param desensitizerClass 脱敏器的{@code class}
-     * @return 当前脱敏器直接实现的具有明确泛型参数的 {@link Desensitizer}接口的类型参数
-     */
-    static Class<?>[] getActualTypeArgumentsOfDesensitizer(Class<? extends Desensitizer<?, ? extends Annotation>> desensitizerClass) {
-        return Optional.of(desensitizerClass)
-                .map(Class::getGenericInterfaces)
-                .map(genericInterfaces -> (ParameterizedType) Arrays.stream(genericInterfaces)
-                        .filter(genericInterface -> genericInterface instanceof ParameterizedType && ((ParameterizedType) genericInterface).getRawType() == Desensitizer.class)
-                        .findFirst().orElse(null))
-                .map(ParameterizedType::getActualTypeArguments)
-                .filter(actualTypeArguments -> Arrays.stream(actualTypeArguments).allMatch(actualType -> actualType instanceof Class))
-                .map(actualTypeArguments -> Arrays.copyOf(actualTypeArguments, actualTypeArguments.length, Class[].class))
-                .orElseThrow(new InvalidDesensitizerException(desensitizerClass + "必须直接实现具有明确泛型参数的" + Desensitizer.class.getName() + "接口"));
-    }
 
     /**
      * 由子类实现敏感信息脱敏逻辑
@@ -60,17 +36,5 @@ public interface Desensitizer<T, A extends Annotation> {
      * @return 脱敏后的结果
      */
     T desensitize(T target, A annotation);
-
-    /**
-     * 判断脱敏器是否支持目标类型脱敏
-     *
-     * @param targetClass 需要擦除敏感信息的目标对象的 {@code Class}
-     * @return 脱敏器是否支持目标类型脱敏
-     */
-    default boolean support(Class<?> targetClass) {
-        Class<?>[] actualTypeArgumentsOfDesensitizer = getActualTypeArgumentsOfDesensitizer(ReflectionUtil.getClass(this));
-        Class<?> supportedClass = actualTypeArgumentsOfDesensitizer[0];
-        return supportedClass.isAssignableFrom(targetClass);
-    }
 
 }

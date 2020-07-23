@@ -148,6 +148,7 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
         public Long desensitize(Long target, PhoneNumberSensitive annotation) {
             return Long.parseLong(target.toString().replace("4567", "0000"));
         }
+
     }
 
     private static class StringCondition implements Condition<String> {

@@ -17,36 +17,17 @@
 package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.CharSequenceSensitive;
-import red.zyc.desensitization.support.InstanceCreators;
 
 /**
  * {@link StringBuffer}类型对象脱敏器
  *
  * @author zyc
  */
-public class StringBufferDesensitizer extends AbstractCharSequenceDesensitizer<StringBuffer, CharSequenceSensitive> implements Desensitizer<StringBuffer, CharSequenceSensitive> {
+public class StringBufferDesensitizer extends AbstractCharSequenceDesensitizer<StringBuffer, CharSequenceSensitive> {
 
     @Override
     public StringBuffer desensitize(StringBuffer target, CharSequenceSensitive annotation) {
-        @SuppressWarnings("unchecked")
-        Condition<StringBuffer> condition = (Condition<StringBuffer>) InstanceCreators.getInstanceCreator(annotation.condition()).create();
-        if (!condition.required(target)) {
-            return target;
-        }
-        int length = target.length();
-        char[] chars = new char[length];
-        target.getChars(0, length, chars, 0);
-        CharSequenceSensitiveDescriptor<StringBuffer, CharSequenceSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<StringBuffer, CharSequenceSensitive>builder()
-                .target(target)
-                .chars(chars)
-                .annotation(annotation)
-                .startOffset(annotation.startOffset())
-                .endOffset(annotation.endOffset())
-                .regexp(annotation.regexp())
-                .placeholder(annotation.placeholder())
-                .build());
-        return new StringBuffer().append(erased.getChars());
+        return required(target, annotation.condition()) ? new StringBuffer().append(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder())) : target;
     }
-
 
 }

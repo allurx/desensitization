@@ -42,7 +42,8 @@ import java.util.Map;
  * </ol>
  * 否则解析的结果可能会和预期不一致。
  *
- * @param <T> 类型解析器支持的处理类型
+ * @param <T>  类型解析器支持的处理类型
+ * @param <AT> 被注解的类型
  * @author zyc
  * @see CollectionTypeResolver
  * @see MapTypeResolver

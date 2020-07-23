@@ -17,31 +17,17 @@
 package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.UsccSensitive;
-import red.zyc.desensitization.support.InstanceCreators;
 
 /**
  * 统一社会信用代码脱敏器
  *
  * @author zyc
  */
-public class UsccDesensitizer extends AbstractCharSequenceDesensitizer<String, UsccSensitive> implements Desensitizer<String, UsccSensitive> {
+public class UsccDesensitizer extends AbstractCharSequenceDesensitizer<String, UsccSensitive> {
 
     @Override
     public String desensitize(String target, UsccSensitive annotation) {
-        @SuppressWarnings("unchecked")
-        Condition<String> condition = (Condition<String>) InstanceCreators.getInstanceCreator(annotation.condition()).create();
-        if (!condition.required(target)) {
-            return target;
-        }
-        CharSequenceSensitiveDescriptor<String, UsccSensitive> erased = desensitize(CharSequenceSensitiveDescriptor.<String, UsccSensitive>builder()
-                .target(target)
-                .chars(target.toCharArray())
-                .annotation(annotation)
-                .startOffset(annotation.startOffset())
-                .endOffset(annotation.endOffset())
-                .regexp(annotation.regexp())
-                .placeholder(annotation.placeholder())
-                .build());
-        return String.valueOf(erased.getChars());
+        return required(target, annotation.condition()) ? String.valueOf(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder())) : target;
     }
+
 }
