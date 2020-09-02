@@ -94,6 +94,11 @@ private static void desensitizeValue(){
 # 例子
 1. [一个需要脱敏的复杂对象](https://github.com/Allurx/desensitization/blob/master/src/test/java/red/zyc/desensitization/model/Child.java)
 2. [测试用例](https://github.com/Allurx/desensitization/blob/master/src/test/java/red/zyc/desensitization/Example.java)
+# 原理
+desensitization库是基于Java1.8新增的AnnotatedType这种新的类型体系来解析各种复杂数据结构中的脱敏注解，然后通过责任链这种设计模式完成数据脱敏处理的，要想完全理解其背后的实现原理需要对Java的Type体系和AnnotatedType体系有较为深刻的理解，可以参考以下几篇文章了解Java中的类型体系以及注解体系。
+* [Java Type](https://www.zyc.red/Java/Reflection/Type)
+* [Java AnnotatedType](https://www.zyc.red/Java/Reflection/AnnotatedType)
+* [Java AnnotatedElement](https://www.zyc.red/Java/Reflection/AnnotatedElement)
 # 扩展
 如果你的应用是基于spring-boot搭建的，并且你不想在代码中每次都手动调用脱敏方法对数据进行脱敏处理，那么[desensitization-spring-boot](https://github.com/Allurx/desensitization-spring-boot)这个starter可能会对你有很大的帮助，详细的信息可以查看该工程介绍。
 # License
