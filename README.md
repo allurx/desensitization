@@ -68,6 +68,7 @@ Child child = Sensitive.desensitize(new Child());
 可能你的敏感信息是一个字符串类型的值或者是一个`Collection`、`Array`、`Map`之类的值，同样擦除它们的敏感信息也很简单：
 ```java
 private static void desensitizeValue(){
+
     // 单个值
     System.out.println("值脱敏：" + Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
     }));
@@ -88,7 +89,7 @@ private static void desensitizeValue(){
             }));
 }
 ```
-在上面的例子中通过`TypeToken`指定需要脱敏对象的类型以便我们能够准确的捕获被脱敏对象的实际类型和相应的敏感注解。
+在上面的例子中通过`TypeToken`构造需要脱敏对象的类型以便我们能够准确的捕获被脱敏对象的实际类型和相应的敏感注解。
 这里有一个很重要的地方需要我们格外的关注：**由于jdk在解析注解时的bug导致无法正确的获取嵌套类上的注解，因此对于值脱敏时，我们需要将脱敏代码放到一个静态方法或者是静态块中，这样运行时才能正确的获取脱敏对象上的注解。**
 有关这个bug的详情可以参考这个链接[why-annotation-on-generic-type-argument-is-not-visible-for-nested-type](http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type)
 # 例子
