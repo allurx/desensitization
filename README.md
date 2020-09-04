@@ -60,7 +60,7 @@ public class Child {
 
 }
 ```
-在数据入库或者前端返回时可能需要对相应的敏感字段进行脱敏处理，你只需要在敏感数据字段上标记相应类型的敏感注解，例如`@ChineseNameSensitive`、`@EmailSensitive`等注解，如果你的数据字段是需要级联脱敏的对象，你只需要在该字段上标注`@CascadeSensitive`注解，最后调用以下方法即可擦除对象中的所有敏感信息然后返回一个新的Child对象，不会改变原对象中的域值。
+在数据入库或者前端页面展示时可能需要对相应的敏感字段进行脱敏处理，你只需要在敏感数据字段上标记相应类型的敏感注解，例如`@ChineseNameSensitive`、`@EmailSensitive`等注解，如果你的数据字段是需要级联脱敏的对象，你只需要在该字段上标注`@CascadeSensitive`注解，最后调用以下方法即可擦除对象中的所有敏感信息然后返回一个新的Child对象，不会改变原对象中的域值。
 ```java
 Child child = Sensitive.desensitize(new Child());
 ```
