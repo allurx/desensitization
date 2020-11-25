@@ -19,6 +19,7 @@ package red.zyc.desensitization.support;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.StringJoiner;
 
 /**
  * 帮助类用来获取类的泛型参数，换句话说就是获取某个{@link ParameterizedType}类型对象运行时其泛型参数的具体类型。
@@ -99,9 +100,9 @@ public abstract class TypeToken<T> extends TypeCapture<T> {
 
     @Override
     public String toString() {
-        return "TypeToken{" +
-                "type=" + type +
-                ", annotatedType=" + annotatedType +
-                "} ";
+        return new StringJoiner(", ", TypeToken.class.getSimpleName() + "[", "]")
+                .add("type=" + type)
+                .add("annotatedType=" + annotatedType)
+                .toString();
     }
 }
