@@ -35,7 +35,7 @@ public final class UnsafeUtil {
             f.setAccessible(true);
             UNSAFE = (Unsafe) f.get(null);
         } catch (Exception e) {
-            throw new DesensitizationException(String.format("初始化%s失败！", Unsafe.class), e);
+            throw new DesensitizationException(String.format("初始化%s失败", Unsafe.class), e);
         }
     }
 
@@ -54,7 +54,7 @@ public final class UnsafeUtil {
         try {
             return (T) UNSAFE.allocateInstance(clazz);
         } catch (InstantiationException e) {
-            throw new DesensitizationException("实例化" + clazz + "失败", e);
+            throw new DesensitizationException(String.format("实例化%s失败", clazz), e);
         }
     }
 
