@@ -138,6 +138,22 @@ public final class ReflectionUtil {
         }
     }
 
+    /**
+     * 实例化构造器代表的对象
+     *
+     * @param constructor 构造器
+     * @param args        构造器参数
+     * @param <T>         构造器代表对象的类型
+     * @return 构造器代表的对象
+     */
+    public static <T> T newInstance(Constructor<T> constructor, Object... args) {
+        try {
+            return constructor.newInstance(args);
+        } catch (Exception e) {
+            throw new DesensitizationException(String.format("构造器%s%s实例化失败", constructor, Arrays.toString(args)), e);
+        }
+    }
+
     private ReflectionUtil() {
     }
 

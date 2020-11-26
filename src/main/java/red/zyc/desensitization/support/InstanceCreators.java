@@ -128,22 +128,12 @@ public final class InstanceCreators {
     private static <T> InstanceCreator<T> collectionOrMapConstructor(Class<T> clazz) {
         if (Collection.class.isAssignableFrom(clazz)) {
             return Optional.ofNullable(ReflectionUtil.getDeclaredConstructor(clazz, Collection.class))
-                    .map(constructor -> (InstanceCreator<T>) () -> {
-                        try {
-                            return constructor.newInstance(EMPTY_LIST);
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                            throw new DesensitizationException(e.getMessage(), e);
-                        }
-                    }).orElseThrow(() -> new UnsupportedCollectionException(String.format("%s必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。", clazz)));
+                    .map(constructor -> (InstanceCreator<T>) () -> ReflectionUtil.newInstance(constructor, EMPTY_LIST))
+                    .orElseThrow(() -> new UnsupportedCollectionException(String.format("%s必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。", clazz)));
         } else if (Map.class.isAssignableFrom(clazz)) {
             return Optional.ofNullable(ReflectionUtil.getDeclaredConstructor(clazz, Map.class))
-                    .map(constructor -> (InstanceCreator<T>) () -> {
-                        try {
-                            return constructor.newInstance(EMPTY_MAP);
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                            throw new DesensitizationException(e.getMessage(), e);
-                        }
-                    }).orElseThrow(() -> new UnsupportedMapException(String.format("%s必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。", clazz)));
+                    .map(constructor -> (InstanceCreator<T>) () -> ReflectionUtil.newInstance(constructor, EMPTY_MAP))
+                    .orElseThrow(() -> new UnsupportedMapException(String.format("%s必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。", clazz)));
         }
         return null;
     }
