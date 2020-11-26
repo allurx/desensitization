@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -110,31 +111,31 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
 
     @Override
     public String toString() {
-        return "Child{" +
-                "name='" + name + '\'' +
-                ", phoneNumber=" + phoneNumber +
-                ", idCardNumber='" + idCardNumber + '\'' +
-                ", unifiedSocialCreditCode='" + unifiedSocialCreditCode + '\'' +
-                ", string='" + string + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", bankCardNumber='" + bankCardNumber + '\'' +
-                ", mother=" + mother +
-                ", father=" + father +
-                ", parents1=" + parents1 +
-                ", emails1=" + emails1 +
-                ", emails2=" + emails2 +
-                ", parents2=" + parents2 +
-                ", passwords=" + Arrays.toString(passwords) +
-                ", emails3=" + Arrays.deepToString(emails3) +
-                ", emails4=" + Arrays.deepToString(emails4) +
-                ", parents3=" + Arrays.deepToString(parents3) +
-                ", map1=" + map1 +
-                ", t=" + t +
-                ", parents=" + parents +
-                ", list=" + list +
-                ", condition=" + condition +
-                "} " + super.toString();
+        return new StringJoiner(", ", Child.class.getSimpleName() + "[", "]")
+                .add("name='" + name + "'")
+                .add("phoneNumber=" + phoneNumber)
+                .add("idCardNumber='" + idCardNumber + "'")
+                .add("unifiedSocialCreditCode='" + unifiedSocialCreditCode + "'")
+                .add("string='" + string + "'")
+                .add("email='" + email + "'")
+                .add("password='" + password + "'")
+                .add("bankCardNumber='" + bankCardNumber + "'")
+                .add("mother=" + mother)
+                .add("father=" + father)
+                .add("parents1=" + parents1)
+                .add("emails1=" + emails1)
+                .add("emails2=" + emails2)
+                .add("parents2=" + parents2)
+                .add("passwords=" + Arrays.toString(passwords))
+                .add("emails3=" + Arrays.toString(emails3))
+                .add("emails4=" + Arrays.toString(emails4))
+                .add("parents3=" + Arrays.toString(parents3))
+                .add("map1=" + map1)
+                .add("t=" + t)
+                .add("parents=" + parents)
+                .add("list=" + list)
+                .add("condition=" + condition)
+                .toString();
     }
 
     /**
@@ -151,6 +152,9 @@ public class Child<T extends Collection<@EmailSensitive String>> extends Parent 
 
     }
 
+    /**
+     * 自定义脱敏生效条件
+     */
     private static class StringCondition implements Condition<String> {
 
         @Override

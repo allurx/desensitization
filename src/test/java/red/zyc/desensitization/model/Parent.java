@@ -20,6 +20,8 @@ import red.zyc.desensitization.annotation.ChineseNameSensitive;
 import red.zyc.desensitization.annotation.IdCardNumberSensitive;
 import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 
+import java.util.StringJoiner;
+
 /**
  * @author zyc
  */
@@ -34,12 +36,13 @@ abstract class Parent {
     @IdCardNumberSensitive
     private String idCardNumber = "321181199301096003";
 
+
     @Override
     public String toString() {
-        return "Parent{" +
-                "name='" + name + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", idCardNumber='" + idCardNumber + '\'' +
-                '}';
+        return new StringJoiner(", ", Parent.class.getSimpleName() + "[", "]")
+                .add("name='" + name + "'")
+                .add("phoneNumber='" + phoneNumber + "'")
+                .add("idCardNumber='" + idCardNumber + "'")
+                .toString();
     }
 }
