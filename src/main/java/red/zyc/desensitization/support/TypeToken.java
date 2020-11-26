@@ -17,17 +17,16 @@
 package red.zyc.desensitization.support;
 
 import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
- * 帮助类用来获取类的泛型参数，换句话说就是获取某个{@link ParameterizedType}类型对象运行时其泛型参数的具体类型。
- * 由于java泛型擦除机制，如果我们想获取{@code new ArrayList<String>}这个对象运行时的泛型参数{@code String}，
- * 这几乎是很难做到的。而利用{@link TypeToken}你只需要构造一个它的匿名子类，我们就能获取它运行时的泛型参数：
+ * 用来获取对象运行时具体类型的帮助类。由于Java泛型擦除机制，如果我们想获取{@code List<String>}这个对象运行时的泛型类型，
+ * 这几乎是很难做到的。而利用{@link TypeToken}我们只需要构造一个它的匿名子类，就能获取这个泛型：
  * <pre>
  *     TypeToken&lt;List&lt;String&gt;&gt; stringList = new TypeToken&lt;List&lt;String&gt;&gt;(){};
- *     stringList.getType()返回的泛型参数为：java.util.List&lt;java.lang.String&gt;
+ *     stringList.getType() => java.util.List&lt;java.lang.String&gt;
  * </pre>
  *
  * @param <T> 需要捕获的明确类型
@@ -81,6 +80,7 @@ public abstract class TypeToken<T> extends TypeCapture<T> {
         return annotatedType;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -90,12 +90,13 @@ public abstract class TypeToken<T> extends TypeCapture<T> {
             return false;
         }
         TypeToken<?> typeToken = (TypeToken<?>) o;
-        return type.equals(typeToken.type);
+        return type.equals(typeToken.type) &&
+                annotatedType.equals(typeToken.annotatedType);
     }
 
     @Override
     public int hashCode() {
-        return type.hashCode();
+        return Objects.hash(type, annotatedType);
     }
 
     @Override
@@ -105,4 +106,5 @@ public abstract class TypeToken<T> extends TypeCapture<T> {
                 .add("annotatedType=" + annotatedType)
                 .toString();
     }
+
 }

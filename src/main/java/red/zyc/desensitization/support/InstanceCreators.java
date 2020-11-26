@@ -33,18 +33,16 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 一个有用的实例创建器帮助类，用户可以通过这个类注册或者删除指定类型的实例创建器。
+ * 实例创建器帮助类，用户可以通过这个类注册或者删除指定类型的实例创建器。
  *
  * @author zyc
+ * @see InstanceCreator
  */
 public final class InstanceCreators {
 
     private static final Map<?, ?> EMPTY_MAP = new HashMap<>();
     private static final List<?> EMPTY_LIST = new ArrayList<>();
     private static final Map<Class<?>, InstanceCreator<?>> INSTANCE_CREATORS = new ConcurrentHashMap<>();
-
-    private InstanceCreators() {
-    }
 
     /**
      * 获取指定{@link Class}的实例创建器，尝试获取的顺序如下：
@@ -150,4 +148,6 @@ public final class InstanceCreators {
         return null;
     }
 
+    private InstanceCreators() {
+    }
 }

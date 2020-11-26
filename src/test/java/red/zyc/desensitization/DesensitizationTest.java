@@ -35,7 +35,8 @@ import java.util.stream.Stream;
 public class DesensitizationTest {
 
     /**
-     * 这是一个错误的示例：<p>{@link TypeToken}不能在实例方法、实例代码块中初始化同时也不能作为成员变量初始化，必须放在静态方法、静态代码块中初始化或者作为静态变量初始化。</p>
+     * 这是一个错误的示例：<p><b>{@link TypeToken}必须在静态方法、静态代码块中初始化或者作为静态变量初始化，
+     * 不能在实例方法、实例代码块中初始化同时也不能作为成员变量初始化，</b></p>
      * 这是由于<a href="http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type">jdk解析注解的bug</a>导致的。
      */
     @Test
@@ -43,18 +44,18 @@ public class DesensitizationTest {
         String desensitize = Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
         });
         Assert.assertEquals("123456@qq.com", desensitize);
-        System.err.printf("TypeToken不能在实例方法、实例代码块中初始化同时也不能作为成员变量进行初始化，必须放在静态方法、静态代码块中初始化或者作为静态变量初始化: %s%n", desensitize);
+        System.err.printf("TypeToken必须在静态方法、静态代码块中初始化或者作为静态变量初始化，不能在实例方法、实例代码块中初始化同时也不能作为成员变量初始化: %s%n", desensitize);
     }
 
     /**
-     * 对象内部域值脱敏
+     * 级联脱敏
      */
     @Test
-    public void desensitizeObject() {
+    public void desensitizeCascade() {
         Child<?> before = new Child<>();
         Child<?> after = Sensitive.desensitize(before);
         Assert.assertNotEquals(before, after);
-        System.out.printf("对象脱敏: %s%n", after);
+        System.out.printf("级联脱敏: %s%n", after);
     }
 
     /**

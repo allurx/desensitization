@@ -39,9 +39,6 @@ public final class UnsafeUtil {
         }
     }
 
-    private UnsafeUtil() {
-    }
-
     /**
      * 实例化指定{@link Class}
      *
@@ -56,6 +53,9 @@ public final class UnsafeUtil {
         } catch (InstantiationException e) {
             throw new DesensitizationException(String.format("实例化%s失败", clazz), e);
         }
+    }
+
+    private UnsafeUtil() {
     }
 
 }

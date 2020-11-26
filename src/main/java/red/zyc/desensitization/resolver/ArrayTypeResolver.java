@@ -22,7 +22,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
- * {@link Array}类型值解析器
+ * {@link Array}对象解析器
  *
  * @author zyc
  */

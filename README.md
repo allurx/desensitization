@@ -8,7 +8,7 @@
 * **密码**
 * **统一社会信用代码**
 * **任意`CharSequence`类型的值**
-* **对象内部域值**
+* **级联脱敏**
 # 用法
 ## jdk版本
 大于等于1.8
@@ -67,7 +67,7 @@ Child child = Sensitive.desensitize(new Child());
 ### 值脱敏
 可能你的敏感信息是一个字符串类型的值或者是一个`Collection`、`Array`、`Map`之类的值，同样擦除它们的敏感信息也很简单：
 ```java
-static void desensitizeValue(){
+static void desensitize(){
 
     // String
     System.out.printf("字符串脱敏: %s%n", Sensitive.desensitize("123456@qq.com", new TypeToken<@EmailSensitive String>() {
@@ -90,8 +90,8 @@ static void desensitizeValue(){
 }
 ```
 在上面的例子中通过`TypeToken`构造需要脱敏对象的类型以便我们能够准确的捕获被脱敏对象的实际类型和相应的敏感注解。
-**这里有一个很重要的地方需要我们格外的关注：由于jdk在解析注解时的bug导致无法正确的获取嵌套类上的注解，TypeToken不能在实例方法、实例代码块中初始化同时也不能作为成员变量初始化，必须在静态方法、静态代码块中初始化或者作为静态变量初始化，这样运行时才能正确的获取脱敏对象上的注解。**
-有关这个bug的详情可以参考这个链接[why-annotation-on-generic-type-argument-is-not-visible-for-nested-type](http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type)
+**这里有一个很重要的地方需要我们格外的关注：由于jdk在解析注解时的bug导致无法正确的获取嵌套类上的注解，TypeToken必须在静态方法、静态代码块中初始化或者作为静态变量初始化，不能在实例方法、实例代码块中初始化同时也不能作为成员变量初始化，这样运行时才能正确的获取脱敏对象上的注解。**
+有关这个bug的详情可以参考这个链接[jdk解析注解的bug](http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type)
 # 例子
 1. [一个需要脱敏的复杂对象](https://github.com/Allurx/desensitization/blob/master/src/test/java/red/zyc/desensitization/model/Child.java)
 2. [测试用例](https://github.com/Allurx/desensitization/blob/master/src/test/java/red/zyc/desensitization/DesensitizationTest.java)
@@ -101,6 +101,6 @@ desensitization库是基于Java1.8新增的AnnotatedType这种新的类型体系
 * [Java AnnotatedType](https://www.zyc.red/Java/Reflection/AnnotatedType)
 * [Java AnnotatedElement](https://www.zyc.red/Java/Reflection/AnnotatedElement)
 # 扩展
-如果你的应用是基于spring-boot搭建的，并且你不想在代码中每次都手动调用脱敏方法对数据进行脱敏处理，那么[desensitization-spring-boot](https://github.com/Allurx/desensitization-spring-boot)这个starter可能会对你有很大的帮助，详细的信息可以查看该工程介绍。
+如果你的应用是基于spring-boot搭建的，并且你不想在代码中每次都手动调用脱敏方法对数据进行脱敏处理，那么[desensitization-spring-boot](https://github.com/Allurx/desensitization-spring-boot) 这个starter可能会对你有很大的帮助，详细的信息可以查看该工程介绍。
 # License
 [Apache License 2.0](https://github.com/Allurx/desensitization/blob/master/LICENSE.txt)

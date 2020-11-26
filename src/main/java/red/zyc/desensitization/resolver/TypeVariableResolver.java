@@ -21,7 +21,7 @@ import java.lang.reflect.AnnotatedTypeVariable;
 import java.lang.reflect.TypeVariable;
 
 /**
- * {@link TypeVariable}类型值解析器
+ * {@link TypeVariable}对象解析器
  *
  * @author zyc
  */

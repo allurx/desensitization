@@ -46,9 +46,6 @@ public final class TypeResolvers {
         register(new CascadeTypeResolver());
     }
 
-    private TypeResolvers() {
-    }
-
     /**
      * 注册自己的类型解析器。<br>
      * 注意：如果类型解析器的{@link Sortable#order()}方法返回值已经被其它解析器占用了，
@@ -114,5 +111,8 @@ public final class TypeResolvers {
      */
     public static SortedSet<TypeResolver<?, ? extends AnnotatedType>> typeResolvers() {
         return TYPE_RESOLVERS;
+    }
+
+    private TypeResolvers() {
     }
 }
