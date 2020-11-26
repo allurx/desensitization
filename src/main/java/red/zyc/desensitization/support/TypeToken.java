@@ -26,7 +26,7 @@ import java.util.StringJoiner;
  * 这几乎是很难做到的。而利用{@link TypeToken}我们只需要构造一个它的匿名子类，就能获取这个泛型：
  * <pre>
  *     TypeToken&lt;List&lt;String&gt;&gt; stringList = new TypeToken&lt;List&lt;String&gt;&gt;(){};
- *     stringList.getType() => java.util.List&lt;java.lang.String&gt;
+ *     stringList.getType() =&gt; java.util.List&lt;java.lang.String&gt;
  * </pre>
  *
  * @param <T> 需要捕获的明确类型
