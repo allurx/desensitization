@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * {@link Collection}类型值解析器
+ * {@link Collection}对象解析器
  *
  * @author zyc
  */

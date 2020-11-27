@@ -24,7 +24,7 @@ import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Modifier;
 
 /**
- * 级联擦除对象内部敏感信息
+ * 级联对象解析器
  *
  * @author zyc
  */

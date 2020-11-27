@@ -33,18 +33,16 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 一个有用的实例创建器帮助类，用户可以通过这个类注册或者删除指定类型的实例创建器。
+ * 实例创建器帮助类，用户可以通过这个类注册或者删除指定类型的实例创建器。
  *
  * @author zyc
+ * @see InstanceCreator
  */
 public final class InstanceCreators {
 
     private static final Map<?, ?> EMPTY_MAP = new HashMap<>();
     private static final List<?> EMPTY_LIST = new ArrayList<>();
     private static final Map<Class<?>, InstanceCreator<?>> INSTANCE_CREATORS = new ConcurrentHashMap<>();
-
-    private InstanceCreators() {
-    }
 
     /**
      * 获取指定{@link Class}的实例创建器，尝试获取的顺序如下：
@@ -130,24 +128,16 @@ public final class InstanceCreators {
     private static <T> InstanceCreator<T> collectionOrMapConstructor(Class<T> clazz) {
         if (Collection.class.isAssignableFrom(clazz)) {
             return Optional.ofNullable(ReflectionUtil.getDeclaredConstructor(clazz, Collection.class))
-                    .map(constructor -> (InstanceCreator<T>) () -> {
-                        try {
-                            return constructor.newInstance(EMPTY_LIST);
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                            throw new DesensitizationException(e.getMessage(), e);
-                        }
-                    }).orElseThrow(() -> new UnsupportedCollectionException(clazz + "必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。"));
+                    .map(constructor -> (InstanceCreator<T>) () -> ReflectionUtil.newInstance(constructor, EMPTY_LIST))
+                    .orElseThrow(() -> new UnsupportedCollectionException(String.format("%s必须遵守Collection中的约定，定义一个无参构造函数和带有一个Collection类型参数的构造函数。", clazz)));
         } else if (Map.class.isAssignableFrom(clazz)) {
             return Optional.ofNullable(ReflectionUtil.getDeclaredConstructor(clazz, Map.class))
-                    .map(constructor -> (InstanceCreator<T>) () -> {
-                        try {
-                            return constructor.newInstance(EMPTY_MAP);
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                            throw new DesensitizationException(e.getMessage(), e);
-                        }
-                    }).orElseThrow(() -> new UnsupportedMapException(clazz + "必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。"));
+                    .map(constructor -> (InstanceCreator<T>) () -> ReflectionUtil.newInstance(constructor, EMPTY_MAP))
+                    .orElseThrow(() -> new UnsupportedMapException(String.format("%s必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。", clazz)));
         }
         return null;
     }
 
+    private InstanceCreators() {
+    }
 }

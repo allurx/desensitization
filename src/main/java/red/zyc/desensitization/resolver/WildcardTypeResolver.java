@@ -20,7 +20,7 @@ import java.lang.reflect.AnnotatedWildcardType;
 import java.lang.reflect.WildcardType;
 
 /**
- * {@link WildcardType}类型值解析器
+ * {@link WildcardType}对象解析器
  *
  * @author zyc
  */

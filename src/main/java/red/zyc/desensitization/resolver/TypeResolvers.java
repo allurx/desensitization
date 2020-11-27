@@ -25,7 +25,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 一个有用的类型解析器帮助类，用户可以通过这个类注册自己的类型解析器或者删除已存在的类型解析器。
+ * 类型解析器帮助类，用户可以通过这个类注册自己的类型解析器或者删除已存在的类型解析器。
  *
  * @author zyc
  */
@@ -44,9 +44,6 @@ public final class TypeResolvers {
         register(new ArrayTypeResolver());
         register(new ObjectTypeResolver());
         register(new CascadeTypeResolver());
-    }
-
-    private TypeResolvers() {
     }
 
     /**
@@ -114,5 +111,8 @@ public final class TypeResolvers {
      */
     public static SortedSet<TypeResolver<?, ? extends AnnotatedType>> typeResolvers() {
         return TYPE_RESOLVERS;
+    }
+
+    private TypeResolvers() {
     }
 }

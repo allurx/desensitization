@@ -22,6 +22,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,12 +33,9 @@ import java.util.stream.Stream;
  */
 public final class ReflectionUtil {
 
-    private ReflectionUtil() {
-    }
-
     /**
      * 获取目标对象以及所有父类定义的 {@link Field}。
-     * <p><strong>注意：不要缓存域对象，否则在多线程运行环境下会有线程安全问题。</strong></p>
+     * <p><b>注意：不要缓存域对象，否则在多线程运行环境下会有线程安全问题。</b></p>
      *
      * @param targetClass 目标对象的{@link Class}
      * @return 目标对象以及所有父类定义的 {@link Field}
@@ -97,7 +95,7 @@ public final class ReflectionUtil {
         try {
             return clazz.getDeclaredMethod(name, parameterTypes);
         } catch (NoSuchMethodException e) {
-            throw new DesensitizationException(String.format("获取%s的方法%s失败。", clazz, name), e);
+            throw new DesensitizationException(String.format("获取%s的方法%s%s失败。", clazz, name, Arrays.toString(parameterTypes)), e);
         }
     }
 
@@ -136,8 +134,27 @@ public final class ReflectionUtil {
             field.setAccessible(true);
             field.set(target, newValue);
         } catch (Exception e) {
-            throw new DesensitizationException(String.format("给%s的域%s赋值失败。", target.getClass(), field.getName()), e);
+            throw new DesensitizationException(String.format("%s的域%s赋值失败。", target.getClass(), field.getName()), e);
         }
+    }
+
+    /**
+     * 实例化构造器代表的对象
+     *
+     * @param constructor 构造器
+     * @param args        构造器参数
+     * @param <T>         构造器代表对象的类型
+     * @return 构造器代表的对象
+     */
+    public static <T> T newInstance(Constructor<T> constructor, Object... args) {
+        try {
+            return constructor.newInstance(args);
+        } catch (Exception e) {
+            throw new DesensitizationException(String.format("构造器%s%s实例化失败", constructor, Arrays.toString(args)), e);
+        }
+    }
+
+    private ReflectionUtil() {
     }
 
 }
