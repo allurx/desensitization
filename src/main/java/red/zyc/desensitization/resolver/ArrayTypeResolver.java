@@ -16,6 +16,8 @@
 
 package red.zyc.desensitization.resolver;
 
+import red.zyc.desensitization.util.ReflectionUtil;
+
 import java.lang.reflect.AnnotatedArrayType;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Array;
@@ -30,9 +32,8 @@ public class ArrayTypeResolver implements TypeResolver<Object[], AnnotatedArrayT
 
     @Override
     public Object[] resolve(Object[] value, AnnotatedArrayType annotatedArrayType) {
-        AnnotatedType typeArgument = annotatedArrayType.getAnnotatedGenericComponentType();
-        Object[] erased = Arrays.stream(value).parallel().map(o -> TypeResolvers.resolve(o, typeArgument)).toArray();
-        return Arrays.copyOf(erased, erased.length, value.getClass());
+        return Arrays.stream(value).parallel().map(o -> TypeResolvers.resolve(o, annotatedArrayType.getAnnotatedGenericComponentType()))
+                .<Object>toArray(length -> ReflectionUtil.newArray(value.getClass().getComponentType(), length));
     }
 
     @Override

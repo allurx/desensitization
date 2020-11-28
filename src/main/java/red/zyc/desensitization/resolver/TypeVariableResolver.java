@@ -30,8 +30,7 @@ public class TypeVariableResolver implements TypeResolver<Object, AnnotatedTypeV
 
     @Override
     public Object resolve(Object value, AnnotatedTypeVariable annotatedTypeVariable) {
-        AnnotatedType[] annotatedBounds = annotatedTypeVariable.getAnnotatedBounds();
-        return Arrays.stream(annotatedBounds).reduce(value, TypeResolvers::resolve, (u1, u2) -> null);
+        return Arrays.stream(annotatedTypeVariable.getAnnotatedBounds()).reduce(value, TypeResolvers::resolve, (u1, u2) -> null);
     }
 
     @Override

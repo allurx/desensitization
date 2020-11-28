@@ -18,6 +18,7 @@ package red.zyc.desensitization.util;
 
 import red.zyc.desensitization.exception.DesensitizationException;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -173,6 +174,19 @@ public final class ReflectionUtil {
         } catch (Exception e) {
             throw new DesensitizationException(String.format("调用目标对象%s上的方法%s%s失败", target, targetMethod, Arrays.toString(args)), e);
         }
+    }
+
+    /**
+     * 创建指定组件类型、长度的数组
+     *
+     * @param componentType 组件的{@link Class}
+     * @param length        数组长度
+     * @param <T>           组件的类型
+     * @return 指定组件类型、长度的数组
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] newArray(Class<T> componentType, int length) {
+        return (T[]) Array.newInstance(componentType, length);
     }
 
 }

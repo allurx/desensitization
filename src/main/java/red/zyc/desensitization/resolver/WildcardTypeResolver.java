@@ -20,6 +20,7 @@ import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.AnnotatedWildcardType;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 /**
  * {@link WildcardType}对象解析器
@@ -30,9 +31,8 @@ public class WildcardTypeResolver implements TypeResolver<Object, AnnotatedWildc
 
     @Override
     public Object resolve(Object value, AnnotatedWildcardType annotatedWildcardType) {
-        AnnotatedType[] annotatedUpperBounds = annotatedWildcardType.getAnnotatedUpperBounds();
-        AnnotatedType[] annotatedBounds = annotatedUpperBounds.length == 0 ? annotatedWildcardType.getAnnotatedLowerBounds() : annotatedUpperBounds;
-        return Arrays.stream(annotatedBounds).reduce(value, TypeResolvers::resolve, (u1, u2) -> null);
+        return Stream.of(annotatedWildcardType.getAnnotatedUpperBounds(), annotatedWildcardType.getAnnotatedLowerBounds())
+                .flatMap(Arrays::stream).reduce(value, TypeResolvers::resolve, (u1, u2) -> null);
     }
 
     @Override
