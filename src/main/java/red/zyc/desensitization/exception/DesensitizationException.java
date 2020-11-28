@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package red.zyc.desensitization.exception;
 
 import java.util.function.Supplier;
@@ -24,10 +25,6 @@ public class DesensitizationException extends RuntimeException implements Suppli
 
     public DesensitizationException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public DesensitizationException(Throwable cause) {
-        super(cause);
     }
 
     public DesensitizationException(String message) {

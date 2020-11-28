@@ -18,6 +18,7 @@ package red.zyc.desensitization.util;
 
 import red.zyc.desensitization.exception.DesensitizationException;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -32,6 +33,9 @@ import java.util.stream.Stream;
  * @author zyc
  */
 public final class ReflectionUtil {
+
+    private ReflectionUtil() {
+    }
 
     /**
      * 获取目标对象以及所有父类定义的 {@link Field}。
@@ -154,7 +158,35 @@ public final class ReflectionUtil {
         }
     }
 
-    private ReflectionUtil() {
+    /**
+     * 反射调用目标对象上的方法
+     *
+     * @param target       目标对象
+     * @param targetMethod 目标对象上的方法
+     * @param args         目标对象上方法的参数
+     * @param <T>          目标对象上方法返回结果的类型
+     * @return 调用目标对象方法返回的结果
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T invokeMethod(Object target, Method targetMethod, Object... args) {
+        try {
+            return (T) targetMethod.invoke(target, args);
+        } catch (Exception e) {
+            throw new DesensitizationException(String.format("调用目标对象%s上的方法%s%s失败", target, targetMethod, Arrays.toString(args)), e);
+        }
+    }
+
+    /**
+     * 创建指定组件类型、长度的数组
+     *
+     * @param componentType 组件的{@link Class}
+     * @param length        数组长度
+     * @param <T>           组件的类型
+     * @return 指定组件类型、长度的数组
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] newArray(Class<T> componentType, int length) {
+        return (T[]) Array.newInstance(componentType, length);
     }
 
 }

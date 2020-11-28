@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package red.zyc.desensitization.annotation;
 
+package red.zyc.desensitization.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

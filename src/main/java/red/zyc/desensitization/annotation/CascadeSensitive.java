@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package red.zyc.desensitization.annotation;
 
 import java.lang.annotation.Documented;
@@ -20,7 +21,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
 
 /**
  * 被该注解标记的对象表明需要对其内部域值进行脱敏处理。

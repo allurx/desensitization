@@ -44,6 +44,9 @@ public final class InstanceCreators {
     private static final List<?> EMPTY_LIST = new ArrayList<>();
     private static final Map<Class<?>, InstanceCreator<?>> INSTANCE_CREATORS = new ConcurrentHashMap<>();
 
+    private InstanceCreators() {
+    }
+
     /**
      * 获取指定{@link Class}的实例创建器，尝试获取的顺序如下：
      * <ol>
@@ -136,8 +139,5 @@ public final class InstanceCreators {
                     .orElseThrow(() -> new UnsupportedMapException(String.format("%s必须遵守Map中的约定，定义一个无参构造函数和带有一个Map类型参数的构造函数。", clazz)));
         }
         return null;
-    }
-
-    private InstanceCreators() {
     }
 }

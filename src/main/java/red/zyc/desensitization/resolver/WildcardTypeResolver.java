@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package red.zyc.desensitization.resolver;
 
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.AnnotatedWildcardType;
 import java.lang.reflect.WildcardType;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 /**
  * {@link WildcardType}对象解析器
@@ -28,12 +31,8 @@ public class WildcardTypeResolver implements TypeResolver<Object, AnnotatedWildc
 
     @Override
     public Object resolve(Object value, AnnotatedWildcardType annotatedWildcardType) {
-        AnnotatedType[] annotatedUpperBounds = annotatedWildcardType.getAnnotatedUpperBounds();
-        AnnotatedType[] annotatedBounds = annotatedUpperBounds.length == 0 ? annotatedWildcardType.getAnnotatedLowerBounds() : annotatedUpperBounds;
-        for (AnnotatedType annotatedBound : annotatedBounds) {
-            value = TypeResolvers.resolve(value, annotatedBound);
-        }
-        return value;
+        return Stream.of(annotatedWildcardType.getAnnotatedUpperBounds(), annotatedWildcardType.getAnnotatedLowerBounds())
+                .flatMap(Arrays::stream).reduce(value, TypeResolvers::resolve, (u1, u2) -> null);
     }
 
     @Override

@@ -36,7 +36,7 @@ public class DesensitizationTest {
 
     /**
      * 这是一个错误的示例：<p><b>{@link TypeToken}必须在静态方法、静态代码块中初始化或者作为静态变量初始化，
-     * 不能在实例方法、实例代码块中初始化同时也不能作为成员变量初始化，</b></p>
+     * 不能在实例方法、实例代码块中初始化同时也不能作为成员变量初始化。</b></p>
      * 这是由于<a href="http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type">jdk解析注解的bug</a>导致的。
      */
     @Test

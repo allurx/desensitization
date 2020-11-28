@@ -34,13 +34,13 @@ public class MapTypeResolver implements TypeResolver<Map<Object, Object>, Annota
     @Override
     public Map<Object, Object> resolve(Map<Object, Object> value, AnnotatedParameterizedType annotatedParameterizedType) {
         AnnotatedType[] annotatedActualTypeArguments = annotatedParameterizedType.getAnnotatedActualTypeArguments();
-        Map<Object, Object> erased = value.entrySet().parallelStream().collect(Collectors.toMap(
+        return value.entrySet().parallelStream().collect(Collectors.collectingAndThen(Collectors.toMap(
                 entry -> TypeResolvers.resolve(entry.getKey(), annotatedActualTypeArguments[0]),
-                entry -> TypeResolvers.resolve(entry.getValue(), annotatedActualTypeArguments[1])
-        ));
-        Map<Object, Object> map = InstanceCreators.getInstanceCreator(ReflectionUtil.getClass(value)).create();
-        map.putAll(erased);
-        return map;
+                entry -> TypeResolvers.resolve(entry.getValue(), annotatedActualTypeArguments[1])), erased -> {
+            Map<Object, Object> map = InstanceCreators.getInstanceCreator(ReflectionUtil.getClass(value)).create();
+            map.putAll(erased);
+            return map;
+        }));
     }
 
     @Override
