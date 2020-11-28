@@ -24,9 +24,10 @@ import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Modifier;
 
 /**
- * 级联对象解析器
+ * 级联对象解析器，只会对非{@code final}且非{@code null}的域进行脱敏处理。
  *
  * @author zyc
+ * @see CascadeSensitive
  */
 public class CascadeTypeResolver implements TypeResolver<Object, AnnotatedType> {
 

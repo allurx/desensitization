@@ -146,6 +146,8 @@ public abstract class AbstractCharSequenceDesensitizer<T extends CharSequence, A
     }
 
     /**
+     * 判断字符串是否不为空字符串
+     *
      * @param string 字符串对象
      * @return 字符串是否不为空字符串
      */
