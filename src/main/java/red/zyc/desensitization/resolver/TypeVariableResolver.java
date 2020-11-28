@@ -19,6 +19,7 @@ package red.zyc.desensitization.resolver;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.AnnotatedTypeVariable;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
 
 /**
  * {@link TypeVariable}对象解析器
@@ -30,10 +31,7 @@ public class TypeVariableResolver implements TypeResolver<Object, AnnotatedTypeV
     @Override
     public Object resolve(Object value, AnnotatedTypeVariable annotatedTypeVariable) {
         AnnotatedType[] annotatedBounds = annotatedTypeVariable.getAnnotatedBounds();
-        for (AnnotatedType annotatedBound : annotatedBounds) {
-            value = TypeResolvers.resolve(value, annotatedBound);
-        }
-        return value;
+        return Arrays.stream(annotatedBounds).reduce(value, TypeResolvers::resolve, (u1, u2) -> null);
     }
 
     @Override

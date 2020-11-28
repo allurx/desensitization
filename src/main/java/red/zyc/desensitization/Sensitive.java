@@ -47,6 +47,9 @@ import java.util.Optional;
  */
 public final class Sensitive {
 
+    private Sensitive() {
+    }
+
     /**
      * 级联脱敏，该方法不会改变原对象。
      *
@@ -75,8 +78,5 @@ public final class Sensitive {
                 .map(TypeToken::getAnnotatedType)
                 .map(annotatedType -> TypeResolvers.resolve(target, annotatedType))
                 .orElse(target);
-    }
-
-    private Sensitive() {
     }
 }

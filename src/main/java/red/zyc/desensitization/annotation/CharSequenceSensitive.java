@@ -16,7 +16,6 @@
 
 package red.zyc.desensitization.annotation;
 
-
 import red.zyc.desensitization.desensitizer.Condition;
 import red.zyc.desensitization.desensitizer.Desensitizer;
 import red.zyc.desensitization.desensitizer.StringBufferDesensitizer;

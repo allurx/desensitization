@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package red.zyc.desensitization.desensitizer;
 
+package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.annotation.PhoneNumberSensitive;
 

@@ -33,6 +33,9 @@ import java.util.stream.Stream;
  */
 public final class ReflectionUtil {
 
+    private ReflectionUtil() {
+    }
+
     /**
      * 获取目标对象以及所有父类定义的 {@link Field}。
      * <p><b>注意：不要缓存域对象，否则在多线程运行环境下会有线程安全问题。</b></p>
@@ -154,7 +157,22 @@ public final class ReflectionUtil {
         }
     }
 
-    private ReflectionUtil() {
+    /**
+     * 反射调用目标对象上的方法
+     *
+     * @param target       目标对象
+     * @param targetMethod 目标对象上的方法
+     * @param args         目标对象上方法的参数
+     * @param <T>          目标对象上方法返回结果的类型
+     * @return 调用目标对象方法返回的结果
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T invokeMethod(Object target, Method targetMethod, Object... args) {
+        try {
+            return (T) targetMethod.invoke(target, args);
+        } catch (Exception e) {
+            throw new DesensitizationException(String.format("调用目标对象%s上的方法%s%s失败", target, targetMethod, Arrays.toString(args)), e);
+        }
     }
 
 }

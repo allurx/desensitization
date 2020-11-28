@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package red.zyc.desensitization.desensitizer;
 
+package red.zyc.desensitization.desensitizer;
 
 import java.lang.annotation.Annotation;
 
-
 /**
- * 脱敏器，通常情况下脱敏器应该以单例的形式存在。
+ * 脱敏器，根据敏感注解对数据进行脱敏处理。
  *
  * @param <A> 敏感注解类型
  * @param <T> 需要脱敏的对象类型

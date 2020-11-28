@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package red.zyc.desensitization.desensitizer;
 
 import red.zyc.desensitization.support.InstanceCreators;
@@ -23,7 +24,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-
 
 /**
  * {@link CharSequence}类型对象脱敏器基类，为子类提供了一些快捷有用的方法处理该类型的敏感信息。
