@@ -46,6 +46,9 @@ public final class TypeResolvers {
         register(new CascadeTypeResolver());
     }
 
+    private TypeResolvers() {
+    }
+
     /**
      * 注册自己的类型解析器。<br>
      * 注意：如果类型解析器的{@link Sortable#order()}方法返回值已经被其它解析器占用了，
@@ -78,15 +81,10 @@ public final class TypeResolvers {
      * @param <AT>          将要解析的对象的{@link AnnotatedType}的类型
      * @return 解析后的值
      */
+    @SuppressWarnings("unchecked")
     public static <T, AT extends AnnotatedType> T resolve(T value, AT annotatedType) {
-        for (TypeResolver<?, ? extends AnnotatedType> typeResolver : TYPE_RESOLVERS) {
-            if (typeResolver.support(value, annotatedType)) {
-                @SuppressWarnings("unchecked")
-                TypeResolver<T, AT> supportedTypeResolver = (TypeResolver<T, AT>) typeResolver;
-                value = supportedTypeResolver.resolve(value, annotatedType);
-            }
-        }
-        return value;
+        return TYPE_RESOLVERS.stream().filter(typeResolver -> typeResolver.support(value, annotatedType))
+                .reduce(value, (u, r) -> ((TypeResolver<T, AT>) r).resolve(u, annotatedType), (u1, u2) -> null);
     }
 
     /**
@@ -111,8 +109,5 @@ public final class TypeResolvers {
      */
     public static SortedSet<TypeResolver<?, ? extends AnnotatedType>> typeResolvers() {
         return TYPE_RESOLVERS;
-    }
-
-    private TypeResolvers() {
     }
 }
