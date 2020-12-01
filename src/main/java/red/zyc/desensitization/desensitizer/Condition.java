@@ -17,7 +17,7 @@
 package red.zyc.desensitization.desensitizer;
 
 /**
- * 用来判断是否需要对目标对象进行脱敏处理的先决条件
+ * 是否需要对目标对象进行脱敏处理的先决条件
  *
  * @param <T> 目标对象类型
  * @author zyc

@@ -25,7 +25,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 类型解析器帮助类，用户可以通过这个类注册自己的类型解析器或者删除已存在的类型解析器。
+ * 类型解析器帮助类，可以通过这个类注册自己的类型解析器或者删除已存在的类型解析器。
  *
  * @author zyc
  */
