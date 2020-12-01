@@ -16,8 +16,11 @@
 
 package red.zyc.desensitization.exception;
 
+import java.util.Collection;
+
 /**
  * @author zyc
+ * @see Collection
  */
 public class UnsupportedCollectionException extends DesensitizationException {
 

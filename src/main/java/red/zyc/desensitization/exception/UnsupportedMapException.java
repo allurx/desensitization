@@ -16,8 +16,11 @@
 
 package red.zyc.desensitization.exception;
 
+import java.util.Map;
+
 /**
  * @author zyc
+ * @see Map
  */
 public class UnsupportedMapException extends DesensitizationException {
 
