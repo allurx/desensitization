@@ -25,7 +25,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 类型解析器帮助类，用户可以通过这个类注册自己的类型解析器或者删除已存在的类型解析器。
+ * 类型解析器帮助类，可以通过这个类注册自己的类型解析器或者删除已存在的类型解析器。
  *
  * @author zyc
  */
@@ -75,10 +75,10 @@ public final class TypeResolvers {
      * 因此我们在解析对象时需要遍历所有已注册的解析器，只要解析器支持解析对象o，都应该使用该解析器解析对象。
      * 换句话说就是对于一个需要解析的对象，其本身是可能存在多个解析器能够解析它的。
      *
-     * @param value         将要解析的对象
-     * @param annotatedType 将要解析的对象的{@link AnnotatedType}
-     * @param <T>           将要解析的对象的类型
-     * @param <AT>          将要解析的对象的{@link AnnotatedType}的类型
+     * @param value         待解析的对象
+     * @param annotatedType 待解析对象的{@link AnnotatedType}
+     * @param <T>           待解析对象的类型
+     * @param <AT>          待解析对象的{@link AnnotatedType}的类型
      * @return 解析后的值
      */
     @SuppressWarnings("unchecked")

@@ -30,9 +30,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * 解析被直接标注敏感注解的对象，只会处理对象上直接存在的第一个敏感注解。
+ * 解析被<b>直接</b>标注敏感注解的对象，只会处理对象上直接存在的第一个敏感注解。
  *
  * @author zyc
+ * @see SensitiveAnnotation
  */
 public class ObjectTypeResolver implements TypeResolver<Object, AnnotatedType> {
 

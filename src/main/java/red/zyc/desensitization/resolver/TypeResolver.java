@@ -27,17 +27,17 @@ import java.util.Map;
 
 /**
  * 类型解析器，用来解析一些特殊的数据类型。例如{@link Collection}，{@link Map}，{@link Array}等类型。
- * 用户可以实现该接口定义特定类型的解析器，然后调用{@link TypeResolvers#register}方法来注册自己的类型解析器。
- * 对于任何需要解析的对象o来说，本质上都可以通过{@link TypeVariable 类型变量}或者{@link WildcardType 通配符}来代替它，
+ * 用户可以实现该接口定义特定类型的解析器，然后调用{@link TypeResolvers#register}方法注册自己的类型解析器。
+ * 对于任何需要解析的对象o来说，本质上都可以通过{@link TypeVariable 类型变量}或者{@link WildcardType 通配符}来代表它，
  * 同时o本身也可能需要擦除敏感信息（o被标记了敏感注解）或者需要擦除o内部域中的敏感信息（o被标记了{@link CascadeSensitive}注解），
- * 因此在注册解析器时，需要遵守以下两个约定：
+ * 因此在注册类型解析器时，需要遵守以下两个约定：
  *
  * <ol>
  *     <li>
- *         注册的类型解析器执行顺序都应该晚于{@link TypeVariableResolver}和{@link WildcardTypeResolver}这两个解析器。
+ *         类型解析器的执行顺序应该晚于{@link TypeVariableResolver}和{@link WildcardTypeResolver}这两个解析器。
  *     </li>
  *     <li>
- *         注册的类型解析器执行顺序都应该早于{@link ObjectTypeResolver}和{@link CascadeTypeResolver}这两个解析器。
+ *         类型解析器的执行顺序应该早于{@link ObjectTypeResolver}和{@link CascadeTypeResolver}这两个解析器。
  *     </li>
  * </ol>
  * 否则解析的结果可能会和预期不一致。
