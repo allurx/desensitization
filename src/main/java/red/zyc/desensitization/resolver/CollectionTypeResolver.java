@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 /**
- * {@link Collection}对象解析器
+ * 泛型{@link Collection}对象解析器
  *
  * @author zyc
  */

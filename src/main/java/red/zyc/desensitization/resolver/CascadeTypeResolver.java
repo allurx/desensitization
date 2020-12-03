@@ -24,7 +24,7 @@ import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Modifier;
 
 /**
- * 级联对象解析器，只会对非{@code final}且非{@code null}的域进行脱敏处理。
+ * 级联对象解析器，只会处理被<b>直接</b>标注{@link CascadeSensitive}注解、非{@code final}、非{@code null}的对象。
  *
  * @author zyc
  * @see CascadeSensitive

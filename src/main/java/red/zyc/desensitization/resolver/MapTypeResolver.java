@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * {@link Map}对象解析器
+ * 泛型{@link Map}对象解析器
  *
  * @author zyc
  */
