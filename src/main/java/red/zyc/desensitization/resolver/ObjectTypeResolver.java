@@ -50,7 +50,8 @@ public class ObjectTypeResolver implements TypeResolver<Object, AnnotatedType> {
     @Override
     public Object resolve(Object value, AnnotatedType annotatedType) {
         return Arrays.stream(annotatedType.getDeclaredAnnotations())
-                .filter(annotation -> annotation.annotationType().isAnnotationPresent(SensitiveAnnotation.class)).findFirst()
+                .filter(annotation -> annotation.annotationType().isAnnotationPresent(SensitiveAnnotation.class))
+                .findFirst()
                 .map(sensitiveAnnotation -> getDesensitizer(sensitiveAnnotation).desensitize(value, sensitiveAnnotation))
                 .orElse(value);
     }
