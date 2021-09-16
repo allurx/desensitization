@@ -19,6 +19,8 @@ package red.zyc.desensitization.exception;
 import java.util.function.Supplier;
 
 /**
+ * 脱敏过程中发生的异常
+ *
  * @author zyc
  */
 public class DesensitizationException extends RuntimeException implements Supplier<DesensitizationException> {
