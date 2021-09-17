@@ -75,8 +75,8 @@ public final class ReflectionUtil {
     }
 
     /**
-     * 类型转换方法用来获取指定类型对象的{@link Class}，因为{@link Object#getClass()}方法返回的
-     * {@link Class}的泛型是通配符类型
+     * {@link Object#getClass()}返回是通配符类型的{@link Class}，
+     * 可以通过这个方法获取指定类型对象的{@link Class}。
      *
      * @param value 对象值
      * @param <T>   对象类型

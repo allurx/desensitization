@@ -17,7 +17,7 @@
 package red.zyc.desensitization.resolver;
 
 /**
- * 对象是否能够进行排序
+ * 能够排序的对象
  *
  * @author zyc
  */

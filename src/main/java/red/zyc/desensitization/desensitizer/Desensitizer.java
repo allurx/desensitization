@@ -19,7 +19,7 @@ package red.zyc.desensitization.desensitizer;
 import java.lang.annotation.Annotation;
 
 /**
- * 脱敏器，根据敏感注解对数据进行脱敏处理。
+ * 脱敏器
  *
  * @param <A> 敏感注解类型
  * @param <T> 需要脱敏的对象类型
