@@ -1,6 +1,6 @@
 # desensitization
 
-基于Java反射api、零依赖、简单易用、支持各种复杂数据结构的数据脱敏库，包含但不限于以下类型的数据脱敏：
+基于Java反射api、零依赖、简单易用、支持各种复杂数据结构的数据脱敏库，包含但不限于以下类型的数据脱敏
 
 * **邮箱**
 * **手机号码**
@@ -25,7 +25,7 @@
 <dependency>
     <groupId>red.zyc</groupId>
     <artifactId>desensitization</artifactId>
-    <version>2.4.5</version>
+    <version>2.4.4</version>
 </dependency>
 ```
 
@@ -83,7 +83,7 @@ Child child=Sensitive.desensitize(new Child());
 
 ### 值脱敏
 
-可能你的敏感信息是一个字符串类型的值或者是一个`Collection`、`Array`、`Map`之类的值，同样擦除它们的敏感信息也很简单：
+可能你的敏感信息是一个字符串类型的值或者是一个`Collection`、`Array`、`Map`之类的值，同样擦除它们的敏感信息也很简单
 
 ```java
 static void desensitize(){
@@ -110,8 +110,7 @@ static void desensitize(){
 ```
 
 在上面的例子中通过`TypeToken`构造需要脱敏对象的类型以便我们能够准确的捕获被脱敏对象的实际类型和相应的敏感注解。
-**
-这里有一个很重要的地方需要我们格外地关注：由于jdk在解析注解时的bug导致无法正确地获取嵌套类上的注解，TypeToken必须在静态方法、静态代码块中初始化或者作为静态变量初始化，不能在实例方法、实例代码块中初始化同时也不能作为成员变量初始化，这样运行时才能正确地获取脱敏对象上的注解。**
+**这里有一个很重要的地方需要我们格外的关注：由于jdk在解析注解时的bug导致无法正确的获取嵌套类上的注解，TypeToken必须在静态方法、静态代码块中初始化或者作为静态变量初始化，不能在实例方法、实例代码块中初始化同时也不能作为成员变量初始化，这样运行时才能正确的获取脱敏对象上的注解。**
 有关这个bug的详情可以参考这个链接[jdk解析注解的bug](http://stackoverflow.com/questions/39952812/why-annotation-on-generic-type-argument-is-not-visible-for-nested-type)
 
 # 例子
