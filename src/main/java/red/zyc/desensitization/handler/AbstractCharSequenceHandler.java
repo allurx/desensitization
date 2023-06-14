@@ -18,7 +18,7 @@ package red.zyc.desensitization.handler;
 
 import red.zyc.desensitization.annotation.Condition;
 import red.zyc.parser.handler.AnnotationHandler;
-import red.zyc.parser.support.InstanceCreators;
+import red.zyc.parser.util.InstanceCreators;
 
 import java.lang.annotation.Annotation;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +34,7 @@ import java.util.stream.IntStream;
  * @param <T> 需要脱敏的对象类型
  * @author zyc
  */
-public abstract class AbstractCharSequenceHandler<T extends CharSequence, A extends Annotation> implements AnnotationHandler<T, A> {
+public abstract class AbstractCharSequenceHandler<T extends CharSequence, A extends Annotation> implements AnnotationHandler<T, A, T> {
 
     /**
      * 正则表达式缓存
@@ -51,7 +51,7 @@ public abstract class AbstractCharSequenceHandler<T extends CharSequence, A exte
     public boolean required(T target, Class<? extends Condition<?>> conditionClass) {
         @SuppressWarnings("unchecked")
         Class<? extends Condition<T>> clazz = (Class<? extends Condition<T>>) conditionClass;
-        return InstanceCreators.getInstanceCreator(clazz).create().required(target);
+        return InstanceCreators.find(clazz).create().required(target);
     }
 
     /**

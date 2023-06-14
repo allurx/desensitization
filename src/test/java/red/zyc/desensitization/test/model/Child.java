@@ -48,7 +48,7 @@ public class Child<T extends List<@Email String>> {
     @BankCardNumber
     public String bankCardNumber = "6222600260001072440";
 
-    public List<@Cascade Parent> parents = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
+    public List<@Cascade(inherited = true) Parent> parents = Stream.of(new Father(), new Mother()).collect(Collectors.toList());
 
     @SuppressWarnings("unchecked")
     public T emails = (T) Stream.of("111111@qq.com", "222222@qq.com", "333333@qq.com").collect(Collectors.toList());

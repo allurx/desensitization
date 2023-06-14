@@ -16,12 +16,15 @@
 
 package red.zyc.desensitization.annotation;
 
+import red.zyc.parser.util.Singleton;
+
 /**
  * 是否需要对目标对象进行脱敏处理的先决条件
  *
  * @param <T> 目标对象类型
  * @author zyc
  */
+@Singleton
 @FunctionalInterface
 public interface Condition<T> {
 
