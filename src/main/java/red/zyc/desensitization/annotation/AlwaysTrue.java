@@ -18,22 +18,11 @@ package red.zyc.desensitization.annotation;
 /**
  * @author zyc
  */
-public class AlwaysTrue {
+public class AlwaysTrue implements Condition<Object> {
 
-    public static class Object implements Condition<java.lang.Object> {
-
-        @Override
-        public boolean required(java.lang.Object target) {
-            return true;
-        }
-    }
-
-    public static class CharSequence implements Condition<java.lang.CharSequence> {
-
-        @Override
-        public boolean required(java.lang.CharSequence target) {
-            return true;
-        }
+    @Override
+    public boolean required(Object target) {
+        return true;
     }
 
 }

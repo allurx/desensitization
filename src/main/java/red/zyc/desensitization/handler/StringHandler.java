@@ -16,17 +16,17 @@
 
 package red.zyc.desensitization.handler;
 
-import red.zyc.desensitization.annotation.CharSequence;
+import red.zyc.desensitization.annotation.Strings;
 
 /**
  * {@link String}处理器
  *
  * @author zyc
  */
-public class StringHandler extends AbstractCharSequenceHandler<String, CharSequence> {
+public class StringHandler extends AbstractCharSequenceHandler<String, Strings> {
 
     @Override
-    public String handle(String target, CharSequence annotation) {
+    public String handle(String target, Strings annotation) {
         return required(target, annotation.condition()) ? String.valueOf(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder())) : target;
     }
 

@@ -16,8 +16,6 @@
 
 package red.zyc.desensitization.annotation;
 
-import red.zyc.desensitization.handler.StringBufferHandler;
-import red.zyc.desensitization.handler.StringBuilderHandler;
 import red.zyc.desensitization.handler.StringHandler;
 import red.zyc.parser.handler.Parse;
 
@@ -28,18 +26,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * {@link java.lang.CharSequence}对象敏感注解。默认的脱敏规则：擦除目标对象中所有的字符，
+ * {@link String}对象敏感注解。默认的脱敏规则：擦除目标对象中所有的字符，
  *
  * @author zyc
- * @see StringHandler
- * @see StringBuilderHandler
- * @see StringBufferHandler
  */
 @Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Parse(handler = StringHandler.class, annotation = CharSequence.class)
-public @interface CharSequence {
+@Parse(handler = StringHandler.class, annotation = Strings.class)
+public @interface Strings {
 
     /**
      * @return 敏感信息在原字符序列中的起始偏移
@@ -66,6 +61,6 @@ public @interface CharSequence {
     /**
      * @return 是否需要对目标对象进行脱敏的条件
      */
-    Class<? extends Condition<? extends java.lang.CharSequence>> condition() default AlwaysTrue.CharSequence.class;
+    Class<? extends Condition<?>> condition() default AlwaysTrue.class;
 
 }

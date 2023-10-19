@@ -17,7 +17,7 @@ package red.zyc.desensitization.test;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import red.zyc.desensitization.annotation.CharSequence;
+import red.zyc.desensitization.annotation.Strings;
 import red.zyc.parser.AnnotationParser;
 import red.zyc.parser.type.AnnotatedTypeToken;
 
@@ -34,8 +34,8 @@ public class ArrayTest {
     @Test
     void desensitize() {
 
-        var before = new String[]{"123456", "123456", "123456"};
-        var after = AnnotationParser.parse(before, new AnnotatedTypeToken<@CharSequence String[]>() {
+        var before = new java.lang.String[]{"123456", "123456", "123456"};
+        var after = AnnotationParser.parse(before, new AnnotatedTypeToken<@Strings String[]>() {
         });
 
         Arrays.stream(after).forEach(s -> Assertions.assertEquals("******", s));

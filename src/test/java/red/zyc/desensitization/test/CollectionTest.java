@@ -17,7 +17,7 @@ package red.zyc.desensitization.test;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import red.zyc.desensitization.annotation.CharSequence;
+import red.zyc.desensitization.annotation.Strings;
 import red.zyc.parser.AnnotationParser;
 import red.zyc.parser.type.AnnotatedTypeToken;
 
@@ -37,7 +37,7 @@ public class CollectionTest {
     void desensitize() {
 
         var before = IntStream.range(0, 10).mapToObj(value -> "123456").collect(Collectors.toList());
-        var after = AnnotationParser.parse(before, new AnnotatedTypeToken<List<@CharSequence String>>() {
+        var after = AnnotationParser.parse(before, new AnnotatedTypeToken<List<@Strings String>>() {
         });
 
         after.forEach(s -> Assertions.assertEquals("******", s));

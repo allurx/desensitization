@@ -60,6 +60,6 @@ public @interface Email {
     /**
      * @return 是否需要对目标对象进行脱敏的条件
      */
-    Class<? extends Condition<? extends java.lang.CharSequence>> condition() default AlwaysTrue.CharSequence.class;
+    Class<? extends Condition<?>> condition() default AlwaysTrue.class;
 
 }

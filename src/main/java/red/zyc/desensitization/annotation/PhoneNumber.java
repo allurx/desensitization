@@ -61,6 +61,6 @@ public @interface PhoneNumber {
     /**
      * @return 是否需要对目标对象进行脱敏的条件
      */
-    Class<? extends Condition<?>> condition() default AlwaysTrue.Object.class;
+    Class<? extends Condition<?>> condition() default AlwaysTrue.class;
 
 }

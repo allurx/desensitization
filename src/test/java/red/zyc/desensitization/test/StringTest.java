@@ -13,21 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package red.zyc.desensitization.test;
 
-package red.zyc.desensitization.handler;
-
-import red.zyc.desensitization.annotation.CharSequence;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import red.zyc.desensitization.Sensitive;
+import red.zyc.desensitization.annotation.Strings;
+import red.zyc.parser.type.AnnotatedTypeToken;
 
 /**
- * {@link StringBuilder}处理器
+ * {@link java.lang.CharSequence}脱敏
  *
  * @author zyc
  */
-public class StringBuilderHandler extends AbstractCharSequenceHandler<StringBuilder, CharSequence> {
+public class StringTest {
 
-    @Override
-    public StringBuilder handle(StringBuilder target, CharSequence annotation) {
-        return required(target, annotation.condition()) ? new StringBuilder().append(desensitize(target, annotation.regexp(), annotation.startOffset(), annotation.endOffset(), annotation.placeholder())) : target;
+    @Test
+    void desensitize() {
+
+        var before = "123456";
+        var after = Sensitive.desensitize(before, new AnnotatedTypeToken<@Strings String>() {
+        });
+
+        Assertions.assertEquals("******", after);
     }
-
 }

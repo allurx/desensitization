@@ -25,7 +25,6 @@ import red.zyc.parser.util.Singleton;
  * @author zyc
  */
 @Singleton
-@FunctionalInterface
 public interface Condition<T> {
 
     /**
