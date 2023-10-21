@@ -96,9 +96,9 @@ desensitization库是基于Java1.8新增的AnnotatedType这种新的类型体系
 
 # 扩展
 
-如果你的应用是基于spring-boot搭建的，并且你不想在代码中每次都手动调用脱敏方法对数据进行脱敏处理，那么[desensitization-spring-boot](https://github.com/Allurx/desensitization-spring-boot)
+如果你的应用是基于spring-boot搭建的，并且你不想在代码中每次都手动调用脱敏方法对数据进行脱敏处理，那么[desensitization-spring-boot](https://github.com/allurx/desensitization-spring-boot)
 这个starter可能会对你有很大的帮助，详细的信息可以查看该工程介绍。
 
 # License
 
-[Apache License 2.0](https://github.com/Allurx/desensitization/blob/master/LICENSE.txt)
+[Apache License 2.0](https://github.com/allurx/desensitization/blob/master/LICENSE.txt)
