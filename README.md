@@ -30,7 +30,7 @@ desensitization是基于JDK21开发的，JDK1.8及以上版本请参考该[使�
 
 ### 对象域值脱敏
 
-下面是一个Child类，其中包含了一些敏感域以及一些嵌套的敏感域
+下面是一个Child类，其中包含了一些敏感数据字段以及一些嵌套的敏感数据字段
 
 ```java
 public class Child {
@@ -51,8 +51,8 @@ public class Child {
 ```
 
 只需要在敏感数据字段上标记相应类型的敏感注解，例如`@ChineseName`、`@Password`等注解，
-如果这个数据字段是需要级联脱敏的对象，你只需要在该字段上标注`@Cascade`注解，
-最后调用以下方法即可擦除对象中的所有敏感信息然后返回一个新的Child对象。
+如果这个数据字段是需要级联脱敏的对象，只需要在该字段上标注`@Cascade`注解，
+最后调用以下方法即可擦除对象中的所有敏感信息并返回一个新的Child对象。
 
 ```java
 var child = Sensitive.desensitize(new Child());
@@ -96,7 +96,7 @@ void desensitize() {
 在上面的例子中我们只需要构造脱敏对象的`AnnotatedTypeToken`以便我们能够准确的捕获被脱敏对象的实际类型和相应的敏感注解。
 # 原理
 
-desensitization是基于[annotation-parser](https://github.com/allurx/annotation-parser)库来解析各种复杂数据结构中自定义敏感注解的，可以参考该工程进行深入了解。
+desensitization是基于[annotation-parser](https://github.com/allurx/annotation-parser)库来解析各种复杂数据结构中自定义敏感注解的，详细的信息可以查看该工程介绍。
 
 # 扩展
 
