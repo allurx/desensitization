@@ -16,9 +16,9 @@
 package red.zyc.desensitization.test;
 
 import org.junit.jupiter.api.Test;
+import red.zyc.desensitization.Sensitive;
 import red.zyc.desensitization.annotation.Condition;
 import red.zyc.desensitization.annotation.Strings;
-import red.zyc.parser.AnnotationParser;
 import red.zyc.parser.type.AnnotatedTypeToken;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,9 +34,9 @@ public class ConditionTest {
     @Test
     void desensitize() {
 
-        var before = new java.lang.String[]{"", null, "123456"};
+        var before = new String[]{"", null, "123456"};
 
-        var after = AnnotationParser.parse(before, new AnnotatedTypeToken<@Strings(condition = StringCondition.class) String[]>() {
+        var after = Sensitive.desensitize(before, new AnnotatedTypeToken<@Strings(condition = StringCondition.class) String[]>() {
         });
 
         assertEquals("", after[0]);
