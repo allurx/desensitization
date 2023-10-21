@@ -63,36 +63,40 @@ var child = Sensitive.desensitize(new Child());
 可能你的敏感信息是一个字符串类型的值或者是一个`Collection`、`Array`、`Map`之类的值，同样擦除它们的敏感信息也很简单
 
 ```java
-void desensitize(){
+void desensitize() {
 
-        // String
-        System.out.printf("字符串脱敏: %s%n",Sensitive.desensitize("123456@qq.com",new AnnotatedTypeToken<@Email String>(){
-        }));
+    // String
+    var v1 = Sensitive.desensitize("123456@qq.com", new AnnotatedTypeToken<@Email String>() {
+    });
+    assert "1*****@qq.com".equals(v1);
 
-        // Collection
-        System.out.printf("集合脱敏: %s%n",Sensitive.desensitize(Stream.of("123456@qq.com","1234567@qq.com","1234568@qq.com").collect(Collectors.toList()),
-        new AnnotatedTypeToken<List<@Email String>>(){
-        }));
+    // Collection
+    var v2 = Sensitive.desensitize(Stream.of("123456@qq.com").collect(Collectors.toList()), new AnnotatedTypeToken<List<@Email String>>() {
+    });
+    v2.forEach(s -> {
+        assert "1*****@qq.com".equals(s);
+    });
 
-        // Array
-        System.out.printf("数组脱敏: %s%n", Arrays.toString(Sensitive.desensitize(new String[]{"123456@qq.com","1234567@qq.com","12345678@qq.com"},
-        new AnnotatedTypeToken<@Email String[]>(){
-        })));
+    // Array
+    var v3 = Sensitive.desensitize(new String[]{"123456@qq.com"}, new AnnotatedTypeToken<@Email String[]>() {
+    });
+    Arrays.stream(v3).forEach(s -> {
+        assert "1*****@qq.com".equals(s);
+    });
 
-        // Map
-        System.out.printf("Map脱敏: %s%n",Sensitive.desensitize(Stream.of("张三","李四","小明").collect(Collectors.toMap(s->s, s->"123456@qq.com")),
-        new AnnotatedTypeToken<Map<@ChineseName String, @Email String>>(){
-        }));
+    // Map
+    var v4 = Sensitive.desensitize(Stream.of("张三").collect(Collectors.toMap(s -> s, s -> "123456@qq.com")), new AnnotatedTypeToken<Map<@ChineseName String, @Email String>>() {
+    });
+    v4.forEach((s1, s2) -> {
+        assert "张*".equals(s1);
+        assert "1*****@qq.com".equals(s2);
+    });
 }
 ```
 在上面的例子中我们只需要构造脱敏对象的`AnnotatedTypeToken`以便我们能够准确的捕获被脱敏对象的实际类型和相应的敏感注解。
 # 原理
 
-desensitization库是基于Java1.8新增的AnnotatedType这种新的类型体系来解析各种复杂数据结构中的脱敏注解，然后通过责任链这种设计模式完成数据脱敏处理的，要想完全理解其背后的实现原理需要对Java的Type体系和AnnotatedType体系有较为深刻的理解，可以参考以下几篇文章了解Java中的类型体系以及注解体系。
-
-* [Java Type](https://www.zyc.red/Java/Reflection/Type)
-* [Java AnnotatedType](https://www.zyc.red/Java/Reflection/AnnotatedType)
-* [Java AnnotatedElement](https://www.zyc.red/Java/Reflection/AnnotatedElement)
+desensitization是基于[annotation-parser](https://github.com/allurx/annotation-parser)库来解析各种复杂数据结构中自定义敏感注解的，可以参考该工程进行深入了解。
 
 # 扩展
 
