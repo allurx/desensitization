@@ -13,9 +13,7 @@
 
 # 用法
 
-## jdk版本
-
-jdk21
+desensitization是基于JDK21开发的，JDK1.8及以上版本请参考该[使用指南](https://github.com/allurx/desensitization/tree/v2.4.6)
 
 ## maven依赖
 
