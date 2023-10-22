@@ -1,6 +1,6 @@
 # desensitization
 
-基于Java反射api、简单易用、支持任意复杂数据结构的数据脱敏库，包含但不限于以下类型的数据脱敏
+基于Java反射api、简单易用、支持任意数据结构的数据脱敏库，包含但不限于以下类型的数据脱敏
 
 * **邮箱**
 * **手机号码**
@@ -96,12 +96,12 @@ void desensitize() {
 在上面的例子中我们只需要构造脱敏对象的`AnnotatedTypeToken`以便我们能够准确的捕获被脱敏对象的实际类型和相应的敏感注解。
 # 原理
 
-desensitization是基于[annotation-parser](https://github.com/allurx/annotation-parser)库来解析各种复杂数据结构中自定义敏感注解的，详细的信息可以查看该工程介绍。
+desensitization是基于[annotation-parser](https://github.com/allurx/annotation-parser)库来解析任意数据结构中自定义敏感注解的，详细信息可以查看该工程介绍。
 
 # 扩展
 
 如果你的应用是基于spring-boot搭建的，并且你不想在代码中每次都手动调用脱敏方法对数据进行脱敏处理，那么[desensitization-spring-boot](https://github.com/allurx/desensitization-spring-boot)
-这个starter可能会对你有很大的帮助，详细的信息可以查看该工程介绍。
+这个starter可能会对你有很大的帮助，详细信息可以查看该工程介绍。
 
 # License
 
